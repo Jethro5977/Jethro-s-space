@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Card Builder - DIY 3D 球星卡制作器</title>
+  <script>
+    if (window.location.protocol === "file:") {
+      window.location.replace("http://127.0.0.1:4174/");
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=7">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <main class="workspace">
+      <section class="preview-pane" id="viewport" aria-label="卡片预览">
+        <div class="preview-toolbar">
+          <div class="view-label"><span class="status-dot"></span><span id="viewSideLabel">FRONT / LIVE</span></div>
+          <div class="tool-group">
+            <div class="zoom-controls" role="group" aria-label="预览缩放">
+              <button class="zoom-btn" type="button" id="zoomOutBtn" title="缩小预览" aria-label="缩小预览">&#8722;</button>
+              <output class="zoom-level" id="zoomLevel" aria-live="polite">100%</output>
+              <button class="zoom-btn" type="button" id="zoomInBtn" title="放大预览" aria-label="放大预览">+</button>
+            </div>
+            <div class="rotate-controls" role="group" aria-label="固定角度旋转">
+              <button class="rotate-btn" type="button" id="rotateLeftBtn" title="向左旋转90度" aria-label="向左旋转90度">&#8630;</button>
+              <button class="rotate-btn" type="button" id="rotateRightBtn" title="向右旋转90度" aria-label="向右旋转90度">&#8631;</button>
+            </div>
+            <button class="tool-btn active" type="button" id="motionBtn" title="切换自动旋转"><span aria-hidden="true">&#8635;</span><span>MOTION</span></button>
+            <button class="tool-btn" type="button" id="flipBtn" title="翻转正反面"><span aria-hidden="true">&#8644;</span><span>FLIP</span></button>
+            <button class="tool-btn" type="button" id="resetViewBtn" title="重置视角"><span aria-hidden="true">&#8857;</span><span>RESET</span></button>
+          </div>
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="stage-grid" aria-hidden="true"></div>
+          <div class="card-scene" id="cardScene">
+            <div class="three-card-stage" id="threeCardStage" aria-label="Three.js 3D 卡片预览">
+              <canvas id="threeCardCanvas"></canvas>
+              <div class="three-status" id="threeStatus" aria-live="polite">PBR / WEBGL</div>
+            </div>
+            <div class="slab-shell slab-magnetic" id="slabShell">
+              <div class="slab-surface slab-surface-front" aria-hidden="true"></div>
+              <div class="slab-surface slab-surface-back" aria-hidden="true"></div>
+              <div class="slab-label" id="slabLabel">
+                <div class="slab-brand">CARD BUILDER // AUTHENTIC</div>
+                <div class="slab-grade"><span id="slabGradeName">GEM MINT</span><strong id="slabGradeValue">10</strong></div>
+              </div>
+              <div class="slab-reflection" aria-hidden="true"></div>
+              <div class="card-3d" id="card3d">
+                <article class="card-face card-front" id="cardFront" aria-label="卡片正面"></article>
+                <article class="card-face card-back" id="cardBack" aria-label="卡片背面"></article>
+                <div class="card-edge card-edge-top" aria-hidden="true"></div>
+                <div class="card-edge card-edge-bottom" aria-hidden="true"></div>
+                <div class="card-edge card-edge-left" aria-hidden="true"></div>
+                <div class="card-edge card-edge-right" aria-hidden="true"></div>
+              </div>
+              <div class="acrylic-lens" aria-hidden="true"></div>
+              <div class="slab-cavity" aria-hidden="true"></div>
+              <div class="slab-side slab-side-top" aria-hidden="true"></div>
+              <div class="slab-side slab-side-bottom" aria-hidden="true"></div>
+              <div class="slab-side slab-side-left" aria-hidden="true"></div>
+              <div class="slab-side slab-side-right" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-info-bar">
+          <div class="info-primary">
+            <div class="eyebrow" id="infoPlayerLine">LEBRON JAMES / SF / #23</div>
+            <div class="edition-name" id="infoEdition">VAULT PRISM</div>
+          </div>
+          <div class="info-meta">
+            <div><span>CASE</span><strong id="infoCaseType">MAGNETIC ONE-TOUCH</strong></div>
+            <div><span>FINISH</span><strong id="infoFinish">BASE / CLEAN</strong></div>
+            <div><span>SERIAL</span><strong id="infoSerial">07/25</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="inspector" aria-label="卡片编辑器">
+        <header class="panel-header">
+          <div>
+            <div class="panel-title">CARD BUILDER</div>
+            <div class="panel-subtitle">DIY 3D TRADING CARD STUDIO</div>
+          </div>
+          <div class="project-strip">
+            <button class="icon-btn library-toggle-btn" type="button" id="libraryToggleBtn" title="卡牌库" aria-label="打开卡牌库">&#9776;</button>
+            <button class="icon-btn library-save-btn" type="button" id="saveToLibraryBtn" title="保存到卡牌库" aria-label="保存到卡牌库">&#9829;</button>
+            <span class="save-state" id="saveState">本地草稿</span>
+            <button class="icon-btn" type="button" id="saveProjectBtn" title="保存项目" aria-label="保存项目">&#9635;</button>
+            <button class="icon-btn" type="button" id="loadProjectBtn" title="导入项目" aria-label="导入项目">&#8679;</button>
+            <button class="icon-btn danger" type="button" id="resetProjectBtn" title="重置项目" aria-label="重置项目">&#8634;</button>
+          </div>
+        </header>
+
+        <div class="tab-panel active" id="tab-design" role="group" aria-label="卡面设计">
+          <section class="panel-section library-quick-section">
+            <div class="section-head"><span>卡牌库</span><span>COLLECT</span></div>
+            <button class="action-row save-trigger" type="button" id="saveToLibraryMainBtn">
+              <span>保存当前卡牌到卡牌库</span><strong>&#9829; SAVE</strong>
+            </button>
+            <button class="action-row auto-build-trigger" type="button" id="autoBuildBtn">
+              <span>校验 / 建库 · 25 位 NBA 球星</span><strong>24-25</strong>
+            </button>
+            <div class="auto-build-progress" id="autoBuildProgress" hidden>
+              <div class="auto-build-progress-head"><span>AUTO LIBRARY</span><strong id="autoBuildPercent">0%</strong></div>
+              <div class="auto-build-bar" role="progressbar" aria-label="批量建库进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="auto-build-fill" id="autoBuildFill"></div></div>
+              <div class="auto-build-status" id="autoBuildStatus" aria-live="polite">准备中...</div>
+            </div>
+            <button class="action-row pack-open-trigger" type="button" id="packOpenBtn"><span>拆包开卡</span><strong>OPEN</strong></button>
+            <button class="action-row" type="button" id="cardCompareBtn"><span>卡牌对比 PK</span><strong>VS</strong></button>
+            <button class="action-row" type="button" id="openLibraryBtn"><span>打开卡牌库</span><strong>&#9776;</strong></button>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>卡片系列</span><span id="styleCount">01 / 06</span></div>
+            <div class="style-grid" id="styleSwitcher">
+              <button class="choice-btn active" type="button" data-style="prism"><span class="style-swatch swatch-prism"></span><span>PRISM</span></button>
+              <button class="choice-btn" type="button" data-style="tactical"><span class="style-swatch swatch-tactical"></span><span>TACTICAL</span></button>
+              <button class="choice-btn" type="button" data-style="heritage"><span class="style-swatch swatch-heritage"></span><span>HERITAGE</span></button>
+              <button class="choice-btn" type="button" data-style="mosaic"><span class="style-swatch swatch-mosaic"></span><span>MOSAIC</span></button>
+              <button class="choice-btn" type="button" data-style="select"><span class="style-swatch swatch-select"></span><span>SELECT</span></button>
+              <button class="choice-btn" type="button" data-style="optic"><span class="style-swatch swatch-optic"></span><span>OPTIC</span></button>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>卡面特效</span><span id="effectName">NONE</span></div>
+            <div class="effect-switcher" id="effectSwitcher">
+              <button class="effect-btn active" type="button" data-effect="none"><span class="effect-preview effect-none">&#8709;</span><span>NONE</span></button>
+              <button class="effect-btn" type="button" data-effect="diamond"><span class="effect-preview effect-diamond"></span><span>DIAMOND</span></button>
+              <button class="effect-btn" type="button" data-effect="lightning"><span class="effect-preview effect-lightning"></span><span>LIGHTNING</span></button>
+              <button class="effect-btn" type="button" data-effect="rainbow"><span class="effect-preview effect-rainbow"></span><span>RAINBOW</span></button>
+              <button class="effect-btn" type="button" data-effect="crystal"><span class="effect-preview effect-crystal"></span><span>CRYSTAL</span></button>
+              <button class="effect-btn" type="button" data-effect="flame"><span class="effect-preview effect-flame"></span><span>FLAME</span></button>
+              <button class="effect-btn" type="button" data-effect="galaxy"><span class="effect-preview effect-galaxy"></span><span>GALAXY</span></button>
+            </div>
+            <div class="range-grid effect-intensity-control">
+              <label>特效强度<input type="range" id="effectIntensity" min="0" max="100" value="80"><output id="effectIntensityOut">80%</output></label>
+            </div>
+          </section>
+
+          <section class="panel-section workshop-section" id="customFoilPanel">
+            <div class="section-head">
+              <span>自定义闪光区域</span>
+              <label class="switch-control" title="启用自定义闪光区域">
+                <input type="checkbox" id="customFoilToggle">
+                <span aria-hidden="true"></span>
+                <strong>启用</strong>
+              </label>
+            </div>
+            <div class="foil-paint-wrap">
+              <div class="foil-card-guide" aria-hidden="true"></div>
+              <canvas id="foilMaskCanvas" width="500" height="700" aria-label="自定义闪光区域画板"></canvas>
+            </div>
+            <div class="workshop-actions">
+              <button type="button" id="foilMaskClearBtn" class="workshop-btn">清空</button>
+              <button type="button" id="foilMaskFillBtn" class="workshop-btn">全涂</button>
+              <button type="button" id="foilMaskApplyBtn" class="workshop-btn primary">应用蒙版</button>
+            </div>
+            <div class="range-grid">
+              <label>笔刷大小<input type="range" id="foilBrushSize" min="10" max="80" value="30"><output id="foilBrushSizeOut">30</output></label>
+            </div>
+            <div class="workshop-status" id="foilMaskStatus">未应用</div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>稀有度</span><span id="rarityName">BASE</span></div>
+            <div class="rarity-switcher" id="raritySwitcher">
+              <button class="rarity-btn active" type="button" data-rarity="base"><span class="rarity-chip chip-base"></span>BASE</button>
+              <button class="rarity-btn" type="button" data-rarity="silver"><span class="rarity-chip chip-silver"></span>SILVER</button>
+              <button class="rarity-btn" type="button" data-rarity="gold"><span class="rarity-chip chip-gold"></span>GOLD /10</button>
+              <button class="rarity-btn" type="button" data-rarity="neon"><span class="rarity-chip chip-neon"></span>NEON /75</button>
+              <button class="rarity-btn" type="button" data-rarity="rwb"><span class="rarity-chip chip-rwb"></span>RWB /49</button>
+              <button class="rarity-btn" type="button" data-rarity="black"><span class="rarity-chip chip-black"></span>BLACK 1/1</button>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>球员照片</span><span id="imageModeName">CUTOUT</span></div>
+            <div class="asset-row">
+              <button class="upload-tile" type="button" id="photoUploadBtn"><span class="upload-symbol">+</span><span>上传照片</span></button>
+              <div class="asset-preview" id="photoPreview"><span>NO IMAGE</span><img id="photoPreviewImg" alt="球员照片预览"><button type="button" class="asset-remove" id="removePhotoBtn" title="移除照片" aria-label="移除照片">&#215;</button></div>
+            </div>
+            <div class="segmented" id="imageModeSwitcher">
+              <button class="active" type="button" data-image-mode="cutout">CUTOUT</button>
+              <button type="button" data-image-mode="fullart">FULL ART</button>
+            </div>
+            <div class="range-grid">
+              <label>缩放<input type="range" id="photoScale" min="70" max="170" value="100"><output id="photoScaleOut">100%</output></label>
+              <label>水平<input type="range" id="photoX" min="-50" max="50" value="0"><output id="photoXOut">0</output></label>
+              <label>垂直<input type="range" id="photoY" min="-50" max="50" value="0"><output id="photoYOut">0</output></label>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>球队视觉</span><span id="teamColorCode">#552583 / #FDB927</span></div>
+            <label class="field-full team-preset-field">球队预设
+              <select id="teamPreset">
+                <option value="">CUSTOM</option>
+                <option value="lal" selected>LOS ANGELES LAKERS</option>
+                <option value="gsw">GOLDEN STATE WARRIORS</option>
+                <option value="dal">DALLAS MAVERICKS</option>
+                <option value="bos">BOSTON CELTICS</option>
+                <option value="chi">CHICAGO BULLS</option>
+                <option value="mia">MIAMI HEAT</option>
+                <option value="bkn">BROOKLYN NETS</option>
+                <option value="phx">PHOENIX SUNS</option>
+                <option value="mil">MILWAUKEE BUCKS</option>
+                <option value="den">DENVER NUGGETS</option>
+                <option value="okc">OKLAHOMA CITY THUNDER</option>
+                <option value="min">MINNESOTA TIMBERWOLVES</option>
+                <option value="cle">CLEVELAND CAVALIERS</option>
+                <option value="det">DETROIT PISTONS</option>
+                <option value="nyk">NEW YORK KNICKS</option>
+                <option value="atl">ATLANTA HAWKS</option>
+                <option value="mem">MEMPHIS GRIZZLIES</option>
+                <option value="phi">PHILADELPHIA 76ERS</option>
+                <option value="sas">SAN ANTONIO SPURS</option>
+                <option value="lac">LOS ANGELES CLIPPERS</option>
+              </select>
+            </label>
+            <div class="color-grid">
+              <label><span>主色</span><input type="color" id="colorPrimary" value="#552583"><output id="colorPrimaryOut">#552583</output></label>
+              <label><span>辅色</span><input type="color" id="colorSecondary" value="#FDB927"><output id="colorSecondaryOut">#FDB927</output></label>
+            </div>
+            <div class="asset-row compact">
+              <button class="upload-tile" type="button" id="logoUploadBtn"><span class="upload-symbol">+</span><span>上传 Logo</span></button>
+              <div class="asset-preview logo-preview" id="logoPreview"><span id="logoFallback">LAL</span><img id="logoPreviewImg" alt="球队 Logo 预览"><button type="button" class="asset-remove" id="removeLogoBtn" title="移除 Logo" aria-label="移除 Logo">&#215;</button></div>
+            </div>
+            <div class="field-row">
+              <label>球衣纹样<select id="jerseyStyle"><option value="solid">SOLID</option><option value="stripe">PINSTRIPE</option><option value="sash">DIAGONAL</option></select></label>
+              <label>卡壳<select id="slabType"><option value="none" selected>NONE</option><option value="magnetic">MAGNETIC</option><option value="forge">GRADED</option><option value="museum">MUSEUM</option><option value="acrylic">THICK ACRYLIC</option><option value="crystal">CRYSTAL</option><option value="gallery">GALLERY</option></select></label>
+            </div>
+            <div class="setting-toggle-row">
+              <span>实体卡厚度</span>
+              <label class="switch-control" title="显示实体卡侧边厚度">
+                <input type="checkbox" id="cardThicknessToggle" checked>
+                <span aria-hidden="true"></span>
+                <strong>开启</strong>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>徽章</span><span id="badgeCount">0 SELECTED</span></div>
+            <div class="badge-grid" id="badgeGrid">
+              <button type="button" data-badge="rc"><strong>RC</strong><span>ROOKIE</span></button>
+              <button type="button" data-badge="mvp"><strong>&#9733;</strong><span>MVP</span></button>
+              <button type="button" data-badge="allstar"><strong>AS</strong><span>ALL-STAR</span></button>
+              <button type="button" data-badge="champion"><strong>&#9651;</strong><span>CHAMPION</span></button>
+              <button type="button" data-badge="numbered"><strong>#</strong><span>NUMBERED</span></button>
+              <button type="button" data-badge="auto"><strong>AU</strong><span>AUTO</span></button>
+              <button type="button" data-badge="patch"><strong>GW</strong><span>PATCH</span></button>
+            </div>
+          </section>
+        </div>
+
+        <div class="tab-panel active" id="tab-player" role="group" aria-label="球员资料">
+          <section class="panel-section">
+            <div class="section-head"><span>球员档案</span><span>LIVE DATA</span></div>
+            <label class="field full"><span>球员姓名</span><input type="text" id="playerName" value="LEBRON JAMES" maxlength="28"></label>
+            <div class="field-row three">
+              <label>号码<input type="text" id="playerNumber" value="23" maxlength="3"></label>
+              <label>位置<select id="playerPosition"><option>PG</option><option>SG</option><option selected>SF</option><option>PF</option><option>C</option></select></label>
+              <label>评级<input type="number" id="gradeValue" min="1" max="10" step="0.5" value="10"></label>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>球队</span><span id="teamAbbrHead">LAL</span></div>
+            <label class="field full"><span>球队名称</span><input type="text" id="teamName" value="LOS ANGELES LAKERS" maxlength="32"></label>
+            <div class="field-row">
+              <label>缩写<input type="text" id="teamAbbr" value="LAL" maxlength="4"></label>
+              <label>赛季<input type="text" id="cardSeason" value="2023-24" maxlength="12"></label>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>基础资料</span><span>PROFILE</span></div>
+            <div class="field-row">
+              <label>身高<input type="text" id="playerHeight" value="6'9&quot;" maxlength="12"></label>
+              <label>体重<input type="text" id="playerWeight" value="250 LB" maxlength="12"></label>
+            </div>
+            <label class="field full"><span>出生地</span><input type="text" id="playerHometown" value="AKRON, OHIO" maxlength="36"></label>
+            <label class="field full"><span>选秀</span><input type="text" id="playerDraft" value="2003 / ROUND 1 / PICK 1" maxlength="42"></label>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>赛季数据</span><span id="seasonHead">2023-24</span></div>
+            <div class="stats-grid">
+              <label>GP<input type="number" id="statGP" value="71" min="0" max="99"></label>
+              <label>PPG<input type="number" id="statPPG" value="25.7" min="0" max="99" step="0.1"></label>
+              <label>RPG<input type="number" id="statRPG" value="7.3" min="0" max="99" step="0.1"></label>
+              <label>APG<input type="number" id="statAPG" value="8.3" min="0" max="99" step="0.1"></label>
+              <label>FG%<input type="number" id="statFG" value="54.0" min="0" max="100" step="0.1"></label>
+              <label>3P%<input type="number" id="stat3P" value="41.0" min="0" max="100" step="0.1"></label>
+            </div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>卡片资料</span><span>EDITION</span></div>
+            <div class="field-row">
+              <label>编号<input type="text" id="cardNum" value="07/25" maxlength="12"></label>
+              <label>卡号<input type="text" id="cardId" value="CB-023" maxlength="12"></label>
+            </div>
+            <label class="field full"><span>球员简介</span><textarea id="playerBio" rows="5" maxlength="420">All-time scoring leader. Four-time champion with elite court vision, transition power and enduring postseason impact.</textarea></label>
+          </section>
+
+          <section class="panel-section workshop-section" id="signaturePanel">
+            <div class="section-head"><span>DIY 签名</span><span id="signatureStatus">未应用</span></div>
+            <div class="signature-mode-tabs" role="tablist" aria-label="签名制作方式">
+              <button type="button" class="mode-tab active" id="sigModeDrawBtn" data-sig-mode="draw" role="tab" aria-selected="true">手绘签名</button>
+              <button type="button" class="mode-tab" id="sigModeUploadBtn" data-sig-mode="upload" role="tab" aria-selected="false">上传照片提取</button>
+            </div>
+            <canvas id="signatureCanvas" width="400" height="150" aria-label="签名画板"></canvas>
+            <div class="signature-upload-block" id="signatureUploadBlock" hidden>
+              <input type="file" id="signaturePhotoInput" accept="image/*" hidden>
+              <button type="button" id="signaturePhotoBtn" class="workshop-btn primary signature-photo-btn">选择签名照片</button>
+              <div class="signature-preview-grid">
+                <div><span class="preview-label">原图</span><canvas id="sigRawPreview" width="200" height="100" aria-label="签名照片原图预览"></canvas></div>
+                <div><span class="preview-label">提取结果</span><canvas id="sigMaskPreview" width="200" height="100" aria-label="签名提取结果预览"></canvas></div>
+              </div>
+              <div class="range-grid">
+                <label>识别灵敏度<input type="range" id="sigThresholdSlider" min="60" max="220" value="128"><output id="sigThresholdOut">128</output></label>
+              </div>
+              <label class="inline-toggle">
+                <input type="checkbox" id="sigInvertToggle">
+                <span>深色纸张 / 浅色笔迹</span>
+              </label>
+              <button type="button" id="sigUploadApplyBtn" class="workshop-btn primary signature-photo-btn">应用提取的签名</button>
+            </div>
+            <div class="signature-colors" id="signatureColorRow" aria-label="签名笔颜色">
+              <button type="button" class="signature-color active" data-sig-color="gold"><span class="sig-gold"></span>金笔</button>
+              <button type="button" class="signature-color" data-sig-color="silver"><span class="sig-silver"></span>银笔</button>
+              <button type="button" class="signature-color" data-sig-color="black"><span class="sig-black"></span>黑笔</button>
+              <button type="button" class="signature-color" data-sig-color="white"><span class="sig-white"></span>白笔</button>
+            </div>
+            <div class="workshop-actions" id="signatureDrawActions">
+              <button type="button" id="signatureClearBtn" class="workshop-btn">清除签名</button>
+              <button type="button" id="signatureApplyBtn" class="workshop-btn primary">应用签名</button>
+            </div>
+            <div class="range-grid">
+              <label>水平位置<input type="range" id="signatureX" min="8" max="92" value="50"><output id="signatureXOut">50%</output></label>
+              <label>垂直位置<input type="range" id="signatureY" min="12" max="92" value="78"><output id="signatureYOut">78%</output></label>
+              <label>签名缩放<input type="range" id="signatureScale" min="50" max="150" value="100"><output id="signatureScaleOut">100%</output></label>
+            </div>
+            <div class="setting-toggle-row">
+              <span>签名卡面</span>
+              <label class="switch-control" title="切换签名到卡背">
+                <input type="checkbox" id="signaturePlacementBack">
+                <span aria-hidden="true"></span>
+                <strong id="signaturePlacementLabel">正面</strong>
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <div class="tab-panel active" id="tab-export" role="group" aria-label="导出与项目">
+          <section class="panel-section export-section">
+            <div class="section-head"><span>图像导出</span><span>PNG / sRGB</span></div>
+            <button class="export-btn primary" type="button" data-export="front-hd"><span>正面高清</span><strong>2100 x 2940</strong></button>
+            <button class="export-btn" type="button" data-export="front"><span>正面标准</span><strong>1500 x 2100</strong></button>
+            <button class="export-btn" type="button" data-export="back"><span>背面标准</span><strong>1500 x 2100</strong></button>
+            <button class="export-btn" type="button" data-export="spread"><span>正反合图</span><strong>3000 x 2100</strong></button>
+            <button class="export-btn" type="button" data-export="slab"><span>卡壳展示</span><strong>2400 x 3200</strong></button>
+            <button class="export-btn" type="button" data-export="3d-preview"><span>3D 当前视角</span><strong>2400 x 3200</strong></button>
+            <div class="export-progress" id="exportProgress"><span></span></div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><span>项目文件</span><span>JSON</span></div>
+            <button class="action-row" type="button" id="downloadProjectBtn"><span>下载项目文件</span><strong>&#8595;</strong></button>
+            <button class="action-row" type="button" id="importProjectBtn"><span>导入项目文件</span><strong>&#8593;</strong></button>
+            <button class="action-row" type="button" id="saveLocalBtn"><span>保存到本机</span><strong>&#9635;</strong></button>
+          </section>
+
+          <section class="panel-section output-summary">
+            <div class="section-head"><span>当前配置</span><span id="configHash">CB-000000</span></div>
+            <dl>
+              <div><dt>系列</dt><dd id="summaryStyle">VAULT PRISM</dd></div>
+              <div><dt>特效</dt><dd id="summaryEffect">NONE</dd></div>
+              <div><dt>稀有度</dt><dd id="summaryRarity">BASE</dd></div>
+              <div><dt>模式</dt><dd id="summaryMode">CUTOUT</dd></div>
+              <div><dt>徽章</dt><dd id="summaryBadges">NONE</dd></div>
+            </dl>
+          </section>
+        </div>
+      </aside>
+    </main>
+
+    <aside class="library-drawer" id="libraryDrawer" aria-label="卡牌库" aria-hidden="true">
+      <div class="library-header">
+        <div class="library-title-row">
+          <h2 class="library-title">MY COLLECTION</h2>
+          <span class="library-count" id="libraryCount">0 CARDS</span>
+        </div>
+        <div class="library-actions">
+          <button class="library-action-btn" id="libraryExportBtn" type="button" title="导出卡牌库" aria-label="导出卡牌库">&#8595;</button>
+          <button class="library-action-btn" id="libraryImportBtn" type="button" title="导入卡牌库" aria-label="导入卡牌库">&#8593;</button>
+          <button class="library-close-btn" id="libraryCloseBtn" type="button" title="关闭卡牌库" aria-label="关闭卡牌库">&#215;</button>
+        </div>
+      </div>
+
+      <div class="library-filters">
+        <label><span>稀有度</span><select class="library-filter" id="libraryFilterRarity"><option value="all">ALL RARITY</option><option value="base">BASE</option><option value="silver">SILVER</option><option value="gold">GOLD</option><option value="neon">NEON</option><option value="rwb">RWB</option><option value="black">BLACK</option></select></label>
+        <label><span>系列</span><select class="library-filter" id="libraryFilterStyle"><option value="all">ALL SERIES</option><option value="prism">PRISM</option><option value="tactical">TACTICAL</option><option value="heritage">HERITAGE</option><option value="mosaic">MOSAIC</option><option value="select">SELECT</option><option value="optic">OPTIC</option></select></label>
+        <label><span>卡壳</span><select class="library-filter" id="libraryFilterSlab"><option value="all">ALL CASES</option><option value="none">RAW CARD</option><option value="magnetic">MAGNETIC</option><option value="forge">GRADED</option><option value="museum">MUSEUM</option><option value="acrylic">THICK ACRYLIC</option><option value="crystal">CRYSTAL</option><option value="gallery">GALLERY</option></select></label>
+        <button class="library-filter-btn" id="libraryFilterFav" type="button" title="仅显示收藏" aria-label="仅显示收藏">&#9733;</button>
+      </div>
+
+      <div class="library-grid" id="libraryGrid"></div>
+
+      <div class="library-achievements" id="libraryAchievements">
+        <div class="achievements-header"><span>ACHIEVEMENTS</span><span class="achievements-progress" id="achievementsProgress">0 / 20</span></div>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+      </div>
+    </aside>
+
+    <div class="library-overlay" id="libraryOverlay"></div>
+
+    <div class="pack-opening" id="packOpening" hidden>
+      <div class="pack-wrapper" role="dialog" aria-modal="true" aria-labelledby="packSeries">
+        <div class="pack-envelope" id="packEnvelope" tabindex="0" aria-label="向下拖动拆开卡包">
+          <div class="pack-front"><div class="pack-logo">CARD BUILDER</div><div class="pack-series" id="packSeries">PRIZM EDITION</div><div class="pack-hint">DRAG TO OPEN</div></div>
+          <div class="pack-back"></div>
+          <div class="pack-tear" id="packTear"></div>
+        </div>
+        <div class="pack-cards" id="packCards"></div>
+        <button class="pack-close-btn" id="packCloseBtn" type="button">DONE</button>
+      </div>
+    </div>
+
+    <div class="card-compare" id="cardCompare" hidden>
+      <div class="compare-header"><div><span>COLLECTION DATA</span><h2>CARD VS CARD</h2></div><button class="compare-close-btn" id="compareCloseBtn" type="button" title="关闭对比" aria-label="关闭对比">&#215;</button></div>
+      <div class="compare-stage">
+        <div class="compare-slot" id="compareSlotA"><div class="compare-card-frame"></div><div class="compare-stats" id="compareStatsA"></div></div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-slot" id="compareSlotB"><div class="compare-card-frame"></div><div class="compare-stats" id="compareStatsB"></div></div>
+      </div>
+      <div class="compare-result" id="compareResult"></div>
+    </div>
+  </div>
+
+  <input type="file" id="photoInput" accept="image/*" hidden>
+  <input type="file" id="logoInput" accept="image/*" hidden>
+  <input type="file" id="projectInput" accept="application/json,.json" hidden>
+  <input type="file" id="libraryImportInput" accept="application/json,.json" hidden>
+  <canvas id="exportCanvas" hidden></canvas>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js?v=20"></script>
+  <script type="module" src="three-preview.js?v=7"></script>
+</body>
+</html>

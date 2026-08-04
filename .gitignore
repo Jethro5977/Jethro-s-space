@@ -1,0 +1,4 @@
+node_modules/
+.DS_Store
+.img2threejs/
+CODEX_INSTRUCTIONS*.md
