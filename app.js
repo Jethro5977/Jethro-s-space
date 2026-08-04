@@ -12,6 +12,9 @@ const SHOWCASE_PLAYER_IMAGE = "assets/cooper-flagg-home.png";
 const SHOWCASE_TEAM_LOGO = "assets/dallas-mavericks-logo.svg";
 const SHOWCASE_SIGNATURE_IMAGE = "assets/cooper-flagg-showcase-signature.svg";
 const SHOWCASE_SIGNATURE_SOURCE = "assets/cooper-flagg-signature-source.png";
+const SAFE_IMAGE_DATA_URL = /^data:image\/(?:png|webp|jpeg);base64,/i;
+const SAFE_UPLOAD_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const TRUSTED_IMAGE_HOSTS = new Set(["cdn.nba.com", "a.espncdn.com"]);
 
 const DEFAULT_STATE = {
   version: PROJECT_VERSION,
@@ -312,6 +315,8 @@ function normalizeState(candidate) {
   if (!["none", "magnetic", "forge", "museum", "acrylic", "crystal", "gallery"].includes(normalized.slabType)) normalized.slabType = "none";
   if (!["solid", "stripe", "sash"].includes(normalized.jerseyStyle)) normalized.jerseyStyle = "solid";
   normalized.cardThickness = candidate.cardThickness !== false;
+  normalized.playerImg = isSafeCardImage(normalized.playerImg) ? normalized.playerImg : null;
+  normalized.logoImg = isSafeCardImage(normalized.logoImg) ? normalized.logoImg : null;
   normalized.signatureData = isSafeSignatureImage(normalized.signatureData) ? normalized.signatureData : null;
   normalized.signatureColor = ["gold", "silver", "black", "white"].includes(normalized.signatureColor) ? normalized.signatureColor : "gold";
   normalized.signatureMode = normalized.signatureMode === "upload" ? "upload" : "draw";
@@ -341,11 +346,27 @@ function normalizeState(candidate) {
 }
 
 function isSafeDataImage(value) {
-  return typeof value === "string" && /^data:image\/(?:png|webp|jpeg);base64,/i.test(value);
+  return typeof value === "string" && SAFE_IMAGE_DATA_URL.test(value);
 }
 
 function isSafeSignatureImage(value) {
   return isSafeDataImage(value) || value === SHOWCASE_SIGNATURE_IMAGE || value === SHOWCASE_SIGNATURE_SOURCE;
+}
+
+function isSafeCardImage(value) {
+  if (isSafeDataImage(value)) return true;
+  if ([SHOWCASE_PLAYER_IMAGE, SHOWCASE_TEAM_LOGO].includes(value)) return true;
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && TRUSTED_IMAGE_HOSTS.has(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function isSafeUploadImage(file) {
+  return Boolean(file && SAFE_UPLOAD_IMAGE_TYPES.has(file.type));
 }
 
 function esc(value) {
@@ -404,7 +425,7 @@ function photoTransformStyle(mode) {
 function photoMarkup(d) {
   const modeClass = state.imageMode === "fullart" ? "fullart" : "cutout";
   if (state.playerImg) {
-    return `<div class="photo-layer ${modeClass}"><img src="${state.playerImg}" alt="${esc(d.name)}" style="${photoTransformStyle(state.imageMode)}"></div>`;
+    return `<div class="photo-layer ${modeClass}"><img src="${esc(state.playerImg)}" alt="${esc(d.name)}" style="${photoTransformStyle(state.imageMode)}"></div>`;
   }
   return `<div class="photo-layer ${modeClass}">
     <div class="photo-placeholder" aria-hidden="true"><span class="head"></span><span class="body"></span><span class="ball"></span></div>
@@ -413,7 +434,7 @@ function photoMarkup(d) {
 
 function logoMarkup(d, className = "team-logo") {
   if (state.logoImg) {
-    return `<div class="${className}"><img src="${state.logoImg}" alt="${esc(d.abbr)} logo"></div>`;
+    return `<div class="${className}"><img src="${esc(state.logoImg)}" alt="${esc(d.abbr)} logo"></div>`;
   }
   return `<div class="${className}">${esc(d.abbr)}</div>`;
 }
@@ -1101,6 +1122,11 @@ function bindSignatureUpload() {
   $("#signaturePhotoInput").addEventListener("change", async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (!isSafeUploadImage(file) || file.size > 16 * 1024 * 1024) {
+      event.target.value = "";
+      showToast("签名仅支持 16 MB 以内的 PNG、JPEG 或 WebP 图片");
+      return;
+    }
     try {
       const image = await loadImageFromFile(file);
       pendingSigImage = image;
@@ -1507,8 +1533,9 @@ function activateTab(name) {
 function readImageFile(event, key) {
   const file = event.target.files?.[0];
   if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    showToast("请选择图片文件");
+  if (!isSafeUploadImage(file)) {
+    showToast("仅支持 PNG、JPEG 或 WebP 图片");
+    event.target.value = "";
     return;
   }
   if (file.size > 16 * 1024 * 1024) {
@@ -3578,7 +3605,7 @@ function updateLibraryDrawer() {
 
   grid.innerHTML = cards.map((card) => `
     <article class="library-card ${compareMode ? "select-mode" : ""} ${compareSelections.includes(card.id) ? "selected-for-compare" : ""}" data-card-id="${escapeHtml(card.id)}" data-rarity="${escapeHtml(card.rarity)}" data-state-name="${escapeHtml(card.fullState.playerName)}" data-badges="${escapeHtml(card.badges.join(","))}" data-has-player-image="${Boolean(card.fullState.playerImg)}" data-has-team-logo="${Boolean(card.fullState.logoImg)}">
-      ${card.thumbnail ? `<img src="${card.thumbnail}" alt="${escapeHtml(card.name)}" loading="lazy">` : `<div class="library-card-placeholder">CB</div>`}
+      ${card.thumbnail ? `<img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}" loading="lazy">` : `<div class="library-card-placeholder">CB</div>`}
       <button class="library-card-open" type="button" data-load-id="${escapeHtml(card.id)}" aria-label="加载 ${escapeHtml(card.name)}"></button>
       <button class="library-card-fav ${card.favorite ? "is-fav" : ""}" type="button" data-fav-id="${escapeHtml(card.id)}" title="${card.favorite ? "取消收藏" : "加入收藏"}" aria-label="${card.favorite ? "取消收藏" : "加入收藏"}">&#9733;</button>
       <div class="library-card-actions"><button class="library-card-action" type="button" data-delete-id="${escapeHtml(card.id)}" title="删除卡片" aria-label="删除 ${escapeHtml(card.name)}">&#215;</button></div>
@@ -3801,7 +3828,7 @@ async function revealPackCards(cards, envelope, container, closeButton) {
   container.style.display = "flex";
   container.innerHTML = cards.map((card, index) => `
     <button class="pack-card-slot rarity-${escapeHtml(card.rarity)}" type="button" data-pack-index="${index}" aria-label="翻开第 ${index + 1} 张卡">
-      <span class="pack-card-inner"><span class="pack-card-face pack-card-face-front"><strong>CB</strong></span><span class="pack-card-face pack-card-face-back"><img src="${card.thumbnail}" alt="${escapeHtml(card.name)}"></span></span>
+      <span class="pack-card-inner"><span class="pack-card-face pack-card-face-front"><strong>CB</strong></span><span class="pack-card-face pack-card-face-back"><img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}"></span></span>
     </button>
   `).join("");
   packPhase = "revealing";
@@ -3892,7 +3919,7 @@ function openCompare(idA, idB) {
 }
 
 function libraryCardImage(card) {
-  return card.thumbnail ? `<img src="${card.thumbnail}" alt="${escapeHtml(card.name)}">` : `<div class="library-card-placeholder">CB</div>`;
+  return card.thumbnail ? `<img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}">` : `<div class="library-card-placeholder">CB</div>`;
 }
 
 function extractCompareStats(card) {

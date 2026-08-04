@@ -2,3 +2,11 @@ node_modules/
 .DS_Store
 .img2threejs/
 CODEX_INSTRUCTIONS*.md
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json

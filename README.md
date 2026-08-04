@@ -5,7 +5,7 @@
 ## 启动
 
 ```bash
-cd /Users/jethro/Documents/GAMES/card-builder
+cd /path/to/card-builder
 npm install
 npm start
 ```
