@@ -446,7 +446,10 @@ function signatureMarkup() {
       <span class="signature-foil-shine" style="-webkit-mask-image:url('${maskUrl}');mask-image:url('${maskUrl}');"></span>
     </span>`;
   }
-  const colorFilter = state.signatureColor === "white" ? "brightness(1)" : "brightness(0)";
+  // Keep the paper/background light so the existing multiply blend removes it.
+  // The old brightness(0) filter turned an entire uploaded signature photo into
+  // an opaque black rectangle on mobile and in restored library cards.
+  const colorFilter = state.signatureColor === "white" ? "brightness(1)" : "grayscale(1) contrast(1.35)";
   return `<img class="signature-layer signature-${state.signatureColor}" src="${esc(state.signatureData)}" alt="自定义签名" style="${baseStyle}filter:${colorFilter};">`;
 }
 
