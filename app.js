@@ -2772,6 +2772,7 @@ let compareSelections = [];
 let packPhase = "sealed";
 let packTearProgress = 0;
 let packAbortController = null;
+let lastLibraryTouchAction = null;
 
 const PRESET_CARD_COLORS = [
   "#552583", "#1d428a", "#ce1141", "#007a33", "#00538c",
@@ -3590,6 +3591,67 @@ function escapeHtml(value) {
   return node.innerHTML;
 }
 
+function getLibraryGridAction(event) {
+  const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+  if (!target) return null;
+
+  const loadButton = target.closest("[data-load-id]");
+  if (loadButton && !compareMode) return { type: "load", id: loadButton.dataset.loadId };
+
+  const favoriteButton = target.closest("[data-fav-id]");
+  if (favoriteButton) return { type: "favorite", id: favoriteButton.dataset.favId };
+
+  const deleteButton = target.closest("[data-delete-id]");
+  if (deleteButton) return { type: "delete", id: deleteButton.dataset.deleteId };
+
+  const card = target.closest(".library-card");
+  if (!card) return null;
+  return { type: compareMode ? "compare" : "load", id: card.dataset.cardId };
+}
+
+function activateLibraryGridItem(event) {
+  const action = getLibraryGridAction(event);
+  if (!action?.id) return false;
+
+  const now = performance.now();
+  const isDuplicateTouchClick = event.type === "click"
+    && lastLibraryTouchAction
+    && lastLibraryTouchAction.type === action.type
+    && lastLibraryTouchAction.id === action.id
+    && now - lastLibraryTouchAction.at < 700;
+  if (isDuplicateTouchClick) return true;
+
+  if (event.type === "pointerup" && event.pointerType === "touch") {
+    lastLibraryTouchAction = { ...action, at: now };
+  }
+
+  if (action.type === "load") {
+    loadFromLibrary(action.id);
+    return true;
+  }
+  if (action.type === "favorite") {
+    event.stopPropagation();
+    toggleFavorite(action.id);
+    return true;
+  }
+  if (action.type === "delete") {
+    event.stopPropagation();
+    removeFromLibrary(action.id);
+    return true;
+  }
+
+  compareSelections = compareSelections.includes(action.id)
+    ? compareSelections.filter((id) => id !== action.id)
+    : [...compareSelections, action.id].slice(0, 2);
+  if (compareSelections.length === 2) {
+    openCompare(compareSelections[0], compareSelections[1]);
+    return true;
+  }
+  updateLibraryDrawer();
+  showToast(`已选择 ${compareSelections.length} / 2 张卡片`);
+  return true;
+}
+
 function bindLibraryEvents() {
   $("#libraryToggleBtn")?.addEventListener("click", openLibraryDrawer);
   $("#openLibraryBtn")?.addEventListener("click", openLibraryDrawer);
@@ -3614,40 +3676,11 @@ function bindLibraryEvents() {
     updateLibraryDrawer();
   });
 
-  $("#libraryGrid")?.addEventListener("click", (event) => {
-    const loadButton = event.target.closest("[data-load-id]");
-    if (loadButton && !compareMode) {
-      loadFromLibrary(loadButton.dataset.loadId);
-      return;
-    }
-    const favoriteButton = event.target.closest("[data-fav-id]");
-    if (favoriteButton) {
-      event.stopPropagation();
-      toggleFavorite(favoriteButton.dataset.favId);
-      return;
-    }
-    const deleteButton = event.target.closest("[data-delete-id]");
-    if (deleteButton) {
-      event.stopPropagation();
-      removeFromLibrary(deleteButton.dataset.deleteId);
-      return;
-    }
-    const card = event.target.closest(".library-card");
-    if (!card) return;
-    const cardId = card.dataset.cardId;
-    if (!compareMode) {
-      loadFromLibrary(cardId);
-      return;
-    }
-    compareSelections = compareSelections.includes(cardId)
-      ? compareSelections.filter((id) => id !== cardId)
-      : [...compareSelections, cardId].slice(0, 2);
-    if (compareSelections.length === 2) {
-      openCompare(compareSelections[0], compareSelections[1]);
-      return;
-    }
-    updateLibraryDrawer();
-    showToast(`已选择 ${compareSelections.length} / 2 张卡片`);
+  const libraryGrid = $("#libraryGrid");
+  libraryGrid?.addEventListener("click", activateLibraryGridItem);
+  libraryGrid?.addEventListener("pointerup", (event) => {
+    if (event.pointerType !== "touch" || event.button !== 0) return;
+    if (activateLibraryGridItem(event)) event.preventDefault();
   });
 }
 

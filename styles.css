@@ -3423,6 +3423,8 @@ body {
   border-radius: 7px;
   background: #191b21;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
@@ -3444,6 +3446,7 @@ body {
   border-radius: 0;
   background: transparent;
   cursor: inherit;
+  touch-action: manipulation;
 }
 
 .library-card-open:focus-visible {
