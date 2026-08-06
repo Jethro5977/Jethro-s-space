@@ -1,13 +1,22 @@
 node_modules/
 .DS_Store
-.img2threejs/
-CODEX_INSTRUCTIONS*.md
 .env
 .env.*
 !.env.example
+
+# Build & editor artifacts
 *.pem
 *.key
 *.p12
 *.pfx
 credentials*.json
+
+# AI/Codex instruction files (internal dev notes)
+CODEX_INSTRUCTIONS*.md
+.img2threejs/
+
+# Runtime data (generated at startup)
 server/data/
+
+# Temporary / unrelated assets
+sng-logo-*.svg
