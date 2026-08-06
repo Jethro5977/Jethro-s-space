@@ -30,6 +30,26 @@ const REGISTRY_PATH = path.join(PROJECT_ROOT, "data", "player-registry.json");
 
 // 启动时自动创建数据目录
 fs.mkdirSync(DATA_DIR, { recursive: true });
+seedFeaturedCard();
+
+// 官方展示卡：首次启动时写入共享库，保证所有访客打开页面即可检视预设卡
+function seedFeaturedCard() {
+  const source = path.join(__dirname, "featured-card.json");
+  const target = path.join(DATA_DIR, "sc_featured_showcase.json");
+  if (fs.existsSync(target)) return false;
+  if (!fs.existsSync(source)) {
+    console.warn("[featured] server/featured-card.json 不存在，跳过官方展示卡");
+    return false;
+  }
+  try {
+    fs.copyFileSync(source, target);
+    console.log("[featured] 官方展示卡已写入共享库");
+    return true;
+  } catch (error) {
+    console.warn("[featured] 写入官方展示卡失败:", error.message);
+    return false;
+  }
+}
 
 // 球员基础信息注册表（权威白名单，与 data/player-registry.json 一致）
 function loadPlayerRegistry() {
@@ -179,6 +199,7 @@ async function handleListCards(req, res) {
         id: record.id,
         author: record.author,
         createdAt: record.createdAt,
+        featured: Boolean(record.featured),
         card: {
           id: record.card.id,
           name: record.card.name,
@@ -195,7 +216,10 @@ async function handleListCards(req, res) {
       /* 跳过损坏文件 */
     }
   }
-  cards.sort((a, b) => b.createdAt - a.createdAt);
+  cards.sort((a, b) => {
+    if (Boolean(a.featured) !== Boolean(b.featured)) return Boolean(a.featured) ? -1 : 1;
+    return b.createdAt - a.createdAt;
+  });
   return json(res, 200, { cards });
 }
 

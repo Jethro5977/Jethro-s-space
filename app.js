@@ -27,7 +27,7 @@ const DEFAULT_STATE = {
   signaturePlacement: "front",
   signatureScale: 1,
   signatureX: 50,
-  signatureY: 78,
+  signatureY: 62,
   signatureMode: "upload",
   signatureThreshold: 156,
   signatureInvert: false,
@@ -35,18 +35,18 @@ const DEFAULT_STATE = {
   customFoilMask: null,
   customFoilOn: false,
   rarity: "silver",
-  imageMode: "cutout",
+  imageMode: "fullart",
   badges: ["rc", "allstar"],
   slabType: "acrylic",
   jerseyStyle: "solid",
   teamPreset: "dal",
   playerImg: SHOWCASE_PLAYER_IMAGE,
   logoImg: SHOWCASE_TEAM_LOGO,
-  photoScale: 112,
+  photoScale: 100,
   photoX: 0,
   photoY: 0,
   playerName: "COOPER FLAGG",
-  playerNumber: "2",
+  playerNumber: "32",
   playerPosition: "SF",
   gradeValue: "9",
   teamName: "DALLAS MAVERICKS",
@@ -64,8 +64,8 @@ const DEFAULT_STATE = {
   statAPG: "4.5",
   statFG: "46.8",
   stat3P: "29.5",
-  cardNum: "36/99",
-  cardId: "CB-495",
+  cardNum: "24/99",
+  cardId: "CB-077",
   playerBio: "Dallas rookie showcase card. Versatile two-way forward with creative playmaking and confident shot creation.",
   flipped: false,
   motionOn: true,
@@ -325,7 +325,7 @@ function loadInitialState() {
 function repairShowcaseDefaults(candidate) {
   const isShowcaseCard = String(candidate.playerName || "").toUpperCase() === "COOPER FLAGG"
     && String(candidate.teamAbbr || "").toUpperCase() === "DAL"
-    && String(candidate.playerNumber || "") === "2";
+    && ["2", "32"].includes(String(candidate.playerNumber || ""));
   if (!isShowcaseCard) return candidate;
 
   const statFields = ["statGP", "statPPG", "statRPG", "statAPG", "statFG", "stat3P"];

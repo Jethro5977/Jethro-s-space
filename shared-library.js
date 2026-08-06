@@ -247,6 +247,7 @@
           </div>
           <div class="shared-card-info">
             <div class="shared-card-name">${c.name || "UNNAMED"}</div>
+            ${item.featured ? '<span class="shared-card-featured">官方展示</span>' : ""}
             <div class="shared-card-meta">
               <span class="shared-card-team">${c.team || ""}</span>
               <span class="shared-card-rarity rarity-${(c.rarity || "base").toLowerCase()}">${(c.rarity || "BASE").toUpperCase()}</span>
