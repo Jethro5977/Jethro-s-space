@@ -234,16 +234,11 @@
 
     grid.innerHTML = filtered.map((item) => {
       const c = item.card || {};
-      const cardWarnings = validatePlayerMeta({ name: c.name, team: c.team, fullState: {} });
-      const badgeHtml = cardWarnings.length
-        ? `<span class="player-warning-badge" title="${escapeHtmlText(cardWarnings.map((w) => `[${w.level.toUpperCase()}] ${w.msg}`).join("\n"))}" aria-label="基础信息警告">⚠</span>`
-        : "";
       return `
         <div class="shared-card-item" data-shared-id="${item.id}" role="button" tabindex="0"
              aria-label="查看 ${c.name || "Card"} by ${item.author}">
           <div class="shared-card-thumb">
             <img src="${c.thumbnailUrl}" alt="${c.name || "Card"}" loading="lazy" width="180" height="252">
-            ${badgeHtml}
           </div>
           <div class="shared-card-info">
             <div class="shared-card-name">${c.name || "UNNAMED"}</div>

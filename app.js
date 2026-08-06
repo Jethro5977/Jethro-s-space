@@ -147,13 +147,6 @@ function validatePlayerMeta(card) {
   return warnings;
 }
 
-function playerWarningsBadge(card) {
-  const warnings = validatePlayerMeta(card);
-  if (!warnings.length) return "";
-  const title = warnings.map((w) => `[${w.level.toUpperCase()}] ${w.msg}`).join("\n");
-  return `<span class="player-warning-badge" title="${escapeHtml(title)}" aria-label="基础信息警告">⚠</span>`;
-}
-
 const SIGNATURE_COLOR_MAP = {
   gold: "#e8c766",
   silver: "#d9dde3",
@@ -3835,7 +3828,6 @@ function updateLibraryDrawer() {
   grid.innerHTML = cards.map((card) => `
     <article class="library-card ${compareMode ? "select-mode" : ""} ${compareSelections.includes(card.id) ? "selected-for-compare" : ""}" data-card-id="${escapeHtml(card.id)}" data-rarity="${escapeHtml(card.rarity)}" data-state-name="${escapeHtml(card.fullState.playerName)}" data-badges="${escapeHtml(card.badges.join(","))}" data-has-player-image="${Boolean(card.fullState.playerImg)}" data-has-team-logo="${Boolean(card.fullState.logoImg)}">
       ${card.thumbnail ? `<img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}" loading="lazy">` : `<div class="library-card-placeholder">CB</div>`}
-      ${playerWarningsBadge(card)}
       <button class="library-card-open" type="button" data-load-id="${escapeHtml(card.id)}" aria-label="加载 ${escapeHtml(card.name)}"></button>
       <button class="library-card-fav ${card.favorite ? "is-fav" : ""}" type="button" data-fav-id="${escapeHtml(card.id)}" title="${card.favorite ? "取消收藏" : "加入收藏"}" aria-label="${card.favorite ? "取消收藏" : "加入收藏"}">&#9733;</button>
       <div class="library-card-actions"><button class="library-card-action" type="button" data-delete-id="${escapeHtml(card.id)}" title="删除卡片" aria-label="删除 ${escapeHtml(card.name)}">&#215;</button></div>

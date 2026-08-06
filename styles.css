@@ -6195,27 +6195,6 @@ body {
   position: relative;
 }
 
-.player-warning-badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #ffcc00;
-  color: #3a2b00;
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1;
-  cursor: help;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
-  pointer-events: auto;
-}
-
 .player-warnings {
   display: flex;
   flex-direction: column;
