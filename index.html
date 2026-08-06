@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a0a0f">
   <title>Card Builder - DIY 3D 球星卡制作器</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo-concept-a.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <script>
     if (window.location.protocol === "file:") {
       window.location.replace("http://127.0.0.1:4174/");
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=12">
   <script type="importmap">
     {
       "imports": {
@@ -86,13 +89,18 @@
             <div><span>SERIAL</span><strong id="infoSerial">07/25</strong></div>
           </div>
         </div>
+
+        <div class="preview-watermark" aria-hidden="true">DEVELOPED BY JETHRO</div>
       </section>
 
       <aside class="inspector" aria-label="卡片编辑器">
         <header class="panel-header">
-          <div>
-            <div class="panel-title">CARD BUILDER</div>
-            <div class="panel-subtitle">DIY 3D TRADING CARD STUDIO</div>
+          <div class="brand-block">
+            <img class="brand-mark" src="assets/logo-concept-a.svg" alt="Card Builder logo">
+            <div>
+              <div class="panel-title">CARD BUILDER</div>
+              <div class="panel-subtitle">DIY 3D TRADING CARD STUDIO</div>
+            </div>
           </div>
           <div class="project-strip">
             <button class="icon-btn library-toggle-btn" type="button" id="libraryToggleBtn" title="卡牌库" aria-label="打开卡牌库">&#9776;</button>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Card Builder logo — prismatic card stack">
+  <defs>
+    <linearGradient id="cardA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <linearGradient id="cardB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="cardC" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.5" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#ffd66b"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#080a14"/>
+
+  <g transform="rotate(-14 256 256) translate(256 256)">
+    <rect x="-95" y="-135" width="190" height="270" rx="26" fill="url(#cardA)" opacity="0.55" transform="translate(24 18)"/>
+  </g>
+
+  <g transform="rotate(-5 256 256) translate(256 256)">
+    <rect x="-95" y="-135" width="190" height="270" rx="26" fill="url(#cardB)" opacity="0.8" transform="translate(10 6)"/>
+  </g>
+
+  <g transform="translate(256 256)">
+    <rect x="-95" y="-135" width="190" height="270" rx="26" fill="#0c1024" stroke="url(#cardC)" stroke-width="6"/>
+    <rect x="-95" y="-135" width="190" height="120" rx="26" fill="url(#cardC)" opacity="0.14"/>
+
+    <path d="M18 -92 L-32 6 H-4 L-24 96 L58 -12 H26 Z" fill="url(#bolt)" filter="url(#soft)" opacity="0.55"/>
+    <path d="M18 -92 L-32 6 H-4 L-24 96 L58 -12 H26 Z" fill="url(#bolt)"/>
+
+    <rect x="-60" y="112" width="120" height="8" rx="4" fill="#22d3ee" opacity="0.65"/>
+  </g>
+
+  <path d="M406 96 l7 17 17 7 -17 7 -7 17 -7 -17 -17 -7 17 -7z" fill="#ffffff" opacity="0.9"/>
+  <path d="M92 372 l6 14.5 14.5 6 -14.5 6 -6 14.5 -6 -14.5 -14.5 -6 14.5 -6z" fill="#22d3ee" opacity="0.8"/>
+</svg>

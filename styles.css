@@ -91,15 +91,11 @@ textarea:focus-visible {
 }
 
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--line-strong);
-  background: linear-gradient(135deg, var(--cyan), var(--gold));
-  color: #08090b;
-  font-size: 12px;
-  font-weight: 900;
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: 0 0 auto;
 }
 
 .brand-name {
@@ -172,6 +168,21 @@ textarea:focus-visible {
   min-height: 0;
   overflow: hidden;
   background: #0c0e11;
+}
+
+.preview-watermark {
+  position: absolute;
+  right: 16px;
+  bottom: 104px;
+  z-index: 30;
+  color: rgba(255, 255, 255, 0.30);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .preview-toolbar {

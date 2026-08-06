@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/card-builder-lockup.png" alt="Card Builder" width="720">
+</p>
+
 # Card Builder
 
 以 Claude `card_3d_preview.html` 为界面基础的纯 Web DIY 3D 球星卡制作器。预览使用本地安装的 Three.js ES Modules，需要通过本地 HTTP 服务运行。

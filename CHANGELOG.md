@@ -4,6 +4,8 @@
 
 ### 新增
 
+- 品牌 Logo 与 favicon：采用「棱镜卡牌层叠 + 金色闪电」主标（logo-concept-a.svg + 16/32/48/180/192/512 PNG + ICO），接入页面头部与浏览器标签页图标
+- 预览区右下角新增小字水印 `DEVELOPED BY JETHRO`
 - 卡壳封装（Slab）选择按钮：RAW / MAGNETIC / FORGE / MUSEUM / ACRYLIC / CRYSTAL / GALLERY，含颜色预览色块
 - 新特效 **HOLOGRAPHIC（全息）**：基于 conic-gradient 的彩虹反光层，模拟真实球星卡镭射全息效果，含实时预览、Canvas 导出、Three.js 3D 预览折射同步
 - 新特效 **LASER（镭射）**：网格 + 光谱 + 扫描线复合层，模拟镭射反光卡纹理，同样覆盖预览 / 导出 / 3D 全链路
