@@ -480,7 +480,7 @@ function updateFoilMaterial(data) {
   const effectStrength = Math.max(0, Math.min(1, Number(data.effectIntensity || 0) / 100));
   const effectOpacity = data.effect === "none" ? 0.02 : 0.038 + effectStrength * 0.045;
   foilMaterial.opacity = effectOpacity;
-  foilMaterial.iridescence = data.effect === "rainbow" ? 1 : data.effect === "none" ? 0.18 : 0.58;
+  foilMaterial.iridescence = data.effect === "rainbow" || data.effect === "holographic" ? 1 : data.effect === "laser" ? 0.82 : data.effect === "none" ? 0.18 : 0.58;
   foilMaterial.metalness = data.rarity === "gold" ? 0.34 : data.rarity === "silver" ? 0.26 : 0.12;
   foilMaterial.color.set(data.rarity === "gold" ? 0xffd66f : data.effect === "lightning" ? 0xb9d9ff : 0xe6ecff);
   foilMaterial.needsUpdate = true;

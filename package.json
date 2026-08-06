@@ -4,11 +4,11 @@
   "private": true,
   "description": "DIY 3D sports card builder with a Three.js acrylic slab preview",
   "scripts": {
-    "start": "python3 -m http.server 4174 --bind 127.0.0.1",
-    "check": "node --check app.js && node --check three-preview.js && node --check scripts/audit-player-data.mjs",
+    "start": "node server/shared-server.mjs",
+    "server": "node server/shared-server.mjs",
+    "check": "node --check app.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && echo '✓ All files passed syntax check'",
+    "verify": "bash scripts/verify-shared.sh",
     "audit:players": "node scripts/audit-player-data.mjs"
   },
-  "dependencies": {
-    "three": "0.185.1"
-  }
+  "dependencies": {}
 }

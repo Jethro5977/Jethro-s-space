@@ -7,7 +7,7 @@ const LIBRARY_ASSET_STORE = "images";
 const LIBRARY_MAX_CARDS = 200;
 const PROJECT_VERSION = 6;
 const AUTO_LIBRARY_SOURCE = "auto-nba-v7";
-const AUTO_LIBRARY_DATA_VERSION = 2;
+const AUTO_LIBRARY_DATA_VERSION = 4;
 const SHOWCASE_PLAYER_IMAGE = "assets/cooper-flagg-home.png";
 const SHOWCASE_TEAM_LOGO = "assets/dallas-mavericks-logo.svg";
 const SHOWCASE_SIGNATURE_IMAGE = "assets/cooper-flagg-showcase-signature.svg";
@@ -89,6 +89,8 @@ const EFFECT_META = {
   lightning: { name: "LIGHTNING", finish: "LIGHTNING REFRACTION" },
   rainbow: { name: "RAINBOW", finish: "HOLOGRAPHIC RAINBOW" },
   crystal: { name: "ICE CRYSTAL", finish: "ICE CRYSTAL PRISM" },
+  holographic: { name: "HOLOGRAPHIC", finish: "HOLO REFRACTOR" },
+  laser: { name: "LASER", finish: "LASER DIFFRACTION" },
   flame: { name: "FLAME", finish: "FLAME AURA" },
   galaxy: { name: "GALAXY", finish: "GALAXY SWIRL" }
 };
@@ -109,6 +111,48 @@ const POSITION_MAP = {
   PF: "POWER FORWARD",
   C: "CENTER"
 };
+
+// 球员基础信息注册表（权威数据源：data/player-registry.json）
+// 统一身份字段：name / team / position / jerseyNumber / portrait / portraitVerified
+let PLAYER_REGISTRY_LOADED = false;
+
+function normalizePositionName(value) {
+  const v = String(value || "").trim().toUpperCase();
+  return POSITION_MAP[v] || v.replace(/\s+/g, " ");
+}
+
+function validatePlayerMeta(card) {
+  const warnings = [];
+  const registry = window.PLAYER_REGISTRY || {};
+  const state = card && card.fullState ? card.fullState : (card || {});
+  const playerName = String(state.playerName || (card && card.name) || "").trim();
+  const key = playerName.toLowerCase().trim();
+  const authoritative = registry[key];
+
+  if (!authoritative) {
+    warnings.push({ level: "info", msg: `未在球员库中找到 "${playerName}"，无法核对基础信息` });
+    return warnings;
+  }
+  const cardTeam = String(state.teamAbbr || (card && card.team) || "").toUpperCase().trim();
+  if (cardTeam && cardTeam !== authoritative.team) {
+    warnings.push({ level: "error", msg: `队伍不符：卡片=${cardTeam}，官方=${authoritative.team}` });
+  }
+  const cardPosition = normalizePositionName(state.playerPosition);
+  if (cardPosition && cardPosition !== authoritative.position) {
+    warnings.push({ level: "warn", msg: `位置不符：卡片=${cardPosition}，官方=${authoritative.position}` });
+  }
+  if (authoritative.portraitVerified === false) {
+    warnings.push({ level: "warn", msg: "配图未经人工确认" });
+  }
+  return warnings;
+}
+
+function playerWarningsBadge(card) {
+  const warnings = validatePlayerMeta(card);
+  if (!warnings.length) return "";
+  const title = warnings.map((w) => `[${w.level.toUpperCase()}] ${w.msg}`).join("\n");
+  return `<span class="player-warning-badge" title="${escapeHtml(title)}" aria-label="基础信息警告">⚠</span>`;
+}
 
 const SIGNATURE_COLOR_MAP = {
   gold: "#e8c766",
@@ -137,7 +181,10 @@ const TEAM_PRESETS = {
   mem: { name: "MEMPHIS GRIZZLIES", abbr: "MEM", primary: "#5D76A9", secondary: "#12173F" },
   phi: { name: "PHILADELPHIA 76ERS", abbr: "PHI", primary: "#006BB6", secondary: "#ED174C" },
   sas: { name: "SAN ANTONIO SPURS", abbr: "SAS", primary: "#C4CED4", secondary: "#000000" },
-  lac: { name: "LOS ANGELES CLIPPERS", abbr: "LAC", primary: "#C8102E", secondary: "#1D428A" }
+  lac: { name: "LOS ANGELES CLIPPERS", abbr: "LAC", primary: "#C8102E", secondary: "#1D428A" },
+  hou: { name: "HOUSTON ROCKETS", abbr: "HOU", primary: "#CE1141", secondary: "#000000" },
+  was: { name: "WASHINGTON WIZARDS", abbr: "WAS", primary: "#E31837", secondary: "#002B5C" },
+  por: { name: "PORTLAND TRAIL BLAZERS", abbr: "POR", primary: "#E03A3E", secondary: "#000000" }
 };
 
 // V7 player set. Rows keep the source data compact while exposing named fields to the builder.
@@ -148,31 +195,31 @@ const NBA_PLAYER_FIELDS = [
 ];
 
 const NBA_PLAYER_ROWS = [
-  ["SHAI GILGEOUS-ALEXANDER", "2", "PG", "OKLAHOMA CITY THUNDER", "OKC", "#007AC1", "#EF6100", "6'6\"", "195 LB", "TORONTO, ON, CANADA", "2018 / ROUND 1 / PICK 11", "2024-25", "76", "32.7", "5.0", "6.4", "51.9", "37.5", "2024-25 MVP and scoring champion. An elite two-way creator with silky mid-range craft and lockdown perimeter defense.", "1628983", "thunder", "4278073"],
-  ["GIANNIS ANTETOKOUNMPO", "34", "PF", "MILWAUKEE BUCKS", "MIL", "#00471B", "#EEE1C6", "6'11\"", "243 LB", "ATHENS, GREECE", "2013 / ROUND 1 / PICK 15", "2024-25", "67", "30.4", "11.9", "6.5", "60.1", "22.2", "Two-time MVP and a dominant force in the paint, combining transition power with versatile defense and improving playmaking.", "203507", "bucks", "3032977"],
-  ["NIKOLA JOKIC", "15", "C", "DENVER NUGGETS", "DEN", "#0E2240", "#FEC524", "6'11\"", "284 LB", "SOMBOR, SERBIA", "2014 / ROUND 2 / PICK 41", "2024-25", "70", "29.6", "12.7", "10.2", "57.6", "41.7", "Three-time MVP with generational passing vision, orchestrating Denver's offense with surgical precision from the center position.", "203999", "nuggets", "3112335"],
-  ["LUKA DONCIC", "77", "PG", "LOS ANGELES LAKERS", "LAL", "#552583", "#FDB927", "6'7\"", "230 LB", "LJUBLJANA, SLOVENIA", "2018 / ROUND 1 / PICK 3", "2024-25", "50", "28.2", "8.2", "7.7", "45.0", "36.8", "A generational playmaker with an unguardable step-back three, elite shot creation and exceptional court vision.", "1629029", "lakers", "3945274"],
-  ["ANTHONY EDWARDS", "5", "SG", "MINNESOTA TIMBERWOLVES", "MIN", "#0C2340", "#236192", "6'4\"", "225 LB", "ATLANTA, GEORGIA", "2020 / ROUND 1 / PICK 1", "2024-25", "79", "27.6", "5.7", "4.5", "44.7", "39.5", "An explosive two-way guard who pairs thunderous athleticism with rapidly improving perimeter shooting.", "1630162", "timberwolves", "4594268"],
-  ["JAYSON TATUM", "0", "PF", "BOSTON CELTICS", "BOS", "#007A33", "#BA9653", "6'8\"", "210 LB", "ST. LOUIS, MISSOURI", "2017 / ROUND 1 / PICK 3", "2024-25", "72", "26.8", "8.7", "6.0", "45.2", "34.3", "A championship cornerstone and elite three-level scorer with deep range, size and increasingly polished playmaking.", "1628369", "celtics", "4065648"],
-  ["KEVIN DURANT", "35", "PF", "PHOENIX SUNS", "PHX", "#1D1160", "#E56020", "6'10\"", "240 LB", "WASHINGTON, D.C.", "2007 / ROUND 1 / PICK 2", "2024-25", "62", "26.6", "6.0", "4.2", "52.7", "43.0", "An all-time great scorer whose length, handle and feathery touch create offense from every spot on the floor.", "201142", "suns", "3202"],
-  ["STEPHEN CURRY", "30", "PG", "GOLDEN STATE WARRIORS", "GSW", "#1D428A", "#FFC72C", "6'2\"", "185 LB", "AKRON, OHIO", "2009 / ROUND 1 / PICK 7", "2024-25", "70", "24.5", "4.4", "6.0", "44.8", "39.7", "The greatest shooter ever, a four-time champion whose range and off-ball movement transformed modern basketball.", "201939", "warriors", "3975"],
-  ["LEBRON JAMES", "23", "SF", "LOS ANGELES LAKERS", "LAL", "#552583", "#FDB927", "6'9\"", "250 LB", "AKRON, OHIO", "2003 / ROUND 1 / PICK 1", "2024-25", "70", "24.4", "7.8", "8.2", "51.3", "37.6", "The all-time scoring leader and four-time champion, pairing elite court vision with transition power and remarkable longevity.", "2544", "lakers", "1966"],
-  ["VICTOR WEMBANYAMA", "1", "C", "SAN ANTONIO SPURS", "SAS", "#C4CED4", "#000000", "7'4\"", "235 LB", "LE CHESNAY, FRANCE", "2023 / ROUND 1 / PICK 1", "2024-25", "46", "24.3", "11.0", "3.7", "47.6", "35.2", "A generational rim protector with perimeter skill, redefining the center position through rare length and coordination.", "1641705", "spurs", "5104157"],
-  ["DONOVAN MITCHELL", "45", "SG", "CLEVELAND CAVALIERS", "CLE", "#860038", "#FDBB30", "6'1\"", "215 LB", "ELMSFORD, NEW YORK", "2017 / ROUND 1 / PICK 13", "2024-25", "71", "24.0", "4.5", "5.0", "44.3", "36.8", "A dynamic scoring guard with explosive isolation creation, deep playoff experience and a fearless late-game approach.", "1628378", "cavaliers", "3908809"],
-  ["CADE CUNNINGHAM", "2", "PG", "DETROIT PISTONS", "DET", "#C8102E", "#1D42BA", "6'6\"", "220 LB", "ARLINGTON, TEXAS", "2021 / ROUND 1 / PICK 1", "2024-25", "70", "26.1", "6.1", "9.1", "46.9", "35.6", "A big, poised floor general with a complete scoring package and elite vision, leading Detroit's resurgence.", "1630595", "pistons", "4432166"],
-  ["JALEN BRUNSON", "11", "PG", "NEW YORK KNICKS", "NYK", "#006BB6", "#F58426", "6'2\"", "190 LB", "BURLINGTON, NEW JERSEY", "2018 / ROUND 2 / PICK 33", "2024-25", "65", "26.0", "2.9", "7.3", "48.8", "38.3", "A second-round steal turned franchise cornerstone, thriving through footwork, strength and fearless mid-range shot making.", "1628973", "knicks", "3934672"],
-  ["TRAE YOUNG", "11", "PG", "ATLANTA HAWKS", "ATL", "#E03A3E", "#C1D32F", "6'1\"", "164 LB", "NORMAN, OKLAHOMA", "2018 / ROUND 1 / PICK 5", "2024-25", "76", "24.2", "3.1", "11.6", "41.1", "34.0", "An electric lead guard who creates offense from deep range with audacious passing, floaters and constant pick-and-roll pressure.", "1629027", "hawks", "4277905"],
-  ["DEVIN BOOKER", "1", "SG", "PHOENIX SUNS", "PHX", "#1D1160", "#E56020", "6'5\"", "206 LB", "GRAND RAPIDS, MICHIGAN", "2015 / ROUND 1 / PICK 13", "2024-25", "75", "25.6", "4.1", "7.1", "46.1", "33.2", "A lethal three-level scorer with silky footwork, elite shot-making and precise passing from either guard spot.", "1626164", "suns", "3136193"],
-  ["JA MORANT", "12", "PG", "MEMPHIS GRIZZLIES", "MEM", "#5D76A9", "#12173F", "6'3\"", "174 LB", "DALZELL, SOUTH CAROLINA", "2019 / ROUND 1 / PICK 2", "2024-25", "50", "23.2", "4.1", "7.3", "45.4", "30.9", "A gravity-defying lead guard with explosive finishing, highlight-reel athleticism and inventive court vision.", "1629630", "grizzlies", "4279888"],
-  ["DAMIAN LILLARD", "0", "PG", "MILWAUKEE BUCKS", "MIL", "#00471B", "#EEE1C6", "6'2\"", "195 LB", "OAKLAND, CALIFORNIA", "2012 / ROUND 1 / PICK 6", "2024-25", "58", "24.9", "4.7", "7.1", "44.8", "37.6", "A clutch performer with logo range, veteran composure and the confidence to decide games in their final moments.", "203081", "bucks", "6606"],
-  ["KARL-ANTHONY TOWNS", "32", "C", "NEW YORK KNICKS", "NYK", "#006BB6", "#F58426", "6'11\"", "248 LB", "PISCATAWAY, NEW JERSEY", "2015 / ROUND 1 / PICK 1", "2024-25", "72", "24.4", "12.8", "3.1", "52.6", "42.0", "An elite stretch five who combines high-volume rebounding, interior scoring and rare shooting touch for his size.", "1626157", "knicks", "3136195"],
-  ["ANTHONY DAVIS", "3", "C", "DALLAS MAVERICKS", "DAL", "#00538C", "#BBC4CA", "6'10\"", "253 LB", "CHICAGO, ILLINOIS", "2012 / ROUND 1 / PICK 1", "2024-25", "51", "24.7", "11.6", "3.5", "51.6", "28.2", "An elite two-way big acquired by Dallas during the 2024-25 season, combining scoring, rebounding, mobility and versatile rim protection.", "203076", "mavericks", "6583"],
-  ["TYRESE MAXEY", "0", "PG", "PHILADELPHIA 76ERS", "PHI", "#006BB6", "#ED174C", "6'2\"", "200 LB", "DALLAS, TEXAS", "2020 / ROUND 1 / PICK 21", "2024-25", "52", "26.3", "3.3", "6.1", "43.7", "33.7", "A blazing-fast guard whose end-to-end speed, pull-up shooting and improving playmaking pressure every level of a defense.", "1630178", "76ers", "4431678"],
-  ["EVAN MOBLEY", "4", "PF", "CLEVELAND CAVALIERS", "CLE", "#860038", "#FDBB30", "7'0\"", "215 LB", "SAN DIEGO, CALIFORNIA", "2021 / ROUND 1 / PICK 3", "2024-25", "71", "18.5", "9.3", "3.2", "55.7", "37.0", "A defensive anchor with rare rim protection, perimeter mobility and an expanding offensive skill set.", "1630596", "cavaliers", "4432158"],
-  ["JALEN WILLIAMS", "8", "SG", "OKLAHOMA CITY THUNDER", "OKC", "#007AC1", "#EF6100", "6'5\"", "211 LB", "HOUSTON, TEXAS", "2022 / ROUND 1 / PICK 12", "2024-25", "69", "21.6", "5.3", "5.1", "48.4", "36.5", "A smooth two-way connector who scores efficiently, passes creatively and defends across positions.", "1631114", "thunder", "4593803"],
-  ["COOPER FLAGG", "32", "PF", "DALLAS MAVERICKS", "DAL", "#00538C", "#BBC4CA", "6'9\"", "205 LB", "NEWPORT, MAINE", "2025 / ROUND 1 / PICK 1", "2024-25 NCAA", "37", "19.2", "7.5", "4.2", "48.1", "38.5", "The 2025 No. 1 pick after a 2024-25 Duke season, bringing elite passing instincts, versatile defense and a rapidly improving jumper.", "1642843", "mavericks", "5041939"],
-  ["KYRIE IRVING", "11", "SG", "DALLAS MAVERICKS", "DAL", "#00538C", "#BBC4CA", "6'2\"", "195 LB", "MELBOURNE, AUSTRALIA", "2011 / ROUND 1 / PICK 1", "2024-25", "50", "24.7", "4.8", "4.6", "47.3", "40.1", "A mesmerizing ball-handler and impossible finisher whose ambidextrous touch turns broken possessions into art.", "202681", "mavericks", "6442"],
-  ["JAMES HARDEN", "1", "PG", "LOS ANGELES CLIPPERS", "LAC", "#C8102E", "#1D428A", "6'5\"", "220 LB", "LOS ANGELES, CALIFORNIA", "2009 / ROUND 1 / PICK 3", "2024-25", "79", "22.8", "5.8", "8.7", "41.0", "35.2", "A former MVP and masterful floor general who combines deceptive strength, crafty footwork and elite playmaking.", "201935", "clippers", "3992"]
+  ["SHAI GILGEOUS-ALEXANDER", "2", "PG", "OKLAHOMA CITY THUNDER", "OKC", "#007AC1", "#EF6100", "6'6\"", "195 LB", "TORONTO, ON, CANADA", "2018 / ROUND 1 / PICK 11", "2025-26", "68", "31.1", "4.3", "6.6", "55.3", "38.6", "2024-25 MVP and scoring champion. An elite two-way creator with silky mid-range craft and lockdown perimeter defense.", "1628983", "thunder", "4278073"],
+  ["GIANNIS ANTETOKOUNMPO", "34", "PF", "MILWAUKEE BUCKS", "MIL", "#00471B", "#EEE1C6", "6'11\"", "243 LB", "ATHENS, GREECE", "2013 / ROUND 1 / PICK 15", "2025-26", "36", "27.6", "9.8", "5.4", "62.4", "33.3", "Two-time MVP and a dominant force in the paint, combining transition power with versatile defense and improving playmaking. Traded to the Miami Heat in June 2026 after an injury-shortened season.", "203507", "bucks", "3032977"],
+  ["NIKOLA JOKIC", "15", "C", "DENVER NUGGETS", "DEN", "#0E2240", "#FEC524", "6'11\"", "284 LB", "SOMBOR, SERBIA", "2014 / ROUND 2 / PICK 41", "2025-26", "65", "27.7", "12.9", "10.7", "56.9", "38.0", "Three-time MVP with generational passing vision, orchestrating Denver's offense with surgical precision from the center position.", "203999", "nuggets", "3112335"],
+  ["LUKA DONCIC", "77", "PG", "LOS ANGELES LAKERS", "LAL", "#552583", "#FDB927", "6'7\"", "230 LB", "LJUBLJANA, SLOVENIA", "2018 / ROUND 1 / PICK 3", "2025-26", "64", "33.5", "7.7", "8.3", "47.6", "36.6", "A generational playmaker with an unguardable step-back three, elite shot creation and exceptional court vision.", "1629029", "lakers", "3945274"],
+  ["ANTHONY EDWARDS", "5", "SG", "MINNESOTA TIMBERWOLVES", "MIN", "#0C2340", "#236192", "6'4\"", "225 LB", "ATLANTA, GEORGIA", "2020 / ROUND 1 / PICK 1", "2025-26", "61", "28.8", "5.0", "3.7", "48.9", "39.9", "An explosive two-way guard who pairs thunderous athleticism with rapidly improving perimeter shooting.", "1630162", "timberwolves", "4594268"],
+  ["JAYSON TATUM", "0", "SF", "BOSTON CELTICS", "BOS", "#007A33", "#BA9653", "6'8\"", "210 LB", "ST. LOUIS, MISSOURI", "2017 / ROUND 1 / PICK 3", "2025-26", "16", "21.8", "10.0", "5.3", "41.1", "32.9", "A championship cornerstone and elite three-level scorer who returned from an Achilles tear to play 16 games in 2025-26.", "1628369", "celtics", "4065648"],
+  ["KEVIN DURANT", "7", "SF", "HOUSTON ROCKETS", "HOU", "#CE1141", "#000000", "6'10\"", "240 LB", "WASHINGTON, D.C.", "2007 / ROUND 1 / PICK 2", "2025-26", "78", "26.0", "5.5", "4.8", "52.0", "41.3", "An all-time great scorer who joined Houston in a record seven-team 2025 offseason deal, bringing length, handle and feathery touch to the Rockets' young core.", "201142", "rockets", "3202"],
+  ["STEPHEN CURRY", "30", "PG", "GOLDEN STATE WARRIORS", "GSW", "#1D428A", "#FFC72C", "6'2\"", "185 LB", "AKRON, OHIO", "2009 / ROUND 1 / PICK 7", "2025-26", "43", "26.6", "3.6", "4.7", "46.8", "39.3", "The greatest shooter ever, a four-time champion whose range and off-ball movement transformed modern basketball.", "201939", "warriors", "3975"],
+  ["LEBRON JAMES", "23", "SF", "LOS ANGELES LAKERS", "LAL", "#552583", "#FDB927", "6'9\"", "250 LB", "AKRON, OHIO", "2003 / ROUND 1 / PICK 1", "2025-26", "60", "20.9", "6.1", "7.2", "51.5", "31.7", "The all-time scoring leader and four-time champion, pairing elite court vision with transition power and remarkable longevity. Signed with the Philadelphia 76ers in July 2026.", "2544", "lakers", "1966"],
+  ["VICTOR WEMBANYAMA", "1", "C", "SAN ANTONIO SPURS", "SAS", "#C4CED4", "#000000", "7'4\"", "235 LB", "LE CHESNAY, FRANCE", "2023 / ROUND 1 / PICK 1", "2025-26", "64", "25.0", "11.5", "3.1", "51.2", "34.9", "A generational rim protector with perimeter skill, redefining the center position through rare length and coordination.", "1641705", "spurs", "5104157"],
+  ["DONOVAN MITCHELL", "45", "SG", "CLEVELAND CAVALIERS", "CLE", "#860038", "#FDBB30", "6'1\"", "215 LB", "ELMSFORD, NEW YORK", "2017 / ROUND 1 / PICK 13", "2025-26", "70", "27.9", "4.5", "5.7", "48.3", "36.4", "A dynamic scoring guard with explosive isolation creation, deep playoff experience and a fearless late-game approach.", "1628378", "cavaliers", "3908809"],
+  ["CADE CUNNINGHAM", "2", "PG", "DETROIT PISTONS", "DET", "#C8102E", "#1D42BA", "6'6\"", "220 LB", "ARLINGTON, TEXAS", "2021 / ROUND 1 / PICK 1", "2025-26", "64", "23.9", "5.5", "9.9", "46.1", "34.2", "A big, poised floor general with a complete scoring package and elite vision, leading Detroit's resurgence.", "1630595", "pistons", "4432166"],
+  ["JALEN BRUNSON", "11", "PG", "NEW YORK KNICKS", "NYK", "#006BB6", "#F58426", "6'2\"", "190 LB", "BURLINGTON, NEW JERSEY", "2018 / ROUND 2 / PICK 33", "2025-26", "74", "26.0", "3.3", "6.8", "46.7", "36.9", "A second-round steal turned franchise cornerstone, thriving through footwork, strength and fearless mid-range shot making.", "1628973", "knicks", "3934672"],
+  ["TRAE YOUNG", "3", "PG", "WASHINGTON WIZARDS", "WAS", "#E31837", "#002B5C", "6'1\"", "164 LB", "NORMAN, OKLAHOMA", "2018 / ROUND 1 / PICK 5", "2025-26", "15", "17.9", "2.0", "8.0", "45.8", "33.8", "An electric lead guard who creates offense from deep range with audacious passing, floaters and constant pick-and-roll pressure. Traded to Washington in January 2026.", "1629027", "wizards", "4277905"],
+  ["DEVIN BOOKER", "1", "SG", "PHOENIX SUNS", "PHX", "#1D1160", "#E56020", "6'5\"", "206 LB", "GRAND RAPIDS, MICHIGAN", "2015 / ROUND 1 / PICK 13", "2025-26", "64", "26.1", "3.9", "6.0", "45.6", "33.0", "A lethal three-level scorer with silky footwork, elite shot-making and precise passing from either guard spot. Will wear No. 15 from 2026-27 in honor of his father.", "1626164", "suns", "3136193"],
+  ["JA MORANT", "12", "PG", "MEMPHIS GRIZZLIES", "MEM", "#5D76A9", "#12173F", "6'3\"", "174 LB", "DALZELL, SOUTH CAROLINA", "2019 / ROUND 1 / PICK 2", "2025-26", "20", "19.5", "3.3", "8.1", "41.0", "23.5", "A gravity-defying lead guard with explosive finishing, highlight-reel athleticism and inventive court vision. Traded to the Portland Trail Blazers in June 2026.", "1629630", "grizzlies", "4279888"],
+  ["DAMIAN LILLARD", "0", "PG", "PORTLAND TRAIL BLAZERS", "POR", "#E03A3E", "#000000", "6'2\"", "195 LB", "OAKLAND, CALIFORNIA", "2012 / ROUND 1 / PICK 6", "2025-26", "58", "24.9", "4.7", "7.1", "44.8", "37.6", "A clutch performer with logo range who returned home to Portland, but missed the entire 2025-26 season rehabbing a torn Achilles. Stats shown are from 2024-25, his last season on the court.", "203081", "trailblazers", "6606"],
+  ["KARL-ANTHONY TOWNS", "32", "C", "NEW YORK KNICKS", "NYK", "#006BB6", "#F58426", "6'11\"", "248 LB", "PISCATAWAY, NEW JERSEY", "2015 / ROUND 1 / PICK 1", "2025-26", "75", "20.1", "11.9", "3.0", "50.1", "36.8", "An elite stretch five who combines high-volume rebounding, interior scoring and rare shooting touch for his size.", "1626157", "knicks", "3136195"],
+  ["ANTHONY DAVIS", "23", "PF", "WASHINGTON WIZARDS", "WAS", "#E31837", "#002B5C", "6'10\"", "253 LB", "CHICAGO, ILLINOIS", "2012 / ROUND 1 / PICK 1", "2025-26", "20", "20.4", "11.1", "2.8", "50.6", "27.0", "An elite two-way big who moved to Washington in a February 2026 three-team trade, combining scoring, rebounding, mobility and versatile rim protection.", "203076", "wizards", "6583"],
+  ["TYRESE MAXEY", "0", "PG", "PHILADELPHIA 76ERS", "PHI", "#006BB6", "#ED174C", "6'2\"", "200 LB", "DALLAS, TEXAS", "2020 / ROUND 1 / PICK 21", "2025-26", "70", "28.3", "4.1", "6.6", "46.2", "36.7", "A blazing-fast guard whose end-to-end speed, pull-up shooting and improving playmaking pressure every level of a defense.", "1630178", "76ers", "4431678"],
+  ["EVAN MOBLEY", "4", "PF", "CLEVELAND CAVALIERS", "CLE", "#860038", "#FDBB30", "7'0\"", "215 LB", "SAN DIEGO, CALIFORNIA", "2021 / ROUND 1 / PICK 3", "2025-26", "65", "18.2", "9.0", "3.6", "54.6", "29.7", "A defensive anchor with rare rim protection, perimeter mobility and an expanding offensive skill set.", "1630596", "cavaliers", "4432158"],
+  ["JALEN WILLIAMS", "8", "SG", "OKLAHOMA CITY THUNDER", "OKC", "#007AC1", "#EF6100", "6'5\"", "211 LB", "HOUSTON, TEXAS", "2022 / ROUND 1 / PICK 12", "2025-26", "33", "17.1", "4.6", "5.5", "48.4", "29.9", "A smooth two-way connector who scores efficiently, passes creatively and defends across positions.", "1631114", "thunder", "4593803"],
+  ["COOPER FLAGG", "32", "SF", "DALLAS MAVERICKS", "DAL", "#00538C", "#BBC4CA", "6'9\"", "205 LB", "NEWPORT, MAINE", "2025 / ROUND 1 / PICK 1", "2025-26", "70", "21.0", "6.7", "4.5", "46.8", "29.5", "The 2025 No. 1 pick delivered a strong Dallas rookie season, flashing elite passing instincts, versatile defense and a rapidly improving jumper.", "1642843", "mavericks", "5041939"],
+  ["KYRIE IRVING", "11", "SG", "DALLAS MAVERICKS", "DAL", "#00538C", "#BBC4CA", "6'2\"", "195 LB", "MELBOURNE, AUSTRALIA", "2011 / ROUND 1 / PICK 1", "2025-26", "50", "24.7", "4.8", "4.6", "47.3", "40.1", "A mesmerizing ball-handler and impossible finisher whose ambidextrous touch turns broken possessions into art. Out for the 2025-26 season with a knee injury; stats shown are from 2024-25.", "202681", "mavericks", "6442"],
+  ["JAMES HARDEN", "1", "PG", "CLEVELAND CAVALIERS", "CLE", "#860038", "#FDBB30", "6'5\"", "220 LB", "LOS ANGELES, CALIFORNIA", "2009 / ROUND 1 / PICK 3", "2025-26", "70", "23.6", "4.8", "8.0", "43.4", "37.5", "A former MVP and masterful floor general who joined Cleveland in a February 2026 trade, pairing crafty playmaking with elite court vision.", "201935", "cavaliers", "3992"]
 ];
 
 const NBA_PLAYERS_DB = NBA_PLAYER_ROWS.map((row) => Object.fromEntries(NBA_PLAYER_FIELDS.map((field, index) => [field, row[index]])))
@@ -183,7 +230,7 @@ const NBA_TEAM_IDS = {
   timberwolves: 1610612750, celtics: 1610612738, suns: 1610612756, warriors: 1610612744,
   spurs: 1610612759, cavaliers: 1610612739, pistons: 1610612765, knicks: 1610612752,
   hawks: 1610612737, grizzlies: 1610612763, "76ers": 1610612755, mavericks: 1610612742,
-  clippers: 1610612746
+  clippers: 1610612746, rockets: 1610612745, wizards: 1610612764, trailblazers: 1610612757
 };
 
 const NBA_CDN = {
@@ -570,12 +617,15 @@ function updateInterface(d) {
   $$("[data-style]").forEach((button) => button.classList.toggle("active", button.dataset.style === state.style));
   $$("[data-effect]").forEach((button) => button.classList.toggle("active", button.dataset.effect === state.effect));
   $$("[data-rarity]").forEach((button) => button.classList.toggle("active", button.dataset.rarity === state.rarity));
+  $$("[data-slab]").forEach((button) => button.classList.toggle("active", button.dataset.slab === state.slabType));
   $$("[data-image-mode]").forEach((button) => button.classList.toggle("active", button.dataset.imageMode === state.imageMode));
   $$("[data-badge]").forEach((button) => button.classList.toggle("active", state.badges.includes(button.dataset.badge)));
 
   $("#styleCount").textContent = `${String(styleKeys.indexOf(state.style) + 1).padStart(2, "0")} / ${String(styleKeys.length).padStart(2, "0")}`;
   $("#effectName").textContent = d.effectMeta.name;
   $("#rarityName").textContent = d.rarityMeta.name;
+  const slabNameEl = $("#slabName");
+  if (slabNameEl) slabNameEl.textContent = state.slabType === "none" ? "RAW" : state.slabType.toUpperCase();
   $("#imageModeName").textContent = state.imageMode.toUpperCase();
   $("#badgeCount").textContent = `${state.badges.length} SELECTED`;
   $("#teamColorCode").textContent = `${d.c1.toUpperCase()} / ${d.c2.toUpperCase()}`;
@@ -725,6 +775,14 @@ function applyEffect(effectName) {
       createCrystalEffect(frontRoot, seed, false);
       createCrystalEffect(backRoot, seed + 11, true);
       break;
+    case "holographic":
+      createHolographicEffect(frontRoot, false);
+      createHolographicEffect(backRoot, true);
+      break;
+    case "laser":
+      createLaserEffect(frontRoot, false);
+      createLaserEffect(backRoot, true);
+      break;
     case "flame":
       createFlameEffect(frontRoot, seed);
       createBackGlow(backRoot, "linear-gradient(0deg,rgba(255,69,0,.48),transparent 48%)");
@@ -783,23 +841,60 @@ function createRainbowEffect(target, isBack) {
 
 function createCrystalEffect(target, seed, isBack) {
   const random = mulberry32(seed);
-  const palette = ["#c0e8ff", "#e0d0ff", "#ffffff", "#a0d8ef", "#d0f0ff"];
+  const palette = [
+    ["#40c8ff", "#80e0ff"], ["#a080ff", "#c8b0ff"], ["#ffffff", "#c0e8ff"],
+    ["#60d8f0", "#a0ecff"], ["#b090ff", "#d0c0ff"], ["#70e0ff", "#b0f0ff"]
+  ];
+  const defs = [];
   const polygons = [];
-  for (let i = 0; i < 24; i += 1) {
+  for (let i = 0; i < 32; i += 1) {
     const cx = random() * 300;
     const cy = random() * 420;
-    const radius = 34 + random() * 70;
-    const sides = 4 + Math.floor(random() * 3);
+    const radius = 28 + random() * 60;
+    const sides = 3 + Math.floor(random() * 4);
     const points = [];
     for (let point = 0; point < sides; point += 1) {
-      const angle = (point / sides) * Math.PI * 2 + random() * 0.45;
-      points.push(`${(cx + Math.cos(angle) * radius).toFixed(1)},${(cy + Math.sin(angle) * radius).toFixed(1)}`);
+      const angle = (point / sides) * Math.PI * 2 + random() * 0.5;
+      const r = radius * (0.7 + random() * 0.3);
+      points.push(`${(cx + Math.cos(angle) * r).toFixed(1)},${(cy + Math.sin(angle) * r).toFixed(1)}`);
     }
-    polygons.push(`<polygon points="${points.join(" ")}" fill="${palette[i % palette.length]}" fill-opacity="${(0.12 + random() * 0.16).toFixed(2)}" stroke="rgba(255,255,255,.32)" stroke-width="1"/>`);
+    const colors = palette[i % palette.length];
+    const gradId = `cg${i}`;
+    const angle = random() * 360;
+    defs.push(`<linearGradient id="${gradId}" gradientTransform="rotate(${angle.toFixed(0)},0.5,0.5)"><stop offset="0%" stop-color="${colors[0]}" stop-opacity="${(0.15 + random() * 0.12).toFixed(2)}"/><stop offset="100%" stop-color="${colors[1]}" stop-opacity="${(0.04 + random() * 0.06).toFixed(2)}"/></linearGradient>`);
+    polygons.push(`<polygon points="${points.join(" ")}" fill="url(#${gradId})" stroke="rgba(255,255,255,.18)" stroke-width="0.5"/>`);
+    if (random() > 0.5) {
+      const highlight = `<polygon points="${points.join(" ")}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="0.3" stroke-dasharray="3,6" stroke-dashoffset="${(random() * 10).toFixed(0)}"/>`;
+      polygons.push(highlight);
+    }
   }
   const layer = document.createElement("div");
   layer.className = `effect-layer crystal-layer${isBack ? " effect-back" : ""}`;
-  layer.innerHTML = `<svg viewBox="0 0 300 420" aria-hidden="true">${polygons.join("")}</svg>`;
+  layer.innerHTML = `<svg viewBox="0 0 300 420" aria-hidden="true"><defs>${defs.join("")}</defs>${polygons.join("")}</svg>`;
+  target.appendChild(layer);
+}
+
+function createHolographicEffect(target, isBack) {
+  const layer = document.createElement("div");
+  layer.className = `effect-layer holographic-layer${isBack ? " effect-back" : ""}`;
+  target.appendChild(layer);
+  const glare = document.createElement("div");
+  glare.className = `effect-layer holographic-glare${isBack ? " effect-back" : ""}`;
+  target.appendChild(glare);
+}
+
+function createLaserEffect(target, isBack) {
+  const layer = document.createElement("div");
+  layer.className = `effect-layer laser-layer${isBack ? " effect-back" : ""}`;
+  const grid = document.createElement("div");
+  grid.className = "laser-grid";
+  const spectrum = document.createElement("div");
+  spectrum.className = "laser-spectrum";
+  const scanline = document.createElement("div");
+  scanline.className = "laser-scanline";
+  layer.appendChild(grid);
+  layer.appendChild(spectrum);
+  layer.appendChild(scanline);
   target.appendChild(layer);
 }
 
@@ -1422,6 +1517,13 @@ function bindInterface() {
     button.addEventListener("click", () => {
       state.rarity = button.dataset.rarity;
       if (state.rarity !== "base" && !state.badges.includes("numbered")) state.badges.push("numbered");
+      render();
+    });
+  });
+
+  $$("[data-slab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.slabType = button.dataset.slab;
       render();
     });
   });
@@ -2061,7 +2163,8 @@ function drawPlayerImage(ctx, image, d, x, y, width, height) {
     const drawWidth = image.naturalWidth * baseScale;
     const drawHeight = image.naturalHeight * baseScale;
     const dx = x + (width - drawWidth) / 2 + state.photoX / 100 * width * 0.36;
-    const dy = y + height * 0.16 + (areaHeight - drawHeight) + state.photoY / 100 * height * 0.28;
+    // 照片整体上移约 5%：避免签名/底部信息遮挡人像（photoY 滑块仍可微调）
+    const dy = y + height * 0.11 + (areaHeight - drawHeight) + state.photoY / 100 * height * 0.28;
     ctx.shadowColor = "rgba(0,0,0,.46)";
     ctx.shadowBlur = width * 0.04;
     ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
@@ -2363,24 +2466,105 @@ function drawExportEffect(ctx, d, x, y, width, height, random, opacityScale = 1)
     ctx.fillRect(x, y, width, height);
   } else if (state.effect === "crystal") {
     ctx.globalCompositeOperation = "screen";
-    for (let i = 0; i < 24; i += 1) {
+    for (let i = 0; i < 32; i += 1) {
       const cx = x + random() * width;
       const cy = y + random() * height;
-      const radius = width * (0.10 + random() * 0.22);
-      const sides = 4 + Math.floor(random() * 3);
+      const radius = width * (0.08 + random() * 0.18);
+      const sides = 3 + Math.floor(random() * 4);
       ctx.beginPath();
       for (let point = 0; point < sides; point += 1) {
-        const angle = point / sides * Math.PI * 2 + random() * 0.32;
-        const px = cx + Math.cos(angle) * radius;
-        const py = cy + Math.sin(angle) * radius;
+        const angle = point / sides * Math.PI * 2 + random() * 0.5;
+        const r = radius * (0.7 + random() * 0.3);
+        const px = cx + Math.cos(angle) * r;
+        const py = cy + Math.sin(angle) * r;
         if (point === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.closePath();
-      ctx.fillStyle = `rgba(${170 + Math.floor(random() * 80)},${205 + Math.floor(random() * 50)},255,.13)`;
+      const grad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
+      const hue = 190 + random() * 60;
+      grad.addColorStop(0, `hsla(${hue},80%,70%,.16)`);
+      grad.addColorStop(1, `hsla(${hue + 30},60%,80%,.06)`);
+      ctx.fillStyle = grad;
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,.28)";
-      ctx.lineWidth = width * 0.002;
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.lineWidth = width * 0.0015;
       ctx.stroke();
+    }
+    // Prismatic light bands
+    ctx.globalAlpha = 0.14 * intensity;
+    const bandGrad = ctx.createLinearGradient(x, y, x + width, y + height);
+    bandGrad.addColorStop(0, "transparent");
+    bandGrad.addColorStop(0.3, "rgba(100,200,255,.4)");
+    bandGrad.addColorStop(0.4, "rgba(255,255,255,.5)");
+    bandGrad.addColorStop(0.5, "rgba(180,140,255,.3)");
+    bandGrad.addColorStop(0.7, "transparent");
+    ctx.fillStyle = bandGrad;
+    ctx.fillRect(x, y, width, height);
+  } else if (state.effect === "holographic") {
+    // Holographic refractor: rainbow conic + scan lines
+    const cx = x + width * 0.5;
+    const cy = y + height * 0.5;
+    const maxR = Math.sqrt(width * width + height * height) * 0.5;
+    const hues = [0, 30, 60, 120, 180, 240, 300, 360];
+    for (let i = 0; i < hues.length - 1; i += 1) {
+      const a1 = (hues[i] / 360) * Math.PI * 2 - Math.PI;
+      const a2 = (hues[i + 1] / 360) * Math.PI * 2 - Math.PI;
+      ctx.save();
+      ctx.globalCompositeOperation = "color-dodge";
+      ctx.globalAlpha = 0.22 * intensity;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, maxR, a1, a2);
+      ctx.closePath();
+      ctx.fillStyle = `hsla(${hues[i]},90%,55%,1)`;
+      ctx.fill();
+      ctx.restore();
+    }
+    // Scan lines
+    ctx.save();
+    ctx.globalAlpha = 0.08 * intensity;
+    for (let ly = y; ly < y + height; ly += 3) {
+      ctx.fillStyle = "rgba(255,255,255,1)";
+      ctx.fillRect(x, ly, width, 1);
+    }
+    ctx.restore();
+  } else if (state.effect === "laser") {
+    // Laser diffraction: cross-hatch grid + conic spectrum
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = 0.12 * intensity;
+    ctx.strokeStyle = "rgba(255,255,255,.6)";
+    ctx.lineWidth = width * 0.001;
+    const step = width * 0.02;
+    for (let offset = -height; offset < width + height; offset += step) {
+      ctx.beginPath();
+      ctx.moveTo(x + offset, y);
+      ctx.lineTo(x + offset - height, y + height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + offset, y);
+      ctx.lineTo(x + offset + height, y + height);
+      ctx.stroke();
+    }
+    ctx.restore();
+    // Conic spectrum
+    const lcx = x + width * 0.5;
+    const lcy = y + height * 0.5;
+    const lr = Math.sqrt(width * width + height * height) * 0.5;
+    const laserHues = [340, 30, 60, 150, 200, 270, 340];
+    for (let i = 0; i < laserHues.length - 1; i += 1) {
+      const a1 = (i / (laserHues.length - 1)) * Math.PI * 2 - Math.PI;
+      const a2 = ((i + 1) / (laserHues.length - 1)) * Math.PI * 2 - Math.PI;
+      ctx.save();
+      ctx.globalCompositeOperation = "color-dodge";
+      ctx.globalAlpha = 0.18 * intensity;
+      ctx.beginPath();
+      ctx.moveTo(lcx, lcy);
+      ctx.arc(lcx, lcy, lr, a1, a2);
+      ctx.closePath();
+      ctx.fillStyle = `hsla(${laserHues[i]},85%,50%,1)`;
+      ctx.fill();
+      ctx.restore();
     }
   } else if (state.effect === "lightning") {
     ctx.globalCompositeOperation = "screen";
@@ -2475,6 +2659,43 @@ async function drawSignatureCanvas(ctx, x, y, width, height, side) {
   offscreen.height = Math.max(1, Math.round(signatureHeight));
   const offscreenContext = offscreen.getContext("2d");
   offscreenContext.drawImage(maskImage, 0, 0, offscreen.width, offscreen.height);
+
+  // 防止不透明签名照片（白底黑字或黑底白字）在 Canvas 导出里变成实心黑块：
+  // 若来源几乎不透明，先按背景亮度方向提取墨迹 alpha；
+  // 若已经是透明底遮罩（如 extractSignatureMask 的产物），直接使用其 alpha。
+  const alphaProbe = offscreenContext.getImageData(0, 0, offscreen.width, offscreen.height);
+  const alphaProbePixels = alphaProbe.data;
+  let opaqueCount = 0;
+  let lightCount = 0;
+  let darkCount = 0;
+  let probeSamples = 0;
+  for (let i = 3; i < alphaProbePixels.length; i += 16) {
+    probeSamples += 1;
+    if (alphaProbePixels[i] > 200) {
+      opaqueCount += 1;
+      const luminance = 0.299 * alphaProbePixels[i - 3] + 0.587 * alphaProbePixels[i - 2] + 0.114 * alphaProbePixels[i - 1];
+      if (luminance > 155) lightCount += 1;
+      if (luminance < 100) darkCount += 1;
+    }
+  }
+  if (probeSamples > 0 && opaqueCount / probeSamples > 0.5) {
+    const imageData = offscreenContext.getImageData(0, 0, offscreen.width, offscreen.height);
+    const pixels = imageData.data;
+    const threshold = clamp(Number(state.signatureThreshold) || 156, 60, 220);
+    // 黑底白字 → 提取亮部；白底黑字 → 提取暗部；透明遮罩不进入此分支
+    const invert = darkCount > lightCount;
+    for (let index = 0; index < pixels.length; index += 4) {
+      const luminance = 0.299 * pixels[index] + 0.587 * pixels[index + 1] + 0.114 * pixels[index + 2];
+      const ink = invert ? luminance - threshold : threshold - luminance;
+      const alpha = clamp(Math.round(ink * 2.2), 0, 255);
+      pixels[index] = 255;
+      pixels[index + 1] = 255;
+      pixels[index + 2] = 255;
+      pixels[index + 3] = alpha;
+    }
+    offscreenContext.putImageData(imageData, 0, 0);
+  }
+
   offscreenContext.globalCompositeOperation = "source-in";
 
   if (state.signatureColor === "gold" || state.signatureColor === "silver") {
@@ -3132,7 +3353,7 @@ async function saveToLibrary() {
 
 const AUTO_LIBRARY_POOLS = {
   style: ["prism", "tactical", "heritage", "mosaic", "select", "optic"],
-  effect: ["none", "none", "none", "diamond", "lightning", "rainbow", "crystal", "flame", "galaxy"],
+  effect: ["none", "none", "none", "diamond", "lightning", "rainbow", "crystal", "holographic", "laser", "flame", "galaxy"],
   rarity: ["base", "base", "base", "base", "silver", "silver", "gold", "neon", "rwb", "black"],
   slabType: ["none", "none", "magnetic", "magnetic", "forge", "museum", "acrylic", "crystal", "gallery"],
   jerseyStyle: ["solid", "stripe", "sash"]
@@ -3191,7 +3412,11 @@ function applyPlayerFacts(cardState, player) {
     statFG: player.fg,
     stat3P: player.tp,
     playerBio: player.bio,
-    teamPreset: presetKey
+    teamPreset: presetKey,
+    // Auto-built player cards must not inherit the Cooper Flagg showcase
+    // signature. The raw (un-extracted) source photo is fully opaque, so
+    // rendering it here produced a solid black box over the portrait.
+    signatureData: null
   });
 }
 
@@ -3208,7 +3433,7 @@ function createPlayerCardState(player, plan, index) {
     ...cloneDefaultState(),
     style,
     effect,
-    effectIntensity: effect === "none" ? 80 : 60 + Math.floor(Math.random() * 31),
+    effectIntensity: effect === "none" ? 80 : effect === "lightning" ? 20 : 60 + Math.floor(Math.random() * 31),
     rarity,
     slabType,
     badges: pickRandomBadges(player, rarity),
@@ -3406,6 +3631,10 @@ async function autoBuildLibrary(progressCallback) {
       const cardState = existingCard
         ? applyPlayerFacts(existingCard.fullState, player)
         : createPlayerCardState(player, plan, index);
+      // Cap lightning intensity so the effect doesn't obscure the portrait
+      if (cardState.effect === "lightning" && cardState.effectIntensity > 20) {
+        cardState.effectIntensity = 20;
+      }
       const [playerImg, logoImg] = await Promise.all([
         fetchPlayerHeadshot(player),
         fetchTeamLogo(player)
@@ -3606,6 +3835,7 @@ function updateLibraryDrawer() {
   grid.innerHTML = cards.map((card) => `
     <article class="library-card ${compareMode ? "select-mode" : ""} ${compareSelections.includes(card.id) ? "selected-for-compare" : ""}" data-card-id="${escapeHtml(card.id)}" data-rarity="${escapeHtml(card.rarity)}" data-state-name="${escapeHtml(card.fullState.playerName)}" data-badges="${escapeHtml(card.badges.join(","))}" data-has-player-image="${Boolean(card.fullState.playerImg)}" data-has-team-logo="${Boolean(card.fullState.logoImg)}">
       ${card.thumbnail ? `<img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}" loading="lazy">` : `<div class="library-card-placeholder">CB</div>`}
+      ${playerWarningsBadge(card)}
       <button class="library-card-open" type="button" data-load-id="${escapeHtml(card.id)}" aria-label="加载 ${escapeHtml(card.name)}"></button>
       <button class="library-card-fav ${card.favorite ? "is-fav" : ""}" type="button" data-fav-id="${escapeHtml(card.id)}" title="${card.favorite ? "取消收藏" : "加入收藏"}" aria-label="${card.favorite ? "取消收藏" : "加入收藏"}">&#9733;</button>
       <div class="library-card-actions"><button class="library-card-action" type="button" data-delete-id="${escapeHtml(card.id)}" title="删除卡片" aria-label="删除 ${escapeHtml(card.name)}">&#215;</button></div>
@@ -4072,6 +4302,18 @@ function bindV6Events() {
 async function initializeV6() {
   bindV6Events();
   updateBackgroundMosaic();
+  try {
+    const response = await fetch("data/player-registry.json");
+    if (response.ok) {
+      window.PLAYER_REGISTRY = await response.json();
+      PLAYER_REGISTRY_LOADED = true;
+    } else {
+      window.PLAYER_REGISTRY = {};
+    }
+  } catch (error) {
+    console.warn("Player registry load failed", error);
+    window.PLAYER_REGISTRY = {};
+  }
   const library = loadLibrary();
   const unlocks = checkAchievements(library);
   if (unlocks.length) await saveLibraryResilient(library);
@@ -4086,6 +4328,53 @@ window.cardBuilder3D = {
   reset: resetView,
   toggleMotion
 };
+
+// === 共享库接口（PRD v2.0 §6）===
+window.CardBuilder = window.CardBuilder || {};
+
+// 接口 1：获取当前完整状态
+window.CardBuilder.getFullState = function () {
+  if (!state) return null;
+  return {
+    id: String(state.cardId || `cb_${Date.now().toString(36)}`),
+    name: state.playerName || "UNTITLED",
+    team: state.teamAbbr || "N/A",
+    style: state.style,
+    effect: state.effect,
+    rarity: state.rarity,
+    slabType: state.slabType,
+    badges: Array.isArray(state.badges) ? [...state.badges] : [],
+    fullState: JSON.parse(JSON.stringify({
+      ...state,
+      rotX: 0,
+      rotY: 0,
+      autoRotY: 0,
+      flipped: false,
+      viewScale: 1,
+      motionOn: true,
+    })),
+  };
+};
+
+// 接口 2：生成当前卡面缩略图（data URL）
+window.CardBuilder.captureThumbnail = async function (width = 360, height = 504, format = "image/jpeg") {
+  await document.fonts.ready;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  await drawCardToCanvas(context, getData(), "front", 0, 0, width, height);
+  return canvas.toDataURL(format, 0.74);
+};
+
+// 接口 3：加载完整状态到编辑器
+window.CardBuilder.loadFullState = function (fullState) {
+  if (!fullState || typeof fullState !== "object") return;
+  state = normalizeState(fullState);
+  hydrateInputs();
+  render();
+};
+
 window.dispatchEvent(new CustomEvent("cardbuilder:bridge-ready"));
 
 bindSignaturePad();

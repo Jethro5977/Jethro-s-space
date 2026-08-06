@@ -1,0 +1,65 @@
+{
+  "shai gilgeous-alexander": {
+    "name": "Shai Gilgeous-Alexander",
+    "displayName": "SHAI GILGEOUS-ALEXANDER",
+    "team": "OKC",
+    "position": "POINT GUARD",
+    "jerseyNumber": 2,
+    "portrait": null,
+    "portraitVerified": false
+  },
+  "giannis antetokounmpo": {
+    "name": "Giannis Antetokounmpo",
+    "displayName": "GIANNIS ANTETOKOUNMPO",
+    "team": "MIL",
+    "position": "POWER FORWARD",
+    "jerseyNumber": 34,
+    "portrait": null,
+    "portraitVerified": false
+  },
+  "nikola jokic": {
+    "name": "Nikola Jokic",
+    "displayName": "NIKOLA JOKIC",
+    "team": "DEN",
+    "position": "CENTER",
+    "jerseyNumber": 15,
+    "portrait": null,
+    "portraitVerified": false
+  },
+  "luka doncic": {
+    "name": "Luka Doncic",
+    "displayName": "LUKA DONCIC",
+    "team": "LAL",
+    "position": "POINT GUARD",
+    "jerseyNumber": 77,
+    "portrait": null,
+    "portraitVerified": false
+  },
+  "anthony edwards": {
+    "name": "Anthony Edwards",
+    "displayName": "ANTHONY EDWARDS",
+    "team": "MIN",
+    "position": "SHOOTING GUARD",
+    "jerseyNumber": 5,
+    "portrait": null,
+    "portraitVerified": false
+  },
+  "jayson tatum": {
+    "name": "Jayson Tatum",
+    "displayName": "JAYSON TATUM",
+    "team": "BOS",
+    "position": "SMALL FORWARD",
+    "jerseyNumber": 0,
+    "portrait": null,
+    "portraitVerified": false
+  },
+  "cooper flagg": {
+    "name": "Cooper Flagg",
+    "displayName": "COOPER FLAGG",
+    "team": "DAL",
+    "position": "SMALL FORWARD",
+    "jerseyNumber": 2,
+    "portrait": "assets/cooper-flagg-home.png",
+    "portraitVerified": false
+  }
+}

@@ -12,6 +12,8 @@ npm start
 
 浏览器打开 `http://127.0.0.1:4174/`。不要直接用 `file://` 打开 `index.html`，浏览器会阻止 Three.js 模块和贴图加载。
 
+`npm start` 运行的是 `server/shared-server.mjs`（Node 静态服务器 + 共享卡牌库 API，零依赖）。局域网内其他设备可通过 `http://<本机IP>:4174/` 访问并浏览共享卡牌库。
+
 ## 功能
 
 - 6 种原创卡片系列：Prism、Tactical、Heritage、Mosaic、Select、Optic
@@ -36,8 +38,18 @@ npm start
 - 20 项收藏成就与进度追踪
 - 校验 / 建库：自动补齐 25 位球员卡；旧批量卡会保留设计与收藏状态并刷新身份、头像、球队、赛季数据和缩略图
 - 自动素材容错：球员头像优先 NBA CDN、回退 ESPN；球队 Logo 优先 NBA、回退 ESPN；跨域失败时使用程序化占位卡
+- 共享卡牌库：无用户系统，一键发布 DIY 卡牌，所有人可浏览、筛选、检视，可加载回编辑器或下载项目 JSON，发布者可删除自己的卡
 
 界面与交互以 Claude V1 `card_3d_preview.html` 为主体，卡面生成、特效、存储与 Canvas 导出位于 `app.js`，WebGL 封装几何与材质位于 `three-preview.js`。
+
+共享卡牌库相关：前端逻辑在 `shared-library.js`，服务端在 `server/shared-server.mjs`，执行规范见 `docs/PRD_共享卡牌库_Codex_Spec.md`（v2.0，含逐节实现要求与验收标准），简要 PRD 见 `docs/PRD_共享卡牌库.md`。
+
+验证：
+
+```bash
+npm run check        # 语法检查
+npm run verify       # 共享库 API 冒烟测试（需先 npm start）
+```
 
 卡牌库数据保存在浏览器 `localStorage` 的 `card-builder-library-v1` 键中；可在卡库抽屉顶部导入或导出完整 JSON 备份。
 

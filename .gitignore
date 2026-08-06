@@ -10,3 +10,4 @@ CODEX_INSTRUCTIONS*.md
 *.p12
 *.pfx
 credentials*.json
+server/data/
