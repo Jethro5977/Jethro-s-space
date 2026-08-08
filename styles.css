@@ -3891,7 +3891,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(3, 4, 8, 0.96);
+  background: rgba(7, 9, 18, 0.93);
   backdrop-filter: blur(14px);
 }
 
@@ -3904,6 +3904,7 @@ body {
 
 .pack-wrapper {
   position: relative;
+  z-index: 2;
   width: min(1060px, 94vw);
   min-height: min(680px, calc(100dvh - 48px));
   display: grid;
@@ -6701,622 +6702,6 @@ input[type="range"]:active::-webkit-slider-thumb {
   }
 }
 
-/* ===== PACK REDESIGN v2 =====
- *
- * 全息反光效果的 CSS 技术灵感来自：
- *   simeydotme/pokemon-cards-css (GPL-3.0)
- *   https://github.com/simeydotme/pokemon-cards-css
- *   此处为独立重新实现，非直接复制。
- *
- * 粒子系统核心物理算法灵感来自：
- *   catdad/canvas-confetti (ISC License)
- *   https://github.com/catdad/canvas-confetti
- *   此处为独立重新实现，非直接复制。
- *
- * 拆包流程设计参考了：
- *   elysiumdelivery/altare-tcg (MIT License)
- *   https://github.com/elysiumdelivery/altare-tcg
- */
-
-/* 3.1 包体环境氛围 */
-.pack-ambient {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: radial-gradient(ellipse 600px 400px at 50% 45%,
-    rgba(89, 213, 224, 0.06) 0%,
-    rgba(120, 80, 200, 0.04) 40%,
-    transparent 70%);
-  animation: pack-ambient-breathe 4s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-@keyframes pack-ambient-breathe {
-  from { opacity: 0.5; transform: scale(0.95); }
-  to   { opacity: 1;   transform: scale(1.05); }
-}
-
-.pack-ambient::after {
-  content: "";
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  top: 30%;
-  left: 20%;
-  background: rgba(89, 213, 224, 0.6);
-  box-shadow:
-    80px -40px 0 rgba(200, 162, 255, 0.5),
-    200px 60px 0 rgba(89, 213, 224, 0.4),
-    320px -20px 0 rgba(255, 214, 102, 0.5),
-    450px 80px 0 rgba(89, 213, 224, 0.3),
-    180px 120px 0 rgba(200, 162, 255, 0.4),
-    350px -80px 0 rgba(255, 214, 102, 0.3);
-  animation: pack-particles-float 6s ease-in-out infinite alternate;
-}
-
-@keyframes pack-particles-float {
-  from { transform: translateY(0) translateX(0); opacity: 0.4; }
-  to   { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
-}
-
-/* 3.2 包体全息反光层（借鉴 pokemon-cards-css） */
-.pack-foil-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  border-radius: 12px;
-  opacity: 0;
-  mix-blend-mode: color-dodge;
-  transition: opacity 300ms ease;
-  pointer-events: none;
-
-  background:
-    repeating-linear-gradient(
-      calc(var(--pack-mx, 0.5) * 120deg),
-      rgba(89, 213, 224, 0.3) 0%,
-      rgba(200, 162, 255, 0.2) 8%,
-      rgba(255, 214, 102, 0.2) 16%,
-      rgba(89, 213, 224, 0.3) 24%,
-      transparent 32%
-    ),
-    repeating-linear-gradient(
-      calc(var(--pack-mx, 0.5) * 120deg + 60deg),
-      rgba(255, 255, 255, 0.08) 0%,
-      transparent 6%
-    );
-  background-size: 200% 200%;
-  background-position:
-    calc(var(--pack-mx, 0.5) * 100%) calc(var(--pack-my, 0.5) * 100%);
-
-  filter: brightness(0.8) contrast(1.6);
-}
-
-.pack-envelope:hover .pack-foil-layer,
-.pack-envelope.tearing .pack-foil-layer {
-  opacity: 0.7;
-}
-
-.pack-envelope {
-  transition: transform 200ms ease-out;
-  transform:
-    perspective(700px)
-    rotateX(calc((var(--pack-my, 0.5) - 0.5) * -12deg))
-    rotateY(calc((var(--pack-mx, 0.5) - 0.5) * 12deg));
-  animation: none; /* 关闭旧版 idle 晃动，避免与 tilt 冲突 */
-}
-
-.pack-front-inner {
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: radial-gradient(
-    ellipse at calc(var(--pack-mx, 0.5) * 100%) calc(var(--pack-my, 0.5) * 100%),
-    rgba(255, 255, 255, 0.12) 0%,
-    transparent 50%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* 3.3 增强撕裂效果 */
-.pack-tear {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 5;
-  height: 0;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.pack-tear::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(89, 213, 224, 0.9) 15%,
-    rgba(200, 162, 255, 1) 50%,
-    rgba(89, 213, 224, 0.9) 85%,
-    transparent 100%);
-  box-shadow:
-    0 0 8px rgba(89, 213, 224, 0.6),
-    0 0 24px rgba(200, 162, 255, 0.3);
-  border-radius: 2px;
-}
-
-.pack-tear-glow {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 4;
-  height: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(89, 213, 224, 0.15) 0%,
-    rgba(200, 162, 255, 0.08) 40%,
-    transparent 100%
-  );
-  filter: blur(8px);
-}
-
-.pack-envelope.tearing {
-  animation: pack-tear-shake 80ms ease-in-out infinite;
-}
-
-@keyframes pack-tear-shake {
-  0%, 100% { transform: perspective(700px) translateX(0); }
-  25%      { transform: perspective(700px) translateX(-1.5px); }
-  75%      { transform: perspective(700px) translateX(1.5px); }
-}
-
-.pack-envelope.tearing-critical .pack-front {
-  animation: pack-front-crack 150ms ease-in-out infinite;
-}
-
-@keyframes pack-front-crack {
-  0%, 100% { filter: brightness(1); }
-  50%      { filter: brightness(1.15) contrast(1.1); }
-}
-
-.pack-envelope.exploded .pack-front {
-  animation: pack-explode-front 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes pack-explode-front {
-  0%   { opacity: 1; transform: translateY(0) scale(1) rotateZ(0deg); }
-  40%  { opacity: 0.9; transform: translateY(-30px) scale(1.08) rotateZ(-3deg); }
-  100% { opacity: 0; transform: translateY(-120px) scale(0.7) rotateZ(-8deg); }
-}
-
-.pack-envelope.exploded .pack-back {
-  animation: pack-explode-back 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes pack-explode-back {
-  0%   { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(40px) scale(0.85) rotateZ(4deg); }
-}
-
-/* 3.4 Confetti Canvas */
-.pack-confetti-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-/* 3.5 卡牌揭示阶段 */
-.pack-stage { transition: opacity 400ms ease; }
-.pack-stage[hidden] { display: none; }
-.pack-stage-reveal { position: relative; }
-
-.pack-card-stack {
-  position: relative;
-  width: 200px;
-  height: 280px;
-  margin: 0 auto 32px;
-  perspective: 1000px;
-}
-
-.pack-stack-card {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 400ms ease;
-}
-
-.pack-stack-card:nth-child(1) { transform: translateY(0) rotateZ(0deg); z-index: 5; }
-.pack-stack-card:nth-child(2) { transform: translateY(3px) translateX(4px) rotateZ(1.5deg); z-index: 4; }
-.pack-stack-card:nth-child(3) { transform: translateY(6px) translateX(-3px) rotateZ(-1deg); z-index: 3; }
-.pack-stack-card:nth-child(4) { transform: translateY(9px) translateX(2px) rotateZ(0.5deg); z-index: 2; }
-.pack-stack-card:nth-child(5) { transform: translateY(12px) translateX(-2px) rotateZ(-0.8deg); z-index: 1; }
-
-.pack-stack-face {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  backface-visibility: hidden;
-  overflow: hidden;
-}
-
-.pack-stack-face-down {
-  background: linear-gradient(145deg, #171329, #251d45);
-  border: 1px solid rgba(89, 213, 224, 0.2);
-  display: grid;
-  place-items: center;
-}
-
-.pack-stack-face-down strong {
-  color: rgba(89, 213, 224, 0.25);
-  font: 900 28px/1 "Orbitron", ui-sans-serif, sans-serif;
-}
-
-.pack-stack-face-up {
-  transform: rotateY(180deg);
-}
-
-.pack-stack-face-up img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.pack-stack-card.drawing {
-  animation: pack-card-draw 500ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-@keyframes pack-card-draw {
-  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
-  60%  { transform: translateY(-40px) translateX(0) scale(1.05); opacity: 1; }
-  100% { transform: translateY(-60px) translateX(260px) scale(0.9); opacity: 0; }
-}
-
-.pack-card-spotlight {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: grid;
-  place-items: center;
-  background: rgba(3, 4, 8, 0.85);
-  backdrop-filter: blur(6px);
-}
-
-.pack-card-spotlight[hidden] { display: none; }
-
-.pack-spotlight-card {
-  width: min(280px, 70vw);
-  aspect-ratio: 5 / 7;
-  border-radius: 12px;
-  overflow: hidden;
-  transform-style: preserve-3d;
-  transition: transform 150ms ease-out;
-  transform:
-    perspective(800px)
-    rotateX(calc((var(--spot-my, 0.5) - 0.5) * -15deg))
-    rotateY(calc((var(--spot-mx, 0.5) - 0.5) * 15deg));
-}
-
-.pack-spotlight-card.entering {
-  animation: pack-spotlight-enter 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes pack-spotlight-enter {
-  0%   { opacity: 0; transform: perspective(800px) scale(0.6) rotateY(90deg); }
-  50%  { opacity: 1; transform: perspective(800px) scale(1.05) rotateY(-5deg); }
-  100% { opacity: 1; transform: perspective(800px) scale(1) rotateY(0deg); }
-}
-
-.pack-spotlight-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.pack-spotlight-holo {
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  opacity: 0;
-  mix-blend-mode: color-dodge;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      calc(var(--spot-mx, 0.5) * 180deg),
-      rgba(89, 213, 224, 0.25) 0%,
-      rgba(200, 162, 255, 0.2) 10%,
-      rgba(255, 214, 102, 0.15) 20%,
-      rgba(89, 213, 224, 0.25) 30%,
-      transparent 40%
-    );
-  background-size: 200% 200%;
-  background-position:
-    calc(var(--spot-mx, 0.5) * 100%) calc(var(--spot-my, 0.5) * 100%);
-  filter: brightness(0.7) contrast(1.8);
-  transition: opacity 300ms ease;
-}
-
-.pack-spotlight-card:hover .pack-spotlight-holo,
-.pack-spotlight-card.holo-active .pack-spotlight-holo {
-  opacity: 0.8;
-}
-
-.pack-spotlight-info {
-  margin-top: 18px;
-  text-align: center;
-}
-
-.pack-spotlight-name {
-  color: #f1f5f6;
-  font: 900 15px/1.2 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 2px;
-}
-
-.pack-spotlight-meta {
-  margin-top: 6px;
-  color: #8ed6e6;
-  font: 700 8px/1 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 1.5px;
-}
-
-.pack-spotlight-rarity {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 4px 12px;
-  border: 1px solid;
-  border-radius: 4px;
-  font: 800 7px/1 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.pack-spotlight-rarity.rarity-base   { color: #a0a5ab; border-color: rgba(160,165,171,0.3); }
-.pack-spotlight-rarity.rarity-silver { color: #c8ced1; border-color: rgba(200,206,209,0.3); }
-.pack-spotlight-rarity.rarity-gold   { color: #d6b85a; border-color: rgba(214,184,90,0.4); }
-.pack-spotlight-rarity.rarity-neon   { color: #39ff96; border-color: rgba(57,255,150,0.3); }
-.pack-spotlight-rarity.rarity-rwb    { color: #e85d75; border-color: rgba(232,93,117,0.3); }
-.pack-spotlight-rarity.rarity-black  { color: #e1e8ee; border-color: rgba(225,232,238,0.3);
-                                       text-shadow: 0 0 12px rgba(225,232,238,0.5); }
-
-.pack-rarity-reveal {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
-}
-
-.pack-rarity-reveal.reveal-gold {
-  background: radial-gradient(ellipse at center, rgba(214,184,90,0.3) 0%, transparent 60%);
-  animation: pack-rarity-burst 800ms ease-out forwards;
-}
-
-.pack-rarity-reveal.reveal-neon {
-  background: radial-gradient(ellipse at center, rgba(57,255,150,0.25) 0%, transparent 60%);
-  animation: pack-rarity-burst 800ms ease-out forwards;
-}
-
-.pack-rarity-reveal.reveal-black {
-  background: radial-gradient(ellipse at center, rgba(225,232,238,0.2) 0%, transparent 60%);
-  animation: pack-rarity-burst 1000ms ease-out forwards;
-}
-
-@keyframes pack-rarity-burst {
-  0%   { opacity: 0; transform: scale(0.3); }
-  30%  { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(2); }
-}
-
-.pack-reveal-controls {
-  position: relative;
-  z-index: 25; /* 保持在 spotlight 遮罩之上，避免按钮被遮挡 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.pack-next-btn {
-  min-width: 130px;
-  height: 40px;
-  border: 1px solid rgba(89, 213, 224, 0.5);
-  border-radius: 6px;
-  background: rgba(89, 213, 224, 0.08);
-  color: #a9e1ed;
-  font: 800 9px/1 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: background 200ms ease, box-shadow 200ms ease;
-}
-
-.pack-next-btn:hover {
-  background: rgba(89, 213, 224, 0.15);
-  box-shadow: 0 0 14px rgba(89, 213, 224, 0.2);
-}
-
-.pack-card-counter {
-  color: #738087;
-  font: 700 8px/1 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 1px;
-}
-
-/* 3.6 汇总阶段 */
-.pack-summary-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  padding: 24px;
-}
-
-.pack-summary-card {
-  width: 120px;
-  aspect-ratio: 5 / 7;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.pack-summary-card:nth-child(1) { animation: pack-summary-enter 400ms ease 0ms both; }
-.pack-summary-card:nth-child(2) { animation: pack-summary-enter 400ms ease 80ms both; }
-.pack-summary-card:nth-child(3) { animation: pack-summary-enter 400ms ease 160ms both; }
-.pack-summary-card:nth-child(4) { animation: pack-summary-enter 400ms ease 240ms both; }
-.pack-summary-card:nth-child(5) { animation: pack-summary-enter 400ms ease 320ms both; }
-
-@keyframes pack-summary-enter {
-  from { opacity: 0; transform: translateY(20px) scale(0.85); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.pack-summary-card:hover {
-  transform: translateY(-6px) scale(1.05);
-}
-
-.pack-summary-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.pack-summary-stats {
-  text-align: center;
-  margin: 20px 0;
-  color: #8f999d;
-  font: 800 9px/1.6 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 1px;
-}
-
-.pack-summary-stats strong {
-  color: #8ed6e6;
-}
-
-/* 新流程适配：汇总阶段 DONE 按钮始终可见 */
-.pack-stage-summary .pack-close-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ===== PACK ARTWORK + FLASH OPEN ===== */
-
-/* 实体卡包贴图（用户提供，NBA 25-26 赛季包装质感） */
-.pack-envelope .pack-front {
-  background-image:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.02)),
-    url("assets/pack-artwork.jpg");
-  background-size: cover;
-  background-position: center;
-}
-
-.pack-envelope .pack-back {
-  background-image: url("assets/pack-artwork.jpg");
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.62) saturate(1.08);
-}
-
-/* 贴图自带品牌文字，隐藏旧覆盖文字 */
-.pack-envelope .pack-logo,
-.pack-envelope .pack-series {
-  display: none;
-}
-
-.pack-envelope .pack-hint {
-  margin-top: auto;
-  margin-bottom: 18px;
-  padding: 6px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 20px;
-  background: rgba(6, 8, 14, 0.45);
-  color: rgba(255, 255, 255, 0.92);
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-/* FLASH OPEN 按钮 */
-.pack-flash-open-btn {
-  display: block;
-  margin: 18px auto 0;
-  min-width: 150px;
-  height: 38px;
-  border: 1px solid rgba(255, 214, 102, 0.55);
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(89, 213, 224, 0.14), rgba(255, 214, 102, 0.12));
-  color: #ffe3a1;
-  font: 800 9px/1 "Orbitron", ui-sans-serif, sans-serif;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: box-shadow 200ms ease, transform 160ms ease, background 200ms ease;
-}
-
-.pack-flash-open-btn:hover {
-  background: linear-gradient(135deg, rgba(89, 213, 224, 0.22), rgba(255, 214, 102, 0.2));
-  box-shadow: 0 0 16px rgba(255, 214, 102, 0.28);
-}
-
-.pack-flash-open-btn:active {
-  transform: scale(0.95);
-}
-
-/* 闪光拆开：包体闪光 + 全屏白光 */
-.pack-envelope.flash-open .pack-front {
-  animation: pack-flash-open-front 480ms ease-out;
-}
-
-@keyframes pack-flash-open-front {
-  0%   { filter: brightness(1) saturate(1); transform: scale(1); }
-  35%  { filter: brightness(2.4) saturate(0.5); transform: scale(1.05); }
-  100% { filter: brightness(1) saturate(1); transform: scale(1); }
-}
-
-.pack-flash-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1010;
-  pointer-events: none;
-  background: radial-gradient(
-    circle at 50% 42%,
-    rgba(255, 255, 255, 0.96) 0%,
-    rgba(89, 213, 224, 0.55) 42%,
-    rgba(255, 214, 102, 0.25) 62%,
-    transparent 78%
-  );
-  animation: pack-flash-white 620ms ease-out forwards;
-}
-
-@keyframes pack-flash-white {
-  0%   { opacity: 0; }
-  22%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* ===== END PACK ARTWORK + FLASH OPEN ===== */
-
-/* 3.7 Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .pack-ambient,
-  .pack-ambient::after,
-  .pack-foil-layer,
-  .pack-envelope.tearing,
-  .pack-envelope.tearing-critical .pack-front,
-  .pack-spotlight-card.entering,
-  .pack-stack-card.drawing {
-    animation: none !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ===== END PACK REDESIGN v2 ===== */
 
 /* ===== PACK REDESIGN v2 — Elite Court Real Image Pack =====
  *
@@ -7396,40 +6781,176 @@ input[type="range"]:active::-webkit-slider-thumb {
   object-fit: cover;
 }
 
-/* --- environment --- */
-.pack-ambient {
+/* --- pack backdrop v2: aurora stage ---
+ *
+ * 零依赖五层背板，灵感参考：
+ *   AlberErre/auroral  — 纯 CSS 动态极光渐变
+ *   VincentGarreau/particles.js  — 背景浮尘粒子氛围
+ */
+.pack-backdrop {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
+  overflow: hidden;
   pointer-events: none;
-  background: radial-gradient(ellipse 700px 500px at 50% 40%,
-    rgba(130, 60, 220, 0.10) 0%,
-    rgba(89, 213, 224, 0.04) 40%,
-    transparent 70%);
-  animation: pack-amb-breathe 4s ease-in-out infinite alternate;
+  background:
+    radial-gradient(ellipse 130% 100% at 50% 36%,
+      rgba(10, 14, 28, 0) 0%,
+      rgba(4, 6, 12, 0.42) 72%,
+      rgba(2, 3, 7, 0.86) 100%),
+    linear-gradient(180deg,
+      rgba(8, 11, 22, 0.42) 0%,
+      rgba(5, 7, 14, 0.16) 52%,
+      rgba(3, 4, 9, 0.5) 100%);
 }
-.pack-ambient::after {
-  content: "";
+
+/* --- 1/5 极光团：四色缓慢漂移 --- */
+.pack-aurora {
   position: absolute;
-  width: 3px; height: 3px; border-radius: 50%;
-  top: 25%; left: 18%;
-  background: rgba(180, 120, 255, 0.6);
-  box-shadow:
-    90px -50px 0 rgba(89,213,224,0.5),
-    220px 70px 0 rgba(180,120,255,0.4),
-    340px -30px 0 rgba(255,214,102,0.5),
-    460px 90px 0 rgba(89,213,224,0.3),
-    170px 140px 0 rgba(180,120,255,0.4),
-    380px -90px 0 rgba(255,214,102,0.3);
-  animation: pack-amb-float 6s ease-in-out infinite alternate;
+  width: 50vw;
+  height: 50vw;
+  min-width: 380px;
+  min-height: 380px;
+  border-radius: 50%;
+  opacity: 0.5;
+  will-change: transform, opacity;
 }
-@keyframes pack-amb-breathe {
-  from { opacity: 0.4; transform: scale(0.94); }
-  to   { opacity: 1;   transform: scale(1.06); }
+.pack-aurora-a {
+  top: -20%;
+  left: -14%;
+  background: radial-gradient(circle at 34% 38%,
+    rgba(89, 213, 224, 0.62),
+    rgba(89, 213, 224, 0) 62%);
+  animation: pack-aur-drift-a 24s ease-in-out infinite alternate;
 }
-@keyframes pack-amb-float {
-  from { transform: translateY(0) translateX(0); opacity: 0.3; }
-  to   { transform: translateY(-25px) translateX(12px); opacity: 0.7; }
+.pack-aurora-b {
+  top: -16%;
+  right: -18%;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle at 58% 42%,
+    rgba(200, 162, 255, 0.58),
+    rgba(200, 162, 255, 0) 60%);
+  animation: pack-aur-drift-b 28s ease-in-out infinite alternate;
+}
+.pack-aurora-c {
+  bottom: -26%;
+  left: -10%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle at 46% 42%,
+    rgba(255, 214, 102, 0.46),
+    rgba(255, 214, 102, 0) 58%);
+  animation: pack-aur-drift-c 30s ease-in-out infinite alternate;
+}
+.pack-aurora-d {
+  right: -12%;
+  bottom: -30%;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle at 44% 40%,
+    rgba(232, 93, 117, 0.48),
+    rgba(232, 93, 117, 0) 58%);
+  animation: pack-aur-drift-d 32s ease-in-out infinite alternate;
+}
+@keyframes pack-aur-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); opacity: 0.44; }
+  to   { transform: translate3d(5vw, 4vh, 0) scale(1.2); opacity: 0.72; }
+}
+@keyframes pack-aur-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.08); opacity: 0.52; }
+  to   { transform: translate3d(-4vw, 6vh, 0) scale(0.92); opacity: 0.78; }
+}
+@keyframes pack-aur-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(1); opacity: 0.38; }
+  to   { transform: translate3d(4vw, -3vh, 0) scale(1.16); opacity: 0.64; }
+}
+@keyframes pack-aur-drift-d {
+  from { transform: translate3d(0, 0, 0) scale(1.06); opacity: 0.4; }
+  to   { transform: translate3d(-5vw, -4vh, 0) scale(0.94); opacity: 0.66; }
+}
+
+/* --- 2/5 中央聚光灯：柔和光锥 + 跟随视线的径向光晕 --- */
+.pack-spotlight {
+  position: absolute;
+  inset: -8% -12%;
+  z-index: 1;
+  background:
+    conic-gradient(from 208deg at 50% 42%,
+      transparent 0deg,
+      rgba(89, 213, 224, 0.07) 32deg,
+      transparent 70deg,
+      rgba(180, 120, 255, 0.05) 118deg,
+      transparent 152deg,
+      rgba(255, 214, 102, 0.05) 202deg,
+      transparent 250deg,
+      rgba(232, 93, 117, 0.05) 298deg,
+      transparent 344deg),
+    radial-gradient(ellipse 72% 58% at 50% 42%,
+      rgba(142, 214, 230, 0.12),
+      rgba(180, 120, 255, 0.06) 42%,
+      transparent 72%);
+  background-position: center, 50% 42%;
+  background-repeat: no-repeat;
+  transition: background-position 1.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: pack-spot-breathe 7s ease-in-out infinite alternate;
+  filter: blur(2px);
+}
+@keyframes pack-spot-breathe {
+  from { opacity: 0.78; transform: scale(1); }
+  to   { opacity: 1;    transform: scale(1.05); }
+}
+
+/* --- 3/5 舞台点阵地板：透视纵深 --- */
+.pack-grid-floor {
+  position: absolute;
+  left: -15%;
+  right: -15%;
+  bottom: -6%;
+  height: 60%;
+  z-index: 2;
+  background-image: radial-gradient(circle at center,
+    rgba(142, 214, 230, 0.5) 1px,
+    rgba(142, 214, 230, 0) 1.7px);
+  background-size: 44px 44px;
+  transform: perspective(620px) rotateX(58deg) scale(1.08);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top,
+    rgba(0, 0, 0, 0.85) 6%,
+    rgba(0, 0, 0, 0.28) 52%,
+    transparent 80%);
+  mask-image: linear-gradient(to top,
+    rgba(0, 0, 0, 0.85) 6%,
+    rgba(0, 0, 0, 0.28) 52%,
+    transparent 80%);
+  animation: pack-grid-pulse 9s ease-in-out infinite alternate;
+}
+@keyframes pack-grid-pulse {
+  from { opacity: 0.45; }
+  to   { opacity: 0.85; }
+}
+
+/* --- 4/5 浮尘粒子画布（PackDust 引擎驱动） --- */
+.pack-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- 5/5 暗角 + 胶片噪点：收拢视线聚焦卡包 --- */
+.pack-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    radial-gradient(ellipse 135% 115% at 50% 44%,
+      transparent 40%,
+      rgba(2, 3, 7, 0.4) 76%,
+      rgba(1, 2, 5, 0.82) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.9;
 }
 
 /* --- confetti canvas --- */
@@ -7485,24 +7006,53 @@ input[type="range"]:active::-webkit-slider-thumb {
   opacity: 1;
 }
 
-/* 拆包动画视频层 */
-.pack-video {
+/* 自然光泽特效：光标处柔和高光 + 悬停时一次斜向流光扫过 */
+.pack-foil-sheen {
   position: absolute;
   inset: 0;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-  opacity: 0;
+  z-index: 6;
   pointer-events: none;
-  transition: opacity 200ms ease;
+  opacity: 0;
+  mix-blend-mode: screen;
+  /* 沿包装纸不规则边缘裁切：用卡包透明图作遮罩 */
+  -webkit-mask-image: url("assets/pack-preview.webp");
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-mode: alpha;
+  mask-image: url("assets/pack-preview.webp");
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  background:
+    radial-gradient(
+      ellipse 90% 70% at
+        calc(var(--pack-mx, 0.5) * 100%)
+        calc(var(--pack-my, 0.5) * 100%),
+      rgba(255,255,255,0.10) 0%,
+      rgba(255,255,255,0.03) 45%,
+      transparent 65%
+    ),
+    linear-gradient(
+      115deg,
+      transparent 32%,
+      rgba(255,255,255,0.16) 46%,
+      rgba(255,255,255,0.04) 52%,
+      transparent 64%
+    );
+  background-size: 100% 100%, 260% 260%;
+  background-position: 0 0, -70% 0;
+  transition: opacity 300ms ease;
 }
-.pack-envelope.video-playing .pack-video {
+.pack-envelope:hover .pack-foil-sheen,
+.pack-envelope.tearing .pack-foil-sheen {
   opacity: 1;
+  animation: pack-gloss-sweep 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
-.pack-envelope.video-playing .pack-frame {
-  opacity: 0 !important;
+@keyframes pack-gloss-sweep {
+  0%   { background-position: 0 0, -70% 0; }
+  100% { background-position: 0 0, 170% 0; }
 }
 
 /* hint text below pack */
@@ -7516,16 +7066,24 @@ input[type="range"]:active::-webkit-slider-thumb {
 }
 
 /* --- tearing states --- */
-.pack-envelope.tearing { cursor: grabbing; }
-
-/* critical: > 70% progress */
-.pack-envelope.tear-critical {
-  animation: pack-shake 60ms ease-in-out infinite;
+.pack-envelope.tearing {
+  cursor: grabbing;
+  filter: drop-shadow(0 24px 60px rgba(130, 50, 200, 0.45))
+          drop-shadow(0 0 30px rgba(89, 213, 224, 0.15));
 }
+
+/* critical: > 70% progress — shake + glow intensifies */
+.pack-envelope.tear-critical {
+  animation: pack-shake 55ms ease-in-out infinite;
+  filter: drop-shadow(0 24px 60px rgba(130, 50, 200, 0.5))
+          drop-shadow(0 0 50px rgba(89, 213, 224, 0.3));
+}
+.pack-envelope.tear-critical .pack-foil-sheen { opacity: 1; }
+
 @keyframes pack-shake {
   0%,100% { transform: perspective(800px) translateX(0); }
-  25%     { transform: perspective(800px) translateX(-2px); }
-  75%     { transform: perspective(800px) translateX(2px); }
+  25%     { transform: perspective(800px) translateX(-2px) rotateZ(-0.3deg); }
+  75%     { transform: perspective(800px) translateX(2px) rotateZ(0.3deg); }
 }
 
 /* --- split open animation --- */
@@ -7533,9 +7091,14 @@ input[type="range"]:active::-webkit-slider-thumb {
   animation: pack-envelope-burst 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   pointer-events: none;
 }
+.pack-envelope.split-open .pack-foil-sheen { opacity: 0; }
 @keyframes pack-envelope-burst {
-  0%   { opacity: 1; transform: perspective(800px) scale(1); filter: brightness(1.25); }
-  100% { opacity: 0; transform: perspective(800px) scale(0.78) translateY(-46px); filter: brightness(2.1); }
+  0%   { opacity: 1; transform: perspective(800px) scale(1) rotateZ(0deg);
+         filter: brightness(1.3) drop-shadow(0 0 40px rgba(180,120,255,0.6)); }
+  40%  { opacity: 1; transform: perspective(800px) scale(1.12) rotateZ(-2deg);
+         filter: brightness(2) drop-shadow(0 0 60px rgba(89,213,224,0.8)); }
+  100% { opacity: 0; transform: perspective(800px) scale(0.6) translateY(-80px) rotateZ(3deg);
+         filter: brightness(3) drop-shadow(0 0 0 transparent); }
 }
 /* flash burst on split open */
 .pack-split-flash {
@@ -7544,14 +7107,42 @@ input[type="range"]:active::-webkit-slider-thumb {
   z-index: 60;
   pointer-events: none;
   background: radial-gradient(ellipse at center,
-    rgba(180,120,255,0.35) 0%,
-    rgba(89,213,224,0.15) 30%,
-    transparent 60%);
+    rgba(255,255,255,0.4) 0%,
+    rgba(180,120,255,0.25) 20%,
+    rgba(89,213,224,0.1) 40%,
+    transparent 65%);
   animation: pack-split-flash-anim 650ms ease-out forwards;
 }
 @keyframes pack-split-flash-anim {
-  0%   { opacity: 1; transform: scale(0.8); }
-  100% { opacity: 0; transform: scale(2.2); }
+  0%   { opacity: 1; transform: scale(0.6); }
+  100% { opacity: 0; transform: scale(2.5); }
+}
+
+/* flash-open button effect */
+.pack-flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,
+    rgba(255,255,255,0.55) 0%,
+    rgba(180,120,255,0.2) 30%,
+    transparent 60%);
+  animation: pack-flash-overlay-anim 600ms ease-out forwards;
+}
+@keyframes pack-flash-overlay-anim {
+  0%   { opacity: 1; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(2.8); }
+}
+
+/* flash-burst envelope state (rapid frame cycle) */
+.pack-envelope.flash-burst {
+  animation: pack-flash-burst-shake 40ms ease-in-out infinite;
+  filter: brightness(1.4) drop-shadow(0 0 40px rgba(255,255,255,0.5)) !important;
+}
+@keyframes pack-flash-burst-shake {
+  0%,100% { transform: perspective(800px) scale(1.03); }
+  50%     { transform: perspective(800px) scale(1.06) rotateZ(0.5deg); }
 }
 
 /* pack idle wobble */
@@ -7618,8 +7209,32 @@ input[type="range"]:active::-webkit-slider-thumb {
   transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* flash open button */
+.pack-flash-open-btn {
+  display: block;
+  margin: 16px auto 0;
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 214, 102, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 214, 102, 0.06);
+  color: #ffd666;
+  font: 800 8px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 200ms ease, box-shadow 200ms ease, transform 120ms ease;
+}
+.pack-flash-open-btn:hover {
+  background: rgba(255, 214, 102, 0.12);
+  box-shadow: 0 0 18px rgba(255, 214, 102, 0.2);
+}
+.pack-flash-open-btn:active {
+  transform: scale(0.96);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pack-ambient, .pack-ambient::after,
+  .pack-backdrop .pack-aurora,
+  .pack-backdrop .pack-spotlight,
+  .pack-backdrop .pack-grid-floor,
   .pack-envelope.idle-wobble,
   .pack-envelope.tear-critical,
   .pack-hint-text {
@@ -7629,3 +7244,129 @@ input[type="range"]:active::-webkit-slider-thumb {
 }
 
 /* ===== END PACK REDESIGN v2 — Elite Court Real Image Pack ===== */
+
+/* ===== PACK MINI BUTTON ===== */
+.pack-mini-btn {
+  position: absolute;
+  top: 66px;
+  right: 18px;
+  z-index: 45;
+  width: 74px;
+  height: 104px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pack-mini-btn::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(89, 213, 224, 0.28);
+  border-radius: 16px;
+  animation: pack-mini-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pack-mini-pulse {
+  0%   { transform: scale(0.9); opacity: 0.9; }
+  70%  { transform: scale(1.18); opacity: 0; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+
+.pack-mini-btn:hover {
+  transform: translateY(-3px) scale(1.06);
+}
+
+.pack-mini-art {
+  position: absolute;
+  inset: 0;
+  background: url("assets/pack-preview.webp") center/cover no-repeat;
+  border-radius: 6px;
+  -webkit-mask-image: url("assets/pack-preview.webp");
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-mode: alpha;
+  mask-image: url("assets/pack-preview.webp");
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  animation: pack-mini-bob 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+
+@keyframes pack-mini-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-5px) rotate(2deg); }
+}
+
+.pack-mini-gloss {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  -webkit-mask-image: url("assets/pack-preview.webp");
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-mode: alpha;
+  mask-image: url("assets/pack-preview.webp");
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 40%,
+      rgba(255, 255, 255, 0.12) 0%,
+      transparent 60%),
+    linear-gradient(115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.22) 46%,
+      rgba(255, 255, 255, 0.05) 54%,
+      transparent 66%);
+  background-size: 100% 100%, 260% 260%;
+  background-position: 0 0, -70% 0;
+}
+
+.pack-mini-btn:hover .pack-mini-gloss {
+  opacity: 1;
+  animation: pack-mini-gloss-sweep 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes pack-mini-gloss-sweep {
+  0%   { background-position: 0 0, -70% 0; }
+  100% { background-position: 0 0, 170% 0; }
+}
+
+.pack-mini-label {
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border: 1px solid rgba(89, 213, 224, 0.35);
+  border-radius: 20px;
+  background: rgba(8, 10, 16, 0.78);
+  color: #a9e1ed;
+  font: 800 7px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pack-mini-btn::before,
+  .pack-mini-art,
+  .pack-mini-gloss {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== END PACK MINI BUTTON ===== */

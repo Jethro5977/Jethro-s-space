@@ -3031,6 +3031,7 @@ let compareSelections = [];
 let packPhase = "sealed";
 let packTearProgress = 0;
 let packAbortController = null;
+let packDust = null;
 let lastLibraryTouchAction = null;
 
 const PRESET_CARD_COLORS = [
@@ -4003,13 +4004,6 @@ function adjustColor(hex, amount) {
   return `#${((red << 16) | (green << 8) | blue).toString(16).padStart(6, "0")}`;
 }
 
-function closePackExperience() {
-  $("#packOpening").hidden = true;
-  packPhase = "sealed";
-  packAbortController?.abort();
-  packAbortController = null;
-}
-
 function sleep(milliseconds) {
   return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 }
@@ -4202,6 +4196,7 @@ function bindV6Events() {
   bindLibraryEvents();
   $("#autoBuildBtn")?.addEventListener("click", runAutoBuildFromUI);
   $("#packOpenBtn")?.addEventListener("click", openPackExperience);
+  $("#packMiniBtn")?.addEventListener("click", openPackExperience);
   $("#cardCompareBtn")?.addEventListener("click", startCompareMode);
   $("#compareCloseBtn")?.addEventListener("click", closeCompare);
   document.addEventListener("keydown", (event) => {
@@ -4342,451 +4337,6 @@ document.querySelectorAll(
   ".workshop-btn, .library-action-btn"
 ).forEach((btn) => btn.addEventListener("pointerdown", createRipple));
 
-// ===== PACK REDESIGN v2 =====
-//
-// 全息反光效果的 CSS 技术灵感来自：
-//   simeydotme/pokemon-cards-css (GPL-3.0)
-//   https://github.com/simeydotme/pokemon-cards-css
-//   此处为独立重新实现，非直接复制。
-//
-// 粒子系统核心物理算法灵感来自：
-//   catdad/canvas-confetti (ISC License)
-//   https://github.com/catdad/canvas-confetti
-//   此处为独立重新实现，非直接复制。
-//
-// 拆包流程设计参考了：
-//   elysiumdelivery/altare-tcg (MIT License)
-//   https://github.com/elysiumdelivery/altare-tcg
-
-/**
- * 轻量粒子系统——核心物理算法提取自 catdad/canvas-confetti (ISC License)
- * 原项目：https://github.com/catdad/canvas-confetti
- * 改动：去除 Web Worker 支持、简化为单次 burst、增加自定义形状
- */
-class PackConfettiLegacy {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
-    this.particles = [];
-    this.animId = null;
-    this.colors = [
-      "#59d5e0", "#c8a2ff", "#ffd666", "#e85d75",
-      "#58dca8", "#f4c44e", "#8ed6e6", "#a9e1ed"
-    ];
-  }
-
-  resize() {
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width = rect.width * devicePixelRatio;
-    this.canvas.height = rect.height * devicePixelRatio;
-    this.canvas.style.width = rect.width + "px";
-    this.canvas.style.height = rect.height + "px";
-    this.ctx.scale(devicePixelRatio, devicePixelRatio);
-    this.w = rect.width;
-    this.h = rect.height;
-  }
-
-  burst(x, y, count = 60) {
-    this.resize();
-    for (let i = 0; i < count; i++) {
-      const angle = (Math.random() * 360) * Math.PI / 180;
-      const velocity = 4 + Math.random() * 8;
-      this.particles.push({
-        x, y,
-        vx: Math.cos(angle) * velocity,
-        vy: Math.sin(angle) * velocity - 3,
-        gravity: 0.12 + Math.random() * 0.08,
-        size: 3 + Math.random() * 5,
-        color: this.colors[Math.floor(Math.random() * this.colors.length)],
-        rotation: Math.random() * 360,
-        rotSpeed: (Math.random() - 0.5) * 12,
-        opacity: 1,
-        decay: 0.015 + Math.random() * 0.01,
-        shape: ["rect", "diamond", "star"][Math.floor(Math.random() * 3)],
-        wobble: Math.random() * 10,
-        wobbleSpeed: 0.05 + Math.random() * 0.1,
-        t: 0
-      });
-    }
-    if (!this.animId) this._loop();
-  }
-
-  _loop() {
-    this.ctx.clearRect(0, 0, this.w, this.h);
-    this.particles = this.particles.filter(p => {
-      p.x += p.vx + Math.sin(p.t * p.wobbleSpeed) * 0.5;
-      p.y += p.vy;
-      p.vy += p.gravity;
-      p.vx *= 0.99;
-      p.rotation += p.rotSpeed;
-      p.opacity -= p.decay;
-      p.t++;
-      if (p.opacity <= 0) return false;
-
-      this.ctx.save();
-      this.ctx.translate(p.x, p.y);
-      this.ctx.rotate(p.rotation * Math.PI / 180);
-      this.ctx.globalAlpha = p.opacity;
-      this.ctx.fillStyle = p.color;
-
-      if (p.shape === "rect") {
-        this.ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-      } else if (p.shape === "diamond") {
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, -p.size);
-        this.ctx.lineTo(p.size * 0.6, 0);
-        this.ctx.lineTo(0, p.size);
-        this.ctx.lineTo(-p.size * 0.6, 0);
-        this.ctx.closePath();
-        this.ctx.fill();
-      } else {
-        this._drawStar(0, 0, 5, p.size, p.size * 0.4);
-        this.ctx.fill();
-      }
-
-      this.ctx.restore();
-      return true;
-    });
-
-    if (this.particles.length > 0) {
-      this.animId = requestAnimationFrame(() => this._loop());
-    } else {
-      this.animId = null;
-    }
-  }
-
-  _drawStar(cx, cy, spikes, outerR, innerR) {
-    this.ctx.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-      const r = i % 2 === 0 ? outerR : innerR;
-      const angle = (i * Math.PI / spikes) - Math.PI / 2;
-      const method = i === 0 ? "moveTo" : "lineTo";
-      this.ctx[method](cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
-    }
-    this.ctx.closePath();
-  }
-
-  destroy() {
-    if (this.animId) cancelAnimationFrame(this.animId);
-    this.particles = [];
-    this.animId = null;
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-}
-
-/**
- * 包体鼠标跟随——核心逻辑提取自 simeydotme/pokemon-cards-css (GPL-3.0)
- * 原理：将 pointermove 的坐标归一化到 [0, 1] 写入 CSS 变量
- */
-function setupPackTilt(element) {
-  element.addEventListener("pointermove", (e) => {
-    const rect = element.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) / rect.width;
-    const my = (e.clientY - rect.top) / rect.height;
-    element.style.setProperty("--pack-mx", mx.toFixed(3));
-    element.style.setProperty("--pack-my", my.toFixed(3));
-  });
-  element.addEventListener("pointerleave", () => {
-    element.style.setProperty("--pack-mx", "0.5");
-    element.style.setProperty("--pack-my", "0.5");
-  });
-}
-
-function setupSpotlightTilt(element) {
-  element.addEventListener("pointermove", (e) => {
-    const rect = element.getBoundingClientRect();
-    element.style.setProperty("--spot-mx", ((e.clientX - rect.left) / rect.width).toFixed(3));
-    element.style.setProperty("--spot-my", ((e.clientY - rect.top) / rect.height).toFixed(3));
-  });
-  element.addEventListener("pointerleave", () => {
-    element.style.setProperty("--spot-mx", "0.5");
-    element.style.setProperty("--spot-my", "0.5");
-  });
-}
-
-/**
- * 完全重写拆包流程——替换原有 openPackExperience 函数
- */
-function openPackExperience() {
-  const library = loadLibrary();
-  if (library.cards.length < 3) {
-    showToast("卡牌库中至少需要 3 张卡片才能体验拆包");
-    return;
-  }
-
-  packAbortController?.abort();
-  packAbortController = new AbortController();
-  const signal = packAbortController.signal;
-
-  const cardCount = Math.min(library.cards.length, library.cards.length >= 5 ? 5 : 3);
-  const rarityOrder = { base: 0, silver: 1, rwb: 2, neon: 3, gold: 4, black: 5 };
-  const cards = [...library.cards]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, cardCount)
-    .sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
-
-  const pack = $("#packOpening");
-  const envelope = $("#packEnvelope");
-  const tear = $("#packTear");
-  const tearGlow = $("#packTearGlow");
-  const stageEnvelope = $("#packStageEnvelope");
-  const stageReveal = $("#packStageReveal");
-  const stageSummary = $("#packStageSummary");
-  const confettiCanvas = $("#packConfettiCanvas");
-
-  pack.hidden = false;
-  stageEnvelope.hidden = false;
-  stageReveal.hidden = true;
-  stageSummary.hidden = true;
-  packPhase = "sealed";
-  packTearProgress = 0;
-
-  $("#packSeries").textContent = STYLE_META[cards.at(-1).style]?.name || "CUSTOM EDITION";
-  envelope.style.cssText = "";
-  envelope.className = "pack-envelope";
-  tear.style.height = "0";
-  tearGlow.style.height = "0";
-  envelope.focus();
-
-  setupPackTilt(envelope);
-
-  const confetti = new PackConfettiLegacy(confettiCanvas);
-
-  let dragStartY = 0;
-
-  const transitionToReveal = async (burstCount = 80) => {
-    if (["opened", "revealing", "summary", "done"].includes(packPhase)) return;
-    packPhase = "opened";
-    packTearProgress = 1;
-    tear.style.height = "100%";
-    tearGlow.style.height = "100%";
-    envelope.classList.remove("tearing", "tearing-critical");
-    envelope.classList.add("exploded");
-
-    const envelopeRect = envelope.getBoundingClientRect();
-    const packRect = pack.getBoundingClientRect();
-    const burstX = envelopeRect.left - packRect.left + envelopeRect.width / 2;
-    const burstY = envelopeRect.top - packRect.top + envelopeRect.height * 0.3;
-    confetti.burst(burstX, burstY, burstCount);
-
-    const flash = document.createElement("div");
-    flash.className = "pack-rarity-flash flash-gold";
-    document.body.appendChild(flash);
-    setTimeout(() => flash.remove(), 620);
-
-    await sleep(600);
-
-    stageEnvelope.hidden = true;
-    stageReveal.hidden = false;
-
-    await revealPackCardsV2(cards, confetti, signal);
-  };
-
-  const finishTearing = () => transitionToReveal(80);
-
-  // 直接闪光拆开：无需拖拽，白光 + 彩带 + 包体闪光后进入揭示
-  const flashOpenPack = async () => {
-    if (packPhase !== "sealed") return;
-    envelope.classList.add("flash-open");
-
-    const overlay = document.createElement("div");
-    overlay.className = "pack-flash-overlay";
-    document.body.appendChild(overlay);
-    setTimeout(() => overlay.remove(), 650);
-
-    const packRect = pack.getBoundingClientRect();
-    confetti.burst(packRect.width / 2, packRect.height * 0.35, 120);
-
-    await sleep(420);
-    envelope.classList.remove("flash-open");
-    await transitionToReveal(60);
-  };
-
-  envelope.addEventListener("pointerdown", (e) => {
-    if (packPhase !== "sealed") return;
-    dragStartY = e.clientY;
-    packPhase = "tearing";
-    envelope.classList.add("tearing");
-    envelope.setPointerCapture?.(e.pointerId);
-  }, { signal });
-
-  envelope.addEventListener("pointermove", (e) => {
-    if (packPhase !== "tearing") return;
-    packTearProgress = clamp((e.clientY - dragStartY) / 190, 0, 1);
-    tear.style.height = `${packTearProgress * 100}%`;
-    tearGlow.style.height = `${packTearProgress * 100}%`;
-
-    if (packTearProgress >= 0.7) {
-      envelope.classList.add("tearing-critical");
-      if (Math.random() > 0.7) {
-        const rect = tear.getBoundingClientRect();
-        const packRect = pack.getBoundingClientRect();
-        confetti.burst(
-          rect.left - packRect.left + rect.width * Math.random(),
-          rect.top - packRect.top + rect.height,
-          6
-        );
-      }
-    }
-
-    if (packTearProgress >= 0.98) finishTearing();
-  }, { signal });
-
-  envelope.addEventListener("pointerup", () => {
-    if (packPhase !== "tearing") return;
-    if (packTearProgress >= 0.72) finishTearing();
-    else {
-      packPhase = "sealed";
-      packTearProgress = 0;
-      tear.style.height = "0";
-      tearGlow.style.height = "0";
-      envelope.classList.remove("tearing", "tearing-critical");
-    }
-  }, { signal });
-
-  envelope.addEventListener("keydown", (e) => {
-    if (["Enter", " "].includes(e.key)) {
-      e.preventDefault();
-      finishTearing();
-    }
-  }, { signal });
-
-  $("#packFlashOpenBtn").addEventListener("click", flashOpenPack, { signal });
-
-  $("#packCloseBtn").addEventListener("click", () => {
-    confetti.destroy();
-    closePackExperience();
-  }, { signal });
-}
-
-/**
- * 卡牌逐张揭示
- */
-async function revealPackCardsV2(cards, confetti, signal) {
-  const stack = $("#packCardStack");
-  const spotlight = $("#packCardSpotlight");
-  const spotlightCard = $("#packSpotlightCard");
-  const spotlightInfo = $("#packSpotlightInfo");
-  const counter = $("#packCardCounter");
-  const nextBtn = $("#packNextBtn");
-
-  stack.innerHTML = cards.map((card, i) => `
-    <div class="pack-stack-card" data-pack-idx="${i}">
-      <div class="pack-stack-face pack-stack-face-down"><strong>CB</strong></div>
-      <div class="pack-stack-face pack-stack-face-up">
-        <img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}" loading="eager">
-      </div>
-    </div>
-  `).join("");
-
-  packPhase = "revealing";
-  let revealIndex = 0;
-  const highRarities = ["gold", "neon", "black"];
-
-  setupSpotlightTilt(spotlightCard);
-
-  const revealNext = async () => {
-    if (revealIndex >= cards.length) {
-      await showPackSummary(cards, confetti);
-      return;
-    }
-
-    const card = cards[revealIndex];
-    const stackCard = stack.children[0];
-    if (stackCard) {
-      stackCard.classList.add("drawing");
-      await sleep(400);
-      stackCard.remove();
-    }
-
-    spotlight.hidden = false;
-    spotlightCard.innerHTML = `
-      <img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}">
-      ${highRarities.includes(card.rarity) ? '<div class="pack-spotlight-holo"></div>' : ""}
-    `;
-    spotlightCard.classList.remove("entering");
-    void spotlightCard.offsetWidth;
-    spotlightCard.classList.add("entering");
-
-    if (highRarities.includes(card.rarity)) {
-      spotlightCard.classList.add("holo-active");
-    } else {
-      spotlightCard.classList.remove("holo-active");
-    }
-
-    spotlightInfo.innerHTML = `
-      <div class="pack-spotlight-name">${escapeHtml(card.name)}</div>
-      <div class="pack-spotlight-meta">${escapeHtml(String(card.style || "").toUpperCase())} · ${escapeHtml(String(card.slabType || "RAW").toUpperCase())}</div>
-      <span class="pack-spotlight-rarity rarity-${escapeHtml(card.rarity)}">${escapeHtml(card.rarity).toUpperCase()}</span>
-    `;
-
-    counter.textContent = `${revealIndex + 1} / ${cards.length}`;
-
-    if (highRarities.includes(card.rarity)) {
-      const reveal = document.createElement("div");
-      reveal.className = `pack-rarity-reveal reveal-${card.rarity}`;
-      document.body.appendChild(reveal);
-      setTimeout(() => reveal.remove(), 1000);
-
-      const packRect = $("#packOpening").getBoundingClientRect();
-      confetti.burst(packRect.width / 2, packRect.height / 2, 40);
-    }
-
-    revealIndex++;
-  };
-
-  await sleep(400);
-  await revealNext();
-
-  nextBtn.addEventListener("click", () => {
-    spotlight.hidden = true;
-    revealNext();
-  }, { signal });
-
-  const library = loadLibrary();
-  library.stats.packsOpened = Number(library.stats.packsOpened || 0) + 1;
-  await saveLibraryResilient(library);
-}
-
-/**
- * 汇总展示
- */
-async function showPackSummary(cards, confetti) {
-  const stageReveal = $("#packStageReveal");
-  const stageSummary = $("#packStageSummary");
-  const summaryGrid = $("#packSummaryGrid");
-  const summaryStats = $("#packSummaryStats");
-
-  stageReveal.hidden = true;
-  stageSummary.hidden = false;
-  packPhase = "summary";
-
-  summaryGrid.innerHTML = cards.map(card => `
-    <div class="pack-summary-card" data-rarity="${escapeHtml(card.rarity)}">
-      <img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}">
-    </div>
-  `).join("");
-
-  const rarityCount = {};
-  cards.forEach(c => { rarityCount[c.rarity] = (rarityCount[c.rarity] || 0) + 1; });
-  const order = { base: 0, silver: 1, rwb: 2, neon: 3, gold: 4, black: 5 };
-  const bestRarity = Object.keys(rarityCount).sort((a, b) => (order[b] || 0) - (order[a] || 0))[0];
-
-  summaryStats.innerHTML = `
-    PACK COMPLETE · <strong>${cards.length} CARDS</strong> ·
-    BEST PULL: <strong>${bestRarity.toUpperCase()}</strong>
-  `;
-
-  const hasHigh = cards.some(c => ["gold", "neon", "black"].includes(c.rarity));
-  if (hasHigh) {
-    const packRect = $("#packOpening").getBoundingClientRect();
-    confetti.burst(packRect.width / 2, packRect.height * 0.4, 100);
-  }
-
-  packPhase = "done";
-}
-
-// ===== END PACK REDESIGN v2 =====
 
 // ===== PACK REDESIGN v2 — Elite Court Real Image Pack =====
 //
@@ -4897,6 +4447,94 @@ class PackConfetti {
   }
 }
 
+// 零依赖浮尘粒子：缓慢上浮 + 横向漂移 + 呼吸闪烁，营造舞台尘埃氛围
+class PackDust {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas ? canvas.getContext("2d") : null;
+    this.particles = [];
+    this.stars = [];
+    this.animId = null;
+    this.w = 0;
+    this.h = 0;
+    this.colors = ["#d8f7fb", "#c8a2ff", "#ffd666", "#e8f4ff", "#59d5e0"];
+    this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  resize() {
+    const p = this.canvas?.parentElement;
+    if (!p) return;
+    const r = p.getBoundingClientRect();
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    this.canvas.width = r.width * dpr;
+    this.canvas.height = r.height * dpr;
+    this.canvas.style.width = r.width + "px";
+    this.canvas.style.height = r.height + "px";
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.w = r.width;
+    this.h = r.height;
+  }
+  start() {
+    if (!this.ctx || this.reduced) return;
+    this.resize();
+    const count = Math.max(40, Math.min(90, Math.round((this.w * this.h) / 22000)));
+    this.particles = Array.from({ length: count }, () => ({
+      x: Math.random() * this.w,
+      y: Math.random() * this.h,
+      r: 0.6 + Math.random() * 1.9,
+      vy: -(0.08 + Math.random() * 0.26),
+      drift: (Math.random() - 0.5) * 0.14,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.004 + Math.random() * 0.009,
+      o: 0.12 + Math.random() * 0.5,
+      c: this.colors[Math.floor(Math.random() * this.colors.length)]
+    }));
+    // 顶部静态星点：独立呼吸闪烁，增加舞台纵深细节
+    this.stars = Array.from({ length: Math.max(10, Math.round(this.w / 130)) }, () => ({
+      x: Math.random() * this.w,
+      y: Math.random() * this.h * 0.58,
+      r: 0.8 + Math.random() * 1.4,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.008 + Math.random() * 0.016,
+      o: 0.2 + Math.random() * 0.5
+    }));
+    if (!this.animId) this._loop();
+  }
+  _loop() {
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.w, this.h);
+    for (const s of this.stars) {
+      s.phase += s.speed;
+      const tw = 0.42 + 0.58 * Math.sin(s.phase);
+      ctx.globalAlpha = s.o * tw;
+      ctx.fillStyle = "#e8f0ff";
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    for (const p of this.particles) {
+      p.y += p.vy;
+      p.x += p.drift + Math.sin(p.phase) * 0.14;
+      p.phase += p.speed;
+      if (p.y < -10) { p.y = this.h + 10; p.x = Math.random() * this.w; }
+      if (p.x < -10) p.x = this.w + 10;
+      if (p.x > this.w + 10) p.x = -10;
+      const tw = 0.55 + 0.45 * Math.sin(p.phase * 2);
+      ctx.globalAlpha = p.o * tw;
+      ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    this.animId = requestAnimationFrame(() => this._loop());
+  }
+  destroy() {
+    if (this.animId) cancelAnimationFrame(this.animId);
+    this.animId = null;
+    this.particles = [];
+    if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+}
+
 function openPackExperience() {
   const library = loadLibrary();
   if (library.cards.length < 3) {
@@ -4912,7 +4550,6 @@ function openPackExperience() {
   const closeButton = $("#packCloseBtn");
   const stageEnvelope = $("#packStageEnvelope");
   const confettiCanvas = $("#packConfettiCanvas");
-  const packVideo = $("#packVideo");
   const cardCount = Math.min(library.cards.length, library.cards.length >= 5 ? 5 : 3);
   const rarityOrder = { base: 0, silver: 1, rwb: 2, neon: 3, gold: 4, black: 5 };
   const cards = [...library.cards].sort(() => Math.random() - 0.5).slice(0, cardCount).sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
@@ -4924,19 +4561,37 @@ function openPackExperience() {
   envelope.style.cssText = "";
   envelope.className = "pack-envelope idle-wobble";
   envelope.dataset.frame = "1";
-  envelope.classList.remove("video-playing");
-  if (packVideo) {
-    packVideo.src = "assets/pack-preview.webp";
-    clearTimeout(envelope._packVideoTimer);
-  }
   stageEnvelope.hidden = false;
   container.replaceChildren();
   container.style.display = "none";
   closeButton.classList.remove("visible");
   envelope.focus();
 
+  // confetti engine
   const confetti = new PackConfetti(confettiCanvas);
 
+  // ambient dust engine
+  packDust = new PackDust($("#packDust"));
+  packDust.resize();
+  packDust.start();
+
+  // backdrop spotlight follows pointer (smoothed by CSS transition)
+  const spotlight = pack.querySelector(".pack-spotlight");
+  pack.addEventListener("pointermove", (e) => {
+    if (!spotlight) return;
+    const rect = pack.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    spotlight.style.backgroundPosition = `center, ${x.toFixed(2)}% ${y.toFixed(2)}%`;
+  }, { signal });
+
+  // keep both canvases sharp if the window is resized mid-open
+  window.addEventListener("resize", () => {
+    confetti.resize();
+    packDust?.resize();
+  }, { signal });
+
+  // mouse-follow tilt + foil sheen
   const onPackMove = (e) => {
     const rect = envelope.getBoundingClientRect();
     envelope.style.setProperty("--pack-mx", ((e.clientX - rect.left) / rect.width).toFixed(3));
@@ -4951,47 +4606,31 @@ function openPackExperience() {
 
   let dragStartY = 0;
 
-  const playPackVideo = async () => {
-    if (packPhase !== "sealed") return;
-    packPhase = "playing";
-    envelope.classList.remove("idle-wobble");
-    envelope.classList.add("video-playing");
-    packVideo.src = "";
-    void packVideo.offsetWidth; // 重置同一 URL，从缓存重启动画
-    packVideo.src = "assets/pack-animation.webp";
-    try {
-      await packVideo.decode();
-    } catch (error) {
-      finishOpening();
-    }
-    clearTimeout(envelope._packVideoTimer);
-    envelope._packVideoTimer = window.setTimeout(finishOpening, 1350);
-  };
-
   const finishOpening = async () => {
     if (["opened", "revealing", "done"].includes(packPhase)) return;
     packPhase = "opened";
     packTearProgress = 1;
     envelope.classList.remove("tearing", "tear-critical", "idle-wobble");
-    clearTimeout(envelope._packVideoTimer);
-
     envelope.classList.add("split-open");
 
+    // confetti burst from pack center
     const packRect = pack.getBoundingClientRect();
     const envRect = envelope.getBoundingClientRect();
     const cx = envRect.left - packRect.left + envRect.width / 2;
     const cy = envRect.top - packRect.top + envRect.height * 0.35;
-    confetti.burst(cx, cy, 70);
+    confetti.burst(cx, cy, 80);
 
+    // full-screen flash
     const flash = document.createElement("div");
     flash.className = "pack-split-flash";
     document.body.appendChild(flash);
     window.setTimeout(() => flash.remove(), 700);
 
-    await sleep(550);
+    await sleep(580);
     revealPackCards(cards, envelope, container, closeButton, confetti);
   };
 
+  // --- drag to tear ---
   envelope.addEventListener("pointerdown", (event) => {
     if (packPhase !== "sealed") return;
     dragStartY = event.clientY;
@@ -5005,42 +4644,73 @@ function openPackExperience() {
     if (packPhase !== "tearing") return;
     packTearProgress = clamp((event.clientY - dragStartY) / 200, 0, 1);
 
-    // 撕裂进度映射到 1-5 帧
-    envelope.dataset.frame = String(1 + Math.min(4, Math.floor(packTearProgress * 5)));
+    // map progress to frames 1→5
+    const frame = 1 + Math.min(4, Math.floor(packTearProgress * 5));
+    envelope.dataset.frame = String(frame);
+
+    // rotate slightly as tearing progresses
+    envelope.style.transform = `perspective(800px) rotateZ(${packTearProgress * 1.5}deg) scale(${1 + packTearProgress * 0.02})`;
 
     if (packTearProgress >= 0.7) {
       envelope.classList.add("tear-critical");
-      if (Math.random() > 0.65) {
+      // micro sparks near the tear point
+      if (Math.random() > 0.6) {
         const packRect = pack.getBoundingClientRect();
         const envRect = envelope.getBoundingClientRect();
         confetti.burst(
-          envRect.left - packRect.left + envRect.width / 2 + (Math.random() - 0.5) * 20,
+          envRect.left - packRect.left + envRect.width * (0.3 + Math.random() * 0.4),
           envRect.top - packRect.top + envRect.height * packTearProgress,
-          4
+          3
         );
       }
     }
-    if (packTearProgress >= 0.98) playPackVideo();
+    if (packTearProgress >= 0.98) finishOpening();
   }, { signal });
 
   envelope.addEventListener("pointerup", () => {
     if (packPhase !== "tearing") return;
-    if (packTearProgress >= 0.72) { playPackVideo(); return; }
+    if (packTearProgress >= 0.72) { finishOpening(); return; }
+    // snap back
     packPhase = "sealed";
     packTearProgress = 0;
     envelope.classList.remove("tearing", "tear-critical");
     envelope.classList.add("idle-wobble");
     envelope.dataset.frame = "1";
+    envelope.style.transform = "";
   }, { signal });
 
   envelope.addEventListener("keydown", (event) => {
-    if (["Enter", " "].includes(event.key)) { event.preventDefault(); playPackVideo(); }
+    if (["Enter", " "].includes(event.key)) { event.preventDefault(); finishOpening(); }
   }, { signal });
 
-  // 直接闪光拆开：播放拆包视频，结束后分裂 + 彩带 + 全屏闪光
-  $("#packFlashOpenBtn")?.addEventListener("click", () => {
+  // --- flash open button: instant burst ---
+  $("#packFlashOpenBtn")?.addEventListener("click", async () => {
     if (packPhase !== "sealed") return;
-    playPackVideo();
+    packPhase = "playing";
+    envelope.classList.remove("idle-wobble");
+    envelope.classList.add("flash-burst");
+
+    // rapid frame cycle
+    let f = 1;
+    const rapid = setInterval(() => {
+      f = f >= 5 ? 1 : f + 1;
+      envelope.dataset.frame = String(f);
+    }, 60);
+
+    // white flash overlay
+    const overlay = document.createElement("div");
+    overlay.className = "pack-flash-overlay";
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 650);
+
+    // confetti burst immediately
+    const packRect = pack.getBoundingClientRect();
+    confetti.burst(packRect.width / 2, packRect.height * 0.38, 100);
+
+    await sleep(380);
+    clearInterval(rapid);
+    envelope.classList.remove("flash-burst");
+    finishOpening();
   }, { signal });
 
   closeButton.addEventListener("click", () => {
@@ -5118,16 +4788,13 @@ function closePackExperience() {
   packPhase = "sealed";
   packAbortController?.abort();
   packAbortController = null;
+  packDust?.destroy();
+  packDust = null;
   const envelope = $("#packEnvelope");
   if (envelope) {
     envelope.className = "pack-envelope";
     envelope.style.cssText = "";
     envelope.dataset.frame = "1";
-    const video = $("#packVideo");
-    if (video) {
-      video.src = "assets/pack-preview.webp";
-      clearTimeout(envelope._packVideoTimer);
-    }
     const stageEnvelope = $("#packStageEnvelope");
     if (stageEnvelope) { stageEnvelope.hidden = false; stageEnvelope.style.opacity = ""; }
   }
