@@ -258,6 +258,19 @@
         if (e.key === "Enter") openSharedDetail(el.dataset.sharedId);
       });
     });
+
+    // UI POLISH v3：共享卡片逐张入场
+    grid.querySelectorAll(".shared-card-item").forEach((card, index) => {
+      const delay = Math.min(index * 60, 1200);
+      card.style.opacity = "0";
+      card.style.transform = "translateY(12px)";
+      card.style.transition = "none";
+      requestAnimationFrame(() => {
+        card.style.transition = `opacity 300ms ease ${delay}ms, transform 300ms ease ${delay}ms`;
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      });
+    });
   }
 
   // ---------- 检视弹层 ----------

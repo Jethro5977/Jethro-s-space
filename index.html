@@ -13,7 +13,7 @@
       window.location.replace("http://127.0.0.1:4174/");
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=19">
   <script type="importmap">
     {
       "imports": {
@@ -521,11 +521,25 @@
 
     <div class="pack-opening" id="packOpening" hidden>
       <div class="pack-wrapper" role="dialog" aria-modal="true" aria-labelledby="packSeries">
-        <div class="pack-envelope" id="packEnvelope" tabindex="0" aria-label="向下拖动拆开卡包">
-          <div class="pack-front"><div class="pack-logo">CARD BUILDER</div><div class="pack-series" id="packSeries">PRIZM EDITION</div><div class="pack-hint">DRAG TO OPEN</div></div>
-          <div class="pack-back"></div>
-          <div class="pack-tear" id="packTear"></div>
+        <!-- 环境光 -->
+        <div class="pack-ambient" aria-hidden="true"></div>
+        <!-- confetti canvas -->
+        <canvas class="pack-confetti-canvas" id="packConfettiCanvas" aria-hidden="true"></canvas>
+        <!-- 阶段 1+2：包体 -->
+        <div class="pack-stage" id="packStageEnvelope">
+          <div class="pack-envelope" id="packEnvelope" tabindex="0" aria-label="向下拖动拆开卡包" data-frame="1">
+            <div class="pack-frame pack-frame-1" aria-hidden="true"></div>
+            <div class="pack-frame pack-frame-2" aria-hidden="true"></div>
+            <div class="pack-frame pack-frame-3" aria-hidden="true"></div>
+            <div class="pack-frame pack-frame-4" aria-hidden="true"></div>
+            <div class="pack-frame pack-frame-5" aria-hidden="true"></div>
+            <img class="pack-video" id="packVideo" src="assets/pack-preview.webp" alt="" aria-hidden="true">
+            <div class="pack-series" id="packSeries" hidden>PRIZM EDITION</div>
+          </div>
+          <div class="pack-hint-text" aria-hidden="true">DRAG DOWN TO OPEN</div>
+          <button class="pack-flash-open-btn" id="packFlashOpenBtn" type="button">⚡ FLASH OPEN</button>
         </div>
+        <!-- 阶段 3：翻卡 -->
         <div class="pack-cards" id="packCards"></div>
         <button class="pack-close-btn" id="packCloseBtn" type="button">DONE</button>
       </div>
@@ -549,7 +563,7 @@
   <canvas id="exportCanvas" hidden></canvas>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=33"></script>
   <script src="shared-library.js?v=3"></script>
   <script type="module" src="three-preview.js?v=8"></script>
 </body>

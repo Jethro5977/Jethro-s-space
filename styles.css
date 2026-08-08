@@ -3999,81 +3999,6 @@ body {
   pointer-events: none;
 }
 
-.pack-cards {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  gap: 14px;
-  width: 100%;
-  overflow-x: auto;
-  padding: 14px 4px 20px;
-}
-
-.pack-card-slot {
-  flex: 0 0 160px;
-  width: 160px;
-  aspect-ratio: 5 / 7;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  outline: 0;
-  background: transparent;
-  cursor: pointer;
-  perspective: 700px;
-}
-
-.pack-card-slot:focus-visible {
-  box-shadow: 0 0 0 2px #8ed6e6;
-}
-
-.pack-card-inner {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 560ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pack-card-inner.revealed {
-  transform: rotateY(180deg);
-}
-
-.pack-card-face {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 8px;
-  backface-visibility: hidden;
-}
-
-.pack-card-face-front {
-  background: #171827;
-  box-shadow: inset 0 0 40px rgba(110, 89, 181, 0.18);
-}
-
-.pack-card-face-front strong {
-  color: rgba(142, 214, 230, 0.3);
-  font: 900 27px/1 "Orbitron", ui-sans-serif, sans-serif;
-}
-
-.pack-card-face-back {
-  transform: rotateY(180deg);
-}
-
-.pack-card-face-back img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.pack-card-slot.rarity-gold .pack-card-inner.revealed { animation: card-gold-glow 1.4s ease; }
-.pack-card-slot.rarity-black .pack-card-inner.revealed { animation: card-black-glow 1.4s ease; }
-.pack-card-slot.rarity-neon .pack-card-inner.revealed { animation: card-neon-glow 1.4s ease; }
-
 .pack-close-btn {
   min-width: 118px;
   height: 38px;
@@ -4255,24 +4180,6 @@ body {
 @keyframes pack-hint-pulse {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.78; }
-}
-
-@keyframes card-gold-glow {
-  0% { box-shadow: none; }
-  35% { box-shadow: 0 0 36px rgba(214, 184, 90, 0.78), 0 0 70px rgba(214, 184, 90, 0.28); }
-  100% { box-shadow: 0 0 10px rgba(214, 184, 90, 0.18); }
-}
-
-@keyframes card-black-glow {
-  0% { box-shadow: none; }
-  35% { box-shadow: 0 0 38px rgba(225, 232, 238, 0.55), 0 0 70px rgba(120, 160, 180, 0.22); }
-  100% { box-shadow: 0 0 10px rgba(210, 220, 225, 0.16); }
-}
-
-@keyframes card-neon-glow {
-  0% { box-shadow: none; }
-  35% { box-shadow: 0 0 38px rgba(57, 255, 150, 0.68), 0 0 70px rgba(57, 255, 150, 0.25); }
-  100% { box-shadow: 0 0 10px rgba(57, 255, 150, 0.15); }
 }
 
 @keyframes pack-flash {
@@ -6227,3 +6134,1498 @@ body {
   color: rgba(255, 255, 255, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
+
+/* ===== UI POLISH v3 ===== */
+
+/* 1.1 Ripple 按钮容器 */
+.choice-btn,
+.effect-btn,
+.rarity-btn,
+.slab-btn,
+.badge-grid button,
+.export-btn,
+.action-row,
+.workshop-btn,
+.library-action-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ui-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(89, 213, 224, 0.28) 0%, transparent 70%);
+  transform: scale(0);
+  animation: ui-ripple-expand 480ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes ui-ripple-expand {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* 1.2 按钮按下缩放 */
+.choice-btn:active,
+.effect-btn:active,
+.rarity-btn:active,
+.slab-btn:active,
+.badge-grid button:active,
+.export-btn:active,
+.action-row:active {
+  transform: scale(0.965);
+  transition: transform 80ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.choice-btn,
+.effect-btn,
+.rarity-btn,
+.slab-btn,
+.badge-grid button,
+.export-btn,
+.action-row {
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 160ms ease,
+              border-color 160ms ease,
+              color 160ms ease;
+}
+
+/* 1.3 选中态光晕 */
+.choice-btn.active,
+.effect-btn.active,
+.rarity-btn.active,
+.slab-btn.active {
+  animation: ui-select-glow 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes ui-select-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(89, 213, 224, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 12px 3px rgba(89, 213, 224, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(89, 213, 224, 0);
+  }
+}
+
+/* 2.1 Panel Section 错落入场（仅页面初次加载） */
+.panel-section {
+  animation: ui-section-enter 400ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.panel-section:nth-child(1) { animation-delay: 0ms; }
+.panel-section:nth-child(2) { animation-delay: 60ms; }
+.panel-section:nth-child(3) { animation-delay: 120ms; }
+.panel-section:nth-child(4) { animation-delay: 180ms; }
+.panel-section:nth-child(5) { animation-delay: 240ms; }
+.panel-section:nth-child(6) { animation-delay: 300ms; }
+.panel-section:nth-child(7) { animation-delay: 360ms; }
+
+@keyframes ui-section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 2.2 Section Header hover 指示 */
+.section-head {
+  transition: color 180ms ease;
+}
+
+.section-head:hover > span:last-child {
+  color: var(--cyan, #59d5e0);
+  transform: translateX(3px);
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+/* 3.1 Drawer 标题与关闭按钮延迟入场 */
+.library-drawer.open .library-title {
+  animation: ui-drawer-title-enter 420ms cubic-bezier(0.22, 0.61, 0.36, 1) 180ms both;
+}
+
+@keyframes ui-drawer-title-enter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.library-drawer.open .library-close-btn {
+  animation: ui-close-btn-enter 300ms cubic-bezier(0.22, 0.61, 0.36, 1) 250ms both;
+}
+
+@keyframes ui-close-btn-enter {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* 3.3 卡片 hover 增强 */
+.library-card {
+  transition: border-color 220ms ease,
+              transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1),
+              box-shadow 260ms ease;
+}
+
+.library-card:hover {
+  border-color: rgba(89, 213, 224, 0.35);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35),
+              0 0 0 1px rgba(89, 213, 224, 0.12);
+}
+
+.library-card:hover img {
+  filter: brightness(1.08);
+  transition: filter 260ms ease;
+}
+
+/* 3.4 收藏心形弹跳 */
+.library-card-fav.is-fav {
+  animation: ui-heart-pop 420ms cubic-bezier(0.17, 0.89, 0.32, 1.28);
+}
+
+@keyframes ui-heart-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* 4.1 Toast 弹性入场 + 进度条 */
+.toast {
+  transition: opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  animation: ui-toast-enter 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ui-toast-enter {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 18px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.toast.show::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--cyan, #59d5e0);
+  transform-origin: left;
+  animation: ui-toast-countdown 2200ms linear forwards;
+  border-radius: 0 0 4px 4px;
+}
+
+@keyframes ui-toast-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* 4.2 Toast 类型区分 */
+.toast[data-type="success"] { border-left-color: #58dca8; }
+.toast[data-type="success"]::after { background: #58dca8; }
+.toast[data-type="warning"] { border-left-color: #f4c44e; }
+.toast[data-type="warning"]::after { background: #f4c44e; }
+.toast[data-type="error"] { border-left-color: #e85d75; }
+.toast[data-type="error"]::after { background: #e85d75; }
+
+/* 5.1 导出 Loading 状态 */
+.export-btn.exporting {
+  pointer-events: none;
+  border-color: rgba(89, 213, 224, 0.55);
+  animation: ui-export-pulse 1200ms ease-in-out infinite;
+}
+
+.export-btn.exporting span {
+  opacity: 0.4;
+}
+
+.export-btn.exporting strong::after {
+  content: "⏳";
+  margin-left: 6px;
+  display: inline-block;
+  animation: ui-spin 1s linear infinite;
+}
+
+@keyframes ui-export-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(89, 213, 224, 0); }
+  50% { box-shadow: 0 0 14px 2px rgba(89, 213, 224, 0.2); }
+}
+
+@keyframes ui-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 5.2 导出成功闪光 */
+.export-btn.export-done {
+  animation: ui-export-success 600ms ease forwards;
+}
+
+@keyframes ui-export-success {
+  0% { border-color: rgba(88, 220, 168, 0.8); box-shadow: 0 0 16px rgba(88, 220, 168, 0.4); }
+  100% { border-color: var(--line); box-shadow: none; }
+}
+
+/* 6.1 包体晃动暗示 */
+.pack-envelope {
+  animation: ui-pack-idle-wobble 2.5s ease-in-out infinite;
+}
+
+@keyframes ui-pack-idle-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-1.2deg); }
+  75% { transform: rotate(1.2deg); }
+}
+
+.pack-envelope:active,
+.pack-envelope.tearing {
+  animation: none;
+}
+
+/* 6.2 撕包粒子 */
+.ui-tear-particle {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cyan, #59d5e0);
+  pointer-events: none;
+  z-index: 10000;
+  animation: ui-tear-particle-fly 500ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes ui-tear-particle-fly {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.3);
+  }
+}
+
+/* 6.3 翻卡弹跳 */
+.pack-card-inner.revealed {
+  animation: ui-card-reveal-flip 560ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ui-card-reveal-flip {
+  0% { transform: rotateY(0deg) scale(1); }
+  40% { transform: rotateY(110deg) scale(1.06); }
+  70% { transform: rotateY(175deg) scale(1.03); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+/* 7.1 缩放按钮反馈 */
+.zoom-btn {
+  transition: transform 120ms ease,
+              background 120ms ease,
+              color 120ms ease;
+}
+
+.zoom-btn:active:not(:disabled) {
+  transform: scale(0.88);
+}
+
+/* 7.2 工具栏 active 呼吸光效 */
+.tool-btn.active {
+  position: relative;
+}
+
+.tool-btn.active::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: 0 0 8px rgba(89, 213, 224, 0.25);
+  animation: ui-tool-active-breathe 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ui-tool-active-breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* 7.3 卡片信息栏入场 */
+.card-info-bar {
+  animation: ui-info-bar-enter 500ms cubic-bezier(0.22, 0.61, 0.36, 1) 400ms both;
+}
+
+@keyframes ui-info-bar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 8.1 Input Focus 动效 */
+.inspector input[type="text"]:focus,
+.inspector input[type="number"]:focus,
+.inspector textarea:focus,
+.inspector select:focus {
+  border-color: rgba(89, 213, 224, 0.5);
+  box-shadow: 0 1px 8px rgba(89, 213, 224, 0.12);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+/* 8.2 Range Slider 拇指动效 */
+input[type="range"]::-webkit-slider-thumb {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.25);
+  box-shadow: 0 0 8px rgba(89, 213, 224, 0.4);
+}
+
+/* 8.3 色彩输出闪烁 */
+.ui-color-flash {
+  animation: ui-color-pulse 400ms ease;
+}
+
+@keyframes ui-color-pulse {
+  0% { color: var(--cyan); transform: scale(1.1); }
+  100% { color: inherit; transform: scale(1); }
+}
+
+/* 9.1 保存心形动画 */
+.library-save-btn.saving,
+.action-row.save-trigger.saving {
+  animation: ui-save-heart 600ms cubic-bezier(0.17, 0.89, 0.32, 1.28);
+  color: #e85d75 !important;
+}
+
+@keyframes ui-save-heart {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(0.95); }
+  75% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* 9.2 保存状态指示器 */
+.save-state.saved {
+  animation: ui-save-state-pop 400ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes ui-save-state-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 10.1 发布按钮呼吸脉冲 */
+.btn-publish {
+  animation: ui-publish-pulse 3s ease-in-out infinite;
+}
+
+@keyframes ui-publish-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(89, 213, 224, 0); }
+  50% { box-shadow: 0 0 12px 2px rgba(89, 213, 224, 0.15); }
+}
+
+.btn-publish:hover {
+  animation: none;
+  box-shadow: 0 0 16px 3px rgba(89, 213, 224, 0.25);
+}
+
+/* 10.3 共享检视弹层入场 */
+.shared-detail-modal {
+  transition: opacity 260ms ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.shared-detail-modal.active {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shared-detail-modal.active .shared-detail-container {
+  animation: ui-modal-enter 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes ui-modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 11.1 VS 爆发动画 */
+.compare-vs {
+  animation: ui-vs-burst 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms both;
+}
+
+@keyframes ui-vs-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+    text-shadow: 0 0 40px rgba(89, 213, 224, 0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: none;
+  }
+}
+
+/* 11.2 数据对比条入场 */
+.compare-stat-row {
+  animation: ui-stat-row-enter 320ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.compare-stat-row:nth-child(1) { animation-delay: 400ms; }
+.compare-stat-row:nth-child(2) { animation-delay: 470ms; }
+.compare-stat-row:nth-child(3) { animation-delay: 540ms; }
+.compare-stat-row:nth-child(4) { animation-delay: 610ms; }
+.compare-stat-row:nth-child(5) { animation-delay: 680ms; }
+.compare-stat-row:nth-child(6) { animation-delay: 750ms; }
+
+@keyframes ui-stat-row-enter {
+  from {
+    opacity: 0;
+    transform: scaleX(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* 11.3 Winner 高亮 */
+.compare-stat-row.winner {
+  animation: ui-stat-row-enter 320ms cubic-bezier(0.22, 0.61, 0.36, 1) both,
+             ui-winner-flash 500ms ease 900ms both;
+}
+
+@keyframes ui-winner-flash {
+  0% { box-shadow: 0 0 0 0 rgba(88, 220, 168, 0); }
+  40% { box-shadow: 0 0 12px 2px rgba(88, 220, 168, 0.3); }
+  100% { box-shadow: none; }
+}
+
+/* 12.1 自定义滚动条 */
+.inspector::-webkit-scrollbar,
+.library-drawer::-webkit-scrollbar {
+  width: 5px;
+}
+
+.inspector::-webkit-scrollbar-track,
+.library-drawer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.inspector::-webkit-scrollbar-thumb,
+.library-drawer::-webkit-scrollbar-thumb {
+  background: rgba(89, 213, 224, 0.18);
+  border-radius: 4px;
+}
+
+.inspector::-webkit-scrollbar-thumb:hover,
+.library-drawer::-webkit-scrollbar-thumb:hover {
+  background: rgba(89, 213, 224, 0.35);
+}
+
+/* 12.2 Focus-visible 全局增强 */
+:focus-visible {
+  outline: 2px solid rgba(89, 213, 224, 0.6);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* 13.1 prefers-reduced-motion 全局覆盖（必须放在最后） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ui-ripple {
+    display: none !important;
+  }
+}
+
+/* ===== PACK REDESIGN v2 =====
+ *
+ * 全息反光效果的 CSS 技术灵感来自：
+ *   simeydotme/pokemon-cards-css (GPL-3.0)
+ *   https://github.com/simeydotme/pokemon-cards-css
+ *   此处为独立重新实现，非直接复制。
+ *
+ * 粒子系统核心物理算法灵感来自：
+ *   catdad/canvas-confetti (ISC License)
+ *   https://github.com/catdad/canvas-confetti
+ *   此处为独立重新实现，非直接复制。
+ *
+ * 拆包流程设计参考了：
+ *   elysiumdelivery/altare-tcg (MIT License)
+ *   https://github.com/elysiumdelivery/altare-tcg
+ */
+
+/* 3.1 包体环境氛围 */
+.pack-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 600px 400px at 50% 45%,
+    rgba(89, 213, 224, 0.06) 0%,
+    rgba(120, 80, 200, 0.04) 40%,
+    transparent 70%);
+  animation: pack-ambient-breathe 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes pack-ambient-breathe {
+  from { opacity: 0.5; transform: scale(0.95); }
+  to   { opacity: 1;   transform: scale(1.05); }
+}
+
+.pack-ambient::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  top: 30%;
+  left: 20%;
+  background: rgba(89, 213, 224, 0.6);
+  box-shadow:
+    80px -40px 0 rgba(200, 162, 255, 0.5),
+    200px 60px 0 rgba(89, 213, 224, 0.4),
+    320px -20px 0 rgba(255, 214, 102, 0.5),
+    450px 80px 0 rgba(89, 213, 224, 0.3),
+    180px 120px 0 rgba(200, 162, 255, 0.4),
+    350px -80px 0 rgba(255, 214, 102, 0.3);
+  animation: pack-particles-float 6s ease-in-out infinite alternate;
+}
+
+@keyframes pack-particles-float {
+  from { transform: translateY(0) translateX(0); opacity: 0.4; }
+  to   { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
+}
+
+/* 3.2 包体全息反光层（借鉴 pokemon-cards-css） */
+.pack-foil-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 12px;
+  opacity: 0;
+  mix-blend-mode: color-dodge;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+
+  background:
+    repeating-linear-gradient(
+      calc(var(--pack-mx, 0.5) * 120deg),
+      rgba(89, 213, 224, 0.3) 0%,
+      rgba(200, 162, 255, 0.2) 8%,
+      rgba(255, 214, 102, 0.2) 16%,
+      rgba(89, 213, 224, 0.3) 24%,
+      transparent 32%
+    ),
+    repeating-linear-gradient(
+      calc(var(--pack-mx, 0.5) * 120deg + 60deg),
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 6%
+    );
+  background-size: 200% 200%;
+  background-position:
+    calc(var(--pack-mx, 0.5) * 100%) calc(var(--pack-my, 0.5) * 100%);
+
+  filter: brightness(0.8) contrast(1.6);
+}
+
+.pack-envelope:hover .pack-foil-layer,
+.pack-envelope.tearing .pack-foil-layer {
+  opacity: 0.7;
+}
+
+.pack-envelope {
+  transition: transform 200ms ease-out;
+  transform:
+    perspective(700px)
+    rotateX(calc((var(--pack-my, 0.5) - 0.5) * -12deg))
+    rotateY(calc((var(--pack-mx, 0.5) - 0.5) * 12deg));
+  animation: none; /* 关闭旧版 idle 晃动，避免与 tilt 冲突 */
+}
+
+.pack-front-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: radial-gradient(
+    ellipse at calc(var(--pack-mx, 0.5) * 100%) calc(var(--pack-my, 0.5) * 100%),
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 3.3 增强撕裂效果 */
+.pack-tear {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pack-tear::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(89, 213, 224, 0.9) 15%,
+    rgba(200, 162, 255, 1) 50%,
+    rgba(89, 213, 224, 0.9) 85%,
+    transparent 100%);
+  box-shadow:
+    0 0 8px rgba(89, 213, 224, 0.6),
+    0 0 24px rgba(200, 162, 255, 0.3);
+  border-radius: 2px;
+}
+
+.pack-tear-glow {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 4;
+  height: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(89, 213, 224, 0.15) 0%,
+    rgba(200, 162, 255, 0.08) 40%,
+    transparent 100%
+  );
+  filter: blur(8px);
+}
+
+.pack-envelope.tearing {
+  animation: pack-tear-shake 80ms ease-in-out infinite;
+}
+
+@keyframes pack-tear-shake {
+  0%, 100% { transform: perspective(700px) translateX(0); }
+  25%      { transform: perspective(700px) translateX(-1.5px); }
+  75%      { transform: perspective(700px) translateX(1.5px); }
+}
+
+.pack-envelope.tearing-critical .pack-front {
+  animation: pack-front-crack 150ms ease-in-out infinite;
+}
+
+@keyframes pack-front-crack {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.15) contrast(1.1); }
+}
+
+.pack-envelope.exploded .pack-front {
+  animation: pack-explode-front 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pack-explode-front {
+  0%   { opacity: 1; transform: translateY(0) scale(1) rotateZ(0deg); }
+  40%  { opacity: 0.9; transform: translateY(-30px) scale(1.08) rotateZ(-3deg); }
+  100% { opacity: 0; transform: translateY(-120px) scale(0.7) rotateZ(-8deg); }
+}
+
+.pack-envelope.exploded .pack-back {
+  animation: pack-explode-back 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pack-explode-back {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(40px) scale(0.85) rotateZ(4deg); }
+}
+
+/* 3.4 Confetti Canvas */
+.pack-confetti-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 3.5 卡牌揭示阶段 */
+.pack-stage { transition: opacity 400ms ease; }
+.pack-stage[hidden] { display: none; }
+.pack-stage-reveal { position: relative; }
+
+.pack-card-stack {
+  position: relative;
+  width: 200px;
+  height: 280px;
+  margin: 0 auto 32px;
+  perspective: 1000px;
+}
+
+.pack-stack-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 400ms ease;
+}
+
+.pack-stack-card:nth-child(1) { transform: translateY(0) rotateZ(0deg); z-index: 5; }
+.pack-stack-card:nth-child(2) { transform: translateY(3px) translateX(4px) rotateZ(1.5deg); z-index: 4; }
+.pack-stack-card:nth-child(3) { transform: translateY(6px) translateX(-3px) rotateZ(-1deg); z-index: 3; }
+.pack-stack-card:nth-child(4) { transform: translateY(9px) translateX(2px) rotateZ(0.5deg); z-index: 2; }
+.pack-stack-card:nth-child(5) { transform: translateY(12px) translateX(-2px) rotateZ(-0.8deg); z-index: 1; }
+
+.pack-stack-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.pack-stack-face-down {
+  background: linear-gradient(145deg, #171329, #251d45);
+  border: 1px solid rgba(89, 213, 224, 0.2);
+  display: grid;
+  place-items: center;
+}
+
+.pack-stack-face-down strong {
+  color: rgba(89, 213, 224, 0.25);
+  font: 900 28px/1 "Orbitron", ui-sans-serif, sans-serif;
+}
+
+.pack-stack-face-up {
+  transform: rotateY(180deg);
+}
+
+.pack-stack-face-up img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.pack-stack-card.drawing {
+  animation: pack-card-draw 500ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes pack-card-draw {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+  60%  { transform: translateY(-40px) translateX(0) scale(1.05); opacity: 1; }
+  100% { transform: translateY(-60px) translateX(260px) scale(0.9); opacity: 0; }
+}
+
+.pack-card-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 4, 8, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.pack-card-spotlight[hidden] { display: none; }
+
+.pack-spotlight-card {
+  width: min(280px, 70vw);
+  aspect-ratio: 5 / 7;
+  border-radius: 12px;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 150ms ease-out;
+  transform:
+    perspective(800px)
+    rotateX(calc((var(--spot-my, 0.5) - 0.5) * -15deg))
+    rotateY(calc((var(--spot-mx, 0.5) - 0.5) * 15deg));
+}
+
+.pack-spotlight-card.entering {
+  animation: pack-spotlight-enter 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pack-spotlight-enter {
+  0%   { opacity: 0; transform: perspective(800px) scale(0.6) rotateY(90deg); }
+  50%  { opacity: 1; transform: perspective(800px) scale(1.05) rotateY(-5deg); }
+  100% { opacity: 1; transform: perspective(800px) scale(1) rotateY(0deg); }
+}
+
+.pack-spotlight-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.pack-spotlight-holo {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  opacity: 0;
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      calc(var(--spot-mx, 0.5) * 180deg),
+      rgba(89, 213, 224, 0.25) 0%,
+      rgba(200, 162, 255, 0.2) 10%,
+      rgba(255, 214, 102, 0.15) 20%,
+      rgba(89, 213, 224, 0.25) 30%,
+      transparent 40%
+    );
+  background-size: 200% 200%;
+  background-position:
+    calc(var(--spot-mx, 0.5) * 100%) calc(var(--spot-my, 0.5) * 100%);
+  filter: brightness(0.7) contrast(1.8);
+  transition: opacity 300ms ease;
+}
+
+.pack-spotlight-card:hover .pack-spotlight-holo,
+.pack-spotlight-card.holo-active .pack-spotlight-holo {
+  opacity: 0.8;
+}
+
+.pack-spotlight-info {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.pack-spotlight-name {
+  color: #f1f5f6;
+  font: 900 15px/1.2 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 2px;
+}
+
+.pack-spotlight-meta {
+  margin-top: 6px;
+  color: #8ed6e6;
+  font: 700 8px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 1.5px;
+}
+
+.pack-spotlight-rarity {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border: 1px solid;
+  border-radius: 4px;
+  font: 800 7px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.pack-spotlight-rarity.rarity-base   { color: #a0a5ab; border-color: rgba(160,165,171,0.3); }
+.pack-spotlight-rarity.rarity-silver { color: #c8ced1; border-color: rgba(200,206,209,0.3); }
+.pack-spotlight-rarity.rarity-gold   { color: #d6b85a; border-color: rgba(214,184,90,0.4); }
+.pack-spotlight-rarity.rarity-neon   { color: #39ff96; border-color: rgba(57,255,150,0.3); }
+.pack-spotlight-rarity.rarity-rwb    { color: #e85d75; border-color: rgba(232,93,117,0.3); }
+.pack-spotlight-rarity.rarity-black  { color: #e1e8ee; border-color: rgba(225,232,238,0.3);
+                                       text-shadow: 0 0 12px rgba(225,232,238,0.5); }
+
+.pack-rarity-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.pack-rarity-reveal.reveal-gold {
+  background: radial-gradient(ellipse at center, rgba(214,184,90,0.3) 0%, transparent 60%);
+  animation: pack-rarity-burst 800ms ease-out forwards;
+}
+
+.pack-rarity-reveal.reveal-neon {
+  background: radial-gradient(ellipse at center, rgba(57,255,150,0.25) 0%, transparent 60%);
+  animation: pack-rarity-burst 800ms ease-out forwards;
+}
+
+.pack-rarity-reveal.reveal-black {
+  background: radial-gradient(ellipse at center, rgba(225,232,238,0.2) 0%, transparent 60%);
+  animation: pack-rarity-burst 1000ms ease-out forwards;
+}
+
+@keyframes pack-rarity-burst {
+  0%   { opacity: 0; transform: scale(0.3); }
+  30%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(2); }
+}
+
+.pack-reveal-controls {
+  position: relative;
+  z-index: 25; /* 保持在 spotlight 遮罩之上，避免按钮被遮挡 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.pack-next-btn {
+  min-width: 130px;
+  height: 40px;
+  border: 1px solid rgba(89, 213, 224, 0.5);
+  border-radius: 6px;
+  background: rgba(89, 213, 224, 0.08);
+  color: #a9e1ed;
+  font: 800 9px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+
+.pack-next-btn:hover {
+  background: rgba(89, 213, 224, 0.15);
+  box-shadow: 0 0 14px rgba(89, 213, 224, 0.2);
+}
+
+.pack-card-counter {
+  color: #738087;
+  font: 700 8px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 1px;
+}
+
+/* 3.6 汇总阶段 */
+.pack-summary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+}
+
+.pack-summary-card {
+  width: 120px;
+  aspect-ratio: 5 / 7;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pack-summary-card:nth-child(1) { animation: pack-summary-enter 400ms ease 0ms both; }
+.pack-summary-card:nth-child(2) { animation: pack-summary-enter 400ms ease 80ms both; }
+.pack-summary-card:nth-child(3) { animation: pack-summary-enter 400ms ease 160ms both; }
+.pack-summary-card:nth-child(4) { animation: pack-summary-enter 400ms ease 240ms both; }
+.pack-summary-card:nth-child(5) { animation: pack-summary-enter 400ms ease 320ms both; }
+
+@keyframes pack-summary-enter {
+  from { opacity: 0; transform: translateY(20px) scale(0.85); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pack-summary-card:hover {
+  transform: translateY(-6px) scale(1.05);
+}
+
+.pack-summary-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pack-summary-stats {
+  text-align: center;
+  margin: 20px 0;
+  color: #8f999d;
+  font: 800 9px/1.6 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 1px;
+}
+
+.pack-summary-stats strong {
+  color: #8ed6e6;
+}
+
+/* 新流程适配：汇总阶段 DONE 按钮始终可见 */
+.pack-stage-summary .pack-close-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== PACK ARTWORK + FLASH OPEN ===== */
+
+/* 实体卡包贴图（用户提供，NBA 25-26 赛季包装质感） */
+.pack-envelope .pack-front {
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.02)),
+    url("assets/pack-artwork.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.pack-envelope .pack-back {
+  background-image: url("assets/pack-artwork.jpg");
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.62) saturate(1.08);
+}
+
+/* 贴图自带品牌文字，隐藏旧覆盖文字 */
+.pack-envelope .pack-logo,
+.pack-envelope .pack-series {
+  display: none;
+}
+
+.pack-envelope .pack-hint {
+  margin-top: auto;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 20px;
+  background: rgba(6, 8, 14, 0.45);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* FLASH OPEN 按钮 */
+.pack-flash-open-btn {
+  display: block;
+  margin: 18px auto 0;
+  min-width: 150px;
+  height: 38px;
+  border: 1px solid rgba(255, 214, 102, 0.55);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(89, 213, 224, 0.14), rgba(255, 214, 102, 0.12));
+  color: #ffe3a1;
+  font: 800 9px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: box-shadow 200ms ease, transform 160ms ease, background 200ms ease;
+}
+
+.pack-flash-open-btn:hover {
+  background: linear-gradient(135deg, rgba(89, 213, 224, 0.22), rgba(255, 214, 102, 0.2));
+  box-shadow: 0 0 16px rgba(255, 214, 102, 0.28);
+}
+
+.pack-flash-open-btn:active {
+  transform: scale(0.95);
+}
+
+/* 闪光拆开：包体闪光 + 全屏白光 */
+.pack-envelope.flash-open .pack-front {
+  animation: pack-flash-open-front 480ms ease-out;
+}
+
+@keyframes pack-flash-open-front {
+  0%   { filter: brightness(1) saturate(1); transform: scale(1); }
+  35%  { filter: brightness(2.4) saturate(0.5); transform: scale(1.05); }
+  100% { filter: brightness(1) saturate(1); transform: scale(1); }
+}
+
+.pack-flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1010;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 42%,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(89, 213, 224, 0.55) 42%,
+    rgba(255, 214, 102, 0.25) 62%,
+    transparent 78%
+  );
+  animation: pack-flash-white 620ms ease-out forwards;
+}
+
+@keyframes pack-flash-white {
+  0%   { opacity: 0; }
+  22%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ===== END PACK ARTWORK + FLASH OPEN ===== */
+
+/* 3.7 Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .pack-ambient,
+  .pack-ambient::after,
+  .pack-foil-layer,
+  .pack-envelope.tearing,
+  .pack-envelope.tearing-critical .pack-front,
+  .pack-spotlight-card.entering,
+  .pack-stack-card.drawing {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== END PACK REDESIGN v2 ===== */
+
+/* ===== PACK REDESIGN v2 — Elite Court Real Image Pack =====
+ *
+ * Holographic foil CSS technique inspired by:
+ *   simeydotme/pokemon-cards-css (GPL-3.0)
+ *   https://github.com/simeydotme/pokemon-cards-css
+ *
+ * Confetti particle physics inspired by:
+ *   catdad/canvas-confetti (ISC License)
+ *   https://github.com/catdad/canvas-confetti
+ */
+
+/* --- 翻卡基础布局（兼容旧版 revealPackCards） --- */
+.pack-cards {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  overflow-x: auto;
+  padding: 14px 4px 20px;
+}
+
+.pack-card-slot {
+  flex: 0 0 160px;
+  width: 160px;
+  aspect-ratio: 5 / 7;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+  perspective: 700px;
+}
+
+.pack-card-slot:focus-visible {
+  box-shadow: 0 0 0 2px #8ed6e6;
+}
+
+.pack-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.pack-card-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  backface-visibility: hidden;
+}
+
+.pack-card-face-front {
+  background: #171827;
+  box-shadow: inset 0 0 40px rgba(110, 89, 181, 0.18);
+}
+
+.pack-card-face-front strong {
+  color: rgba(142, 214, 230, 0.3);
+  font: 900 27px/1 "Orbitron", ui-sans-serif, sans-serif;
+}
+
+.pack-card-face-back {
+  transform: rotateY(180deg);
+}
+
+.pack-card-face-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- environment --- */
+.pack-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 700px 500px at 50% 40%,
+    rgba(130, 60, 220, 0.10) 0%,
+    rgba(89, 213, 224, 0.04) 40%,
+    transparent 70%);
+  animation: pack-amb-breathe 4s ease-in-out infinite alternate;
+}
+.pack-ambient::after {
+  content: "";
+  position: absolute;
+  width: 3px; height: 3px; border-radius: 50%;
+  top: 25%; left: 18%;
+  background: rgba(180, 120, 255, 0.6);
+  box-shadow:
+    90px -50px 0 rgba(89,213,224,0.5),
+    220px 70px 0 rgba(180,120,255,0.4),
+    340px -30px 0 rgba(255,214,102,0.5),
+    460px 90px 0 rgba(89,213,224,0.3),
+    170px 140px 0 rgba(180,120,255,0.4),
+    380px -90px 0 rgba(255,214,102,0.3);
+  animation: pack-amb-float 6s ease-in-out infinite alternate;
+}
+@keyframes pack-amb-breathe {
+  from { opacity: 0.4; transform: scale(0.94); }
+  to   { opacity: 1;   transform: scale(1.06); }
+}
+@keyframes pack-amb-float {
+  from { transform: translateY(0) translateX(0); opacity: 0.3; }
+  to   { transform: translateY(-25px) translateX(12px); opacity: 0.7; }
+}
+
+/* --- confetti canvas --- */
+.pack-confetti-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* --- pack stage --- */
+.pack-stage { position: relative; z-index: 2; }
+
+/* --- pack envelope (real image split) --- */
+.pack-envelope {
+  position: relative;
+  width: 260px;
+  height: 390px;
+  margin: 0 auto;
+  outline: 0;
+  cursor: grab;
+  perspective: 800px;
+  transition: transform 180ms ease-out, filter 250ms ease;
+  transform:
+    perspective(800px)
+    rotateX(calc((var(--pack-my, 0.5) - 0.5) * -8deg))
+    rotateY(calc((var(--pack-mx, 0.5) - 0.5) * 8deg));
+  filter: drop-shadow(0 20px 50px rgba(100, 40, 180, 0.35));
+  animation: none; /* 关闭旧版通用晃动，由 idle-wobble 类控制 */
+}
+
+/* 五帧拆包动画层 */
+.pack-frame {
+  position: absolute;
+  inset: 0;
+  background: center/cover no-repeat;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  will-change: opacity;
+}
+.pack-frame-1 { background-image: url("assets/pack-preview.webp"); }
+.pack-frame-2 { background-image: url("assets/pack-frame-2.webp"); }
+.pack-frame-3 { background-image: url("assets/pack-frame-3.webp"); }
+.pack-frame-4 { background-image: url("assets/pack-frame-4.webp"); }
+.pack-frame-5 { background-image: url("assets/pack-frame-5.webp"); }
+.pack-envelope[data-frame="1"] .pack-frame-1,
+.pack-envelope[data-frame="2"] .pack-frame-2,
+.pack-envelope[data-frame="3"] .pack-frame-3,
+.pack-envelope[data-frame="4"] .pack-frame-4,
+.pack-envelope[data-frame="5"] .pack-frame-5 {
+  opacity: 1;
+}
+
+/* 拆包动画视频层 */
+.pack-video {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.pack-envelope.video-playing .pack-video {
+  opacity: 1;
+}
+.pack-envelope.video-playing .pack-frame {
+  opacity: 0 !important;
+}
+
+/* hint text below pack */
+.pack-hint-text {
+  margin-top: 24px;
+  text-align: center;
+  color: rgba(255,255,255,0.35);
+  font: 700 8px/1 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: 2px;
+  animation: pack-hint-pulse 1.7s ease-in-out infinite;
+}
+
+/* --- tearing states --- */
+.pack-envelope.tearing { cursor: grabbing; }
+
+/* critical: > 70% progress */
+.pack-envelope.tear-critical {
+  animation: pack-shake 60ms ease-in-out infinite;
+}
+@keyframes pack-shake {
+  0%,100% { transform: perspective(800px) translateX(0); }
+  25%     { transform: perspective(800px) translateX(-2px); }
+  75%     { transform: perspective(800px) translateX(2px); }
+}
+
+/* --- split open animation --- */
+.pack-envelope.split-open {
+  animation: pack-envelope-burst 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: none;
+}
+@keyframes pack-envelope-burst {
+  0%   { opacity: 1; transform: perspective(800px) scale(1); filter: brightness(1.25); }
+  100% { opacity: 0; transform: perspective(800px) scale(0.78) translateY(-46px); filter: brightness(2.1); }
+}
+/* flash burst on split open */
+.pack-split-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,
+    rgba(180,120,255,0.35) 0%,
+    rgba(89,213,224,0.15) 30%,
+    transparent 60%);
+  animation: pack-split-flash-anim 650ms ease-out forwards;
+}
+@keyframes pack-split-flash-anim {
+  0%   { opacity: 1; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+/* pack idle wobble */
+.pack-envelope.idle-wobble {
+  animation: pack-idle-wobble 3s ease-in-out infinite;
+}
+@keyframes pack-idle-wobble {
+  0%,100% { transform: perspective(800px) rotateY(0deg) rotateZ(0deg); }
+  25%     { transform: perspective(800px) rotateY(2deg) rotateZ(-0.5deg); }
+  75%     { transform: perspective(800px) rotateY(-2deg) rotateZ(0.5deg); }
+}
+
+/* --- old pack styles override (keep compatibility) --- */
+.pack-front, .pack-back { display: none !important; }
+.pack-tear { display: none !important; }
+
+/* --- pack cards reveal (enhanced) --- */
+.pack-card-inner.revealed {
+  transform: rotateY(180deg);
+}
+
+.pack-card-slot.rarity-gold .pack-card-inner.revealed {
+  animation: pack-card-gold-glow-v2 1.6s ease;
+}
+.pack-card-slot.rarity-black .pack-card-inner.revealed {
+  animation: pack-card-black-glow-v2 1.6s ease;
+}
+.pack-card-slot.rarity-neon .pack-card-inner.revealed {
+  animation: pack-card-neon-glow-v2 1.6s ease;
+}
+@keyframes pack-card-gold-glow-v2 {
+  0%   { box-shadow: none; filter: brightness(1); }
+  25%  { box-shadow: 0 0 40px rgba(214,184,90,0.8), 0 0 80px rgba(214,184,90,0.3);
+         filter: brightness(1.15); }
+  100% { box-shadow: 0 0 12px rgba(214,184,90,0.2); filter: brightness(1); }
+}
+@keyframes pack-card-black-glow-v2 {
+  0%   { box-shadow: none; filter: brightness(1); }
+  25%  { box-shadow: 0 0 42px rgba(225,232,238,0.6), 0 0 80px rgba(180,200,220,0.25);
+         filter: brightness(1.2); }
+  100% { box-shadow: 0 0 12px rgba(210,220,225,0.18); filter: brightness(1); }
+}
+@keyframes pack-card-neon-glow-v2 {
+  0%   { box-shadow: none; filter: brightness(1); }
+  25%  { box-shadow: 0 0 42px rgba(57,255,150,0.7), 0 0 80px rgba(57,255,150,0.28);
+         filter: brightness(1.15); }
+  100% { box-shadow: 0 0 12px rgba(57,255,150,0.17); filter: brightness(1); }
+}
+
+/* card reveal entrance — stagger each card */
+.pack-card-slot {
+  opacity: 0;
+  transform: translateY(30px) scale(0.9);
+}
+.pack-card-slot.card-entered {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 350ms cubic-bezier(0.22,0.61,0.36,1),
+              transform 350ms cubic-bezier(0.22,0.61,0.36,1);
+}
+
+/* card flip enhanced bounce */
+.pack-card-inner {
+  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pack-ambient, .pack-ambient::after,
+  .pack-envelope.idle-wobble,
+  .pack-envelope.tear-critical,
+  .pack-hint-text {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== END PACK REDESIGN v2 — Elite Court Real Image Pack ===== */
