@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/card-builder-lockup.png" alt="Card Builder" width="600">
+  <img src="assets/github-preview.png" alt="Card Builder — DIY 3D Trading Card Studio" width="960">
 </p>
 
 <h3 align="center">DIY 3D Trading Card Studio</h3>
