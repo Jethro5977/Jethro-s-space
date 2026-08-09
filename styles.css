@@ -7555,14 +7555,16 @@ input[type="range"]:active::-webkit-slider-thumb {
 
 /* --- 入场：从舞台下方弹起，并形成轻微扇面 --- */
 .pack-card-slot {
+  --pack-fan-rotate: 0deg;
   opacity: 0;
-  transform: translateY(80px) scale(0.7) rotateZ(0deg);
+  transform: translateY(80px) scale(0.7) rotateZ(var(--pack-fan-rotate));
   filter: blur(4px);
+  will-change: transform;
 }
 
 .pack-card-slot.card-entered {
   opacity: 1;
-  transform: translateY(0) scale(1) rotateZ(0deg);
+  transform: translateY(0) scale(1) rotateZ(var(--pack-fan-rotate));
   filter: blur(0);
   transition:
     opacity 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
@@ -7570,11 +7572,11 @@ input[type="range"]:active::-webkit-slider-thumb {
     filter 350ms ease;
 }
 
-.pack-card-slot.card-entered:nth-child(1) { transform: translateY(0) scale(1) rotateZ(-3deg); }
-.pack-card-slot.card-entered:nth-child(2) { transform: translateY(0) scale(1) rotateZ(-1.5deg); }
-.pack-card-slot.card-entered:nth-child(3) { transform: translateY(0) scale(1) rotateZ(0deg); }
-.pack-card-slot.card-entered:nth-child(4) { transform: translateY(0) scale(1) rotateZ(1.5deg); }
-.pack-card-slot.card-entered:nth-child(5) { transform: translateY(0) scale(1) rotateZ(3deg); }
+.pack-card-slot:nth-child(1) { --pack-fan-rotate: -3deg; }
+.pack-card-slot:nth-child(2) { --pack-fan-rotate: -1.5deg; }
+.pack-card-slot:nth-child(3) { --pack-fan-rotate: 0deg; }
+.pack-card-slot:nth-child(4) { --pack-fan-rotate: 1.5deg; }
+.pack-card-slot:nth-child(5) { --pack-fan-rotate: 3deg; }
 
 /* --- 翻转：弹性转场，点击瞬间给出一次能量闪白 --- */
 .pack-card-inner {
@@ -7623,13 +7625,16 @@ input[type="range"]:active::-webkit-slider-thumb {
   100% { box-shadow: 0 0 10px rgba(225,232,238,0.12); filter: brightness(1); }
 }
 
-/* --- 悬停：只在未翻开的卡背上施加轻微上浮与反光 --- */
+/* --- 悬停：整体卡槽上浮，确保卡面、稀有度光边与焦点框同步形变 --- */
 .pack-card-slot:not(.flipping) .pack-card-inner:not(.revealed) {
   transition: transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.pack-card-slot:hover .pack-card-inner:not(.revealed) {
-  transform: translateY(-8px) scale(1.03);
+@media (hover: hover) and (pointer: fine) {
+  .pack-card-slot.card-entered:hover {
+    z-index: 10;
+    transform: translateY(-8px) scale(1.035) rotateZ(var(--pack-fan-rotate));
+  }
 }
 
 .pack-card-slot:hover .pack-card-face-front {
