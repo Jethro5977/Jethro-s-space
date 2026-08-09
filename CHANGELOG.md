@@ -8,6 +8,8 @@
 
 ### 新增 / Added
 
+- 编辑器顶部新增常驻「快速选择球员」栏：支持姓名建议、Enter/按钮应用完整球员资料，以及一键打开对应授权影像库；移动端采用输入框独占一行的触控布局，避免继续在长面板中寻找「球员档案」
+- EN: Added a sticky “Quick Player” bar at the top of the editor with name suggestions, Enter/button profile application, and one-click access to the matching licensed media library; mobile uses a touch-friendly full-row input so the buried Player Profile section is no longer required
 - 首批可追溯球员影像资源：为 Stephen Curry、Luka Dončić、Giannis Antetokounmpo、Nikola Jokić 与 Shai Gilgeous-Alexander 导入 5 张经画面核验的训练/比赛照片；每张均保存拍摄日期、当时球队、摄影师、Wikimedia Commons 来源页与 Creative Commons 许可，并生成 900×1260 卡牌图及 360×504 缩略图
 - EN: First traceable player-media batch: added five visually verified training/game photos for Stephen Curry, Luka Dončić, Giannis Antetokounmpo, Nikola Jokić, and Shai Gilgeous-Alexander; every record stores capture date, team at capture, photographer, Wikimedia Commons source page, and Creative Commons licence, with generated 900×1260 card art and 360×504 thumbnails
 - 新增 `docs/ASSET_ATTRIBUTIONS.md` 与可复现导入脚本，集中保留首批图片的署名、许可与来源；社交媒体和无明确许可的候选不会自动进入公开影像库

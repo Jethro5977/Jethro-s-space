@@ -1127,6 +1127,8 @@ function hydrateInputs() {
     const element = document.getElementById(id);
     if (element && state[id] !== undefined) element.value = state[id];
   });
+  const quickInput = $("#playerQuickInput");
+  if (quickInput) quickInput.value = state.playerName || "";
   $("#photoScale").value = state.photoScale;
   $("#photoX").value = state.photoX;
   $("#photoY").value = state.photoY;
@@ -1524,6 +1526,8 @@ async function syncFoilMaskPadFromState() {
 }
 
 function bindInterface() {
+  bindPlayerQuickAccess();
+
   $$(".tab-btn").forEach((button) => {
     button.addEventListener("click", () => activateTab(button.dataset.tab));
   });
@@ -1658,6 +1662,62 @@ function bindInterface() {
   });
 
   bindCardInteraction();
+}
+
+function bindPlayerQuickAccess() {
+  const input = $("#playerQuickInput");
+  const list = $("#playerQuickList");
+  const applyButton = $("#playerQuickApplyBtn");
+  const mediaButton = $("#playerQuickMediaBtn");
+  const status = $("#playerQuickStatus");
+  if (!input || !list || !applyButton || !mediaButton || !status) return;
+
+  list.replaceChildren(...NBA_PLAYERS_DB.map((player) => {
+    const option = document.createElement("option");
+    option.value = player.name;
+    option.label = `${player.abbr} · #${player.number} · ${player.position}`;
+    return option;
+  }));
+
+  const applySelectedPlayer = () => {
+    const requestedName = String(input.value || "").trim().toUpperCase();
+    const player = NBA_PLAYERS_DB.find((candidate) => candidate.name === requestedName);
+    if (!player) {
+      status.textContent = "未找到该球员，请从输入建议中选择";
+      status.classList.add("is-error");
+      showToast("未找到该球员，请从列表中选择", "warning");
+      input.focus();
+      return null;
+    }
+
+    state = applyPlayerFacts({
+      ...state,
+      playerImg: null,
+      logoImg: null,
+    }, player);
+    input.value = player.name;
+    status.textContent = `${player.name} · ${player.abbr} · #${player.number}`;
+    status.classList.remove("is-error");
+    hydrateInputs();
+    render();
+    showToast(`${player.name} 资料已应用`, "success");
+    return player;
+  };
+
+  applyButton.addEventListener("click", applySelectedPlayer);
+  mediaButton.addEventListener("click", () => {
+    if (!applySelectedPlayer()) return;
+    $("#playerMediaOpenBtn")?.click();
+  });
+  input.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    applySelectedPlayer();
+  });
+  input.addEventListener("input", () => {
+    status.textContent = "按 Enter 或点击“应用资料”";
+    status.classList.remove("is-error");
+  });
 }
 
 function activateTab(name) {
