@@ -262,8 +262,19 @@ async function handler(req, res) {
     .replace(/^\/api\/?/, "")
     .split("/")
     .filter(Boolean);
+  const rewrittenId = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+  const rewrittenView = Array.isArray(req.query.view) ? req.query.view[0] : req.query.view;
   try {
     if (parts.length === 1 && parts[0] === "health" && req.method === "GET") return await handleHealth(res);
+    if (parts.length === 1 && parts[0] === "cards" && rewrittenId && rewrittenView === "thumbnail" && req.method === "GET") {
+      return await handleGetThumbnail(res, rewrittenId);
+    }
+    if (parts.length === 1 && parts[0] === "cards" && rewrittenId && req.method === "GET") {
+      return await handleGetCard(res, rewrittenId);
+    }
+    if (parts.length === 1 && parts[0] === "cards" && rewrittenId && req.method === "DELETE") {
+      return await handleDeleteCard(req, res, rewrittenId);
+    }
     if (parts.length === 1 && parts[0] === "cards" && req.method === "GET") return await handleListCards(res);
     if (parts.length === 1 && parts[0] === "cards" && req.method === "POST") return await handlePublishCard(req, res);
     if (parts.length === 3 && parts[0] === "cards" && parts[2] === "thumbnail" && req.method === "GET") return await handleGetThumbnail(res, parts[1]);

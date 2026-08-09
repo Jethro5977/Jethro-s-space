@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/cards/:id/thumbnail",
+      "destination": "/api/cards?id=:id&view=thumbnail"
+    },
+    {
+      "source": "/api/cards/:id",
+      "destination": "/api/cards?id=:id"
+    }
+  ]
+}
