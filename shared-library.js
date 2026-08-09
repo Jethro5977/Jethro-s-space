@@ -14,6 +14,7 @@
   const API_BASE = ""; // 同源
   const AUTHOR_KEY = "cardbuilder_shared_author";
   const TOKENS_KEY = "cardbuilder_shared_tokens";
+  const IS_GITHUB_PAGES = window.location.hostname.endsWith(".github.io");
 
   let sharedCards = [];
   let sharedFilters = { rarity: "ALL", style: "ALL", slabType: "ALL" };
@@ -195,6 +196,15 @@
 
   // ---------- 网格 ----------
   async function loadSharedCards() {
+    if (IS_GITHUB_PAGES) {
+      const grid = document.getElementById("shared-grid");
+      const countEl = document.getElementById("shared-count");
+      if (countEl) countEl.textContent = "STATIC EDITION";
+      if (grid) {
+        grid.innerHTML = '<div class="shared-empty">GitHub Pages 静态版不包含共享卡牌库服务。请使用 MY COLLECTION 保存本地卡牌；在本地 Node 服务中可使用发布与共享功能。</div>';
+      }
+      return;
+    }
     try {
       sharedCards = await apiListCards();
       renderSharedGrid();
@@ -486,6 +496,15 @@
 
     const authorInput = document.getElementById("shared-author-input");
     if (authorInput) authorInput.value = getSavedAuthor();
+
+    if (IS_GITHUB_PAGES) {
+      authorInput && (authorInput.disabled = true);
+      document.getElementById("shared-publish-btn")?.setAttribute("disabled", "");
+      document.getElementById("shared-refresh-btn")?.setAttribute("disabled", "");
+      document.querySelectorAll(".shared-filter-select").forEach((select) => {
+        select.disabled = true;
+      });
+    }
 
     document.querySelectorAll(".library-tab").forEach((tab) => {
       tab.addEventListener("click", () => {

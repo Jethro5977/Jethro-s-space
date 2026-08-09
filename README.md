@@ -12,6 +12,8 @@
 
 <p align="center">
   <a href="https://cardsbuilder.netlify.app"><strong>在线体验 / Live Demo &rarr;</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://jethro5977.github.io/Jethro-s-space/"><strong>GitHub Pages 静态版 &rarr;</strong></a>
 </p>
 
 <p align="center">
@@ -51,6 +53,8 @@ npm start
 浏览器打开 **http://127.0.0.1:4174/**。不要直接用 `file://` 打开 `index.html`，浏览器会阻止 Three.js 模块加载。
 
 `npm start` 运行的是零依赖 Node 静态服务器（`server/shared-server.mjs`），内置共享卡牌库 API。局域网内其他设备可通过 `http://<本机IP>:4174/` 访问。
+
+GitHub Pages 会自动从 `main` 部署静态版，保留制卡、3D 预览、拆包和本地收藏；共享卡牌库的发布 / 浏览功能需要 Node 服务，因此仅在本地服务版中可用。
 
 ### 项目结构
 
@@ -129,6 +133,8 @@ npm start
 Open **http://127.0.0.1:4174/** in your browser. Do not open `index.html` via `file://` — Three.js modules require HTTP.
 
 The dev server (`server/shared-server.mjs`) is a zero-dependency Node static server with a shared card library API. Other devices on your LAN can access it at `http://<your-ip>:4174/`.
+
+GitHub Pages deploys the static edition automatically from `main`. It includes card making, 3D preview, pack opening, and local collection; shared-library browsing and publishing require the Node server.
 
 ### Project Structure
 
