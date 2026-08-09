@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/github-preview.png" alt="Card Builder — DIY 3D Trading Card Studio" width="960">
+  <img src="assets/github-preview.png" alt="Card Builder — DIY 3D Making Card Studio" width="960">
 </p>
 
 <p align="center">
@@ -8,7 +8,7 @@
 
 <p align="center"><sub>拆包体验预览 · Drag down to tear open the <strong>Elite Court</strong> pack</sub></p>
 
-<h3 align="center">DIY 3D Trading Card Studio</h3>
+<h3 align="center">DIY 3D Making Card Studio</h3>
 
 <p align="center">
   <a href="https://cardsbuilder.netlify.app"><strong>在线体验 / Live Demo &rarr;</strong></a>
