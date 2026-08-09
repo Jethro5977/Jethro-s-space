@@ -2,6 +2,12 @@
   <img src="assets/github-preview.png" alt="Card Builder — DIY 3D Trading Card Studio" width="960">
 </p>
 
+<p align="center">
+  <img src="assets/elite-court-pack-web.png" alt="Elite Court 25-26 篮球卡牌包装，向下拖动即可撕开" width="280">
+</p>
+
+<p align="center"><sub>拆包体验预览 · Drag down to tear open the <strong>Elite Court</strong> pack</sub></p>
+
 <h3 align="center">DIY 3D Trading Card Studio</h3>
 
 <p align="center">
@@ -28,7 +34,7 @@
 
 - **卡片设计**：6 种原创卡片系列（Prizm、Tactical、Heritage、Mosaic、Select、Optic），8 种动态特效（Diamond、Lightning、Rainbow、Crystal、Holographic、Laser、Flame、Galaxy），Cutout / Full Art 两种照片模式，球队配色、徽章、稀有度与 7 种卡壳类型
 - **3D 预览**：基于 Three.js 的 WebGL 渲染，PBR 透明亚克力材质、环境反射、折射与程序化划痕，支持 360° 旋转、自动展示、正反翻面
-- **卡牌库**：本地最多收藏 200 张，支持稀有度 / 系列 / 卡壳 / 收藏筛选；一键自动建库生成 25 位 NBA 球星卡（2025-26 赛季数据）；拆包体验含撕包动画与稀有卡特效
+- **卡牌库**：本地最多收藏 200 张，支持稀有度 / 系列 / 卡壳 / 收藏筛选；一键自动建库生成 25 位 NBA 球星卡（2025-26 赛季数据）；拆包体验含拖拽撕包、翻卡与稀有卡特效
 - **共享卡牌库**：无需账号系统，一键发布 DIY 卡牌供任何人浏览，含官方展示卡
 - **导出**：高清 PNG 导出（1500×2100 卡面、2400×3200 3D 视角），正反合图，项目 JSON 导入导出（含签名与蒙版数据完整还原）
 - **DIY 工具**：手写签名（4 色笔、位置与缩放调整）、自定义闪光蒙版、卡牌对比 PK、20 项收藏成就

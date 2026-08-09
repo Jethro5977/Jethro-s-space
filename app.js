@@ -4732,13 +4732,19 @@ async function revealPackCards(cards, envelope, container, closeButton, confetti
   container.style.display = "flex";
   container.innerHTML = cards.map((card, index) => `
     <button class="pack-card-slot rarity-${escapeHtml(card.rarity)}" type="button" data-pack-index="${index}" aria-label="翻开第 ${index + 1} 张卡">
-      <span class="pack-card-inner"><span class="pack-card-face pack-card-face-front"><strong>CB</strong></span><span class="pack-card-face pack-card-face-back"><img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}"></span></span>
+      <span class="pack-card-inner">
+        <span class="pack-card-face pack-card-face-front">
+          <strong>CB</strong>
+          <span class="pk-subtitle">ELITE COURT</span>
+        </span>
+        <span class="pack-card-face pack-card-face-back"><img src="${escapeHtml(card.thumbnail)}" alt="${escapeHtml(card.name)}"></span>
+      </span>
     </button>
   `).join("");
 
   const slots = container.querySelectorAll(".pack-card-slot");
   slots.forEach((slot, i) => {
-    window.setTimeout(() => slot.classList.add("card-entered"), 80 + i * 100);
+    window.setTimeout(() => slot.classList.add("card-entered"), 150 + i * 120);
   });
 
   packPhase = "revealing";
@@ -4747,6 +4753,8 @@ async function revealPackCards(cards, envelope, container, closeButton, confetti
     slot.addEventListener("click", () => {
       const inner = slot.querySelector(".pack-card-inner");
       if (inner.classList.contains("revealed")) return;
+      slot.classList.add("flipping");
+      slot.addEventListener("animationend", () => slot.classList.remove("flipping"), { once: true });
       inner.classList.add("revealed");
       slot.setAttribute("aria-label", `${cards[index].name}，已翻开`);
       revealedCount += 1;

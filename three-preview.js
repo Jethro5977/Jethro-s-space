@@ -50,6 +50,53 @@ let pointerStart = null;
 let shellPickables = [];
 let selectedMaterial = null;
 let selectedRestoreTimer = 0;
+let frontCardMesh = null;
+let backCardMesh = null;
+let holoMaterial = null;
+let lastRenderTime = 0;
+
+// Pointer-driven foil/glare interaction inspired by the public technique in
+// simeydotme/pokemon-cards-css. This WebGL shader is an original adaptation;
+// no upstream card art, foil textures, or CSS source is bundled here.
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const holoRaycaster = new THREE.Raycaster();
+const holoPointerNdc = new THREE.Vector2();
+const holoPointer = new THREE.Vector2(0.5, 0.5);
+const holoPointerTarget = new THREE.Vector2(0.5, 0.5);
+const holoPointerVelocity = new THREE.Vector2();
+const springStepResult = { value: 0, velocity: 0 };
+let holoHover = 0;
+let holoHoverTarget = 0;
+let holoHoverVelocity = 0;
+let holoRaycastPending = false;
+let holoExitAt = 0;
+
+// Interaction reference: https://github.com/simeydotme/hover-tilt
+// Values mirror the public component's 10-degree
+// pointer mapping, hover scale, delayed exit, and softer return spring. The
+// motion is implemented natively in Three.js so the acrylic shell, foil, glare,
+// and real PBR shadow react as one object without bundling the Svelte component.
+const HOVER_TILT_CONFIG = Object.freeze({
+  rotation: THREE.MathUtils.degToRad(10),
+  scale: 1.035,
+  exitDelay: 200,
+  enterSpring: Object.freeze({ stiffness: 210, damping: 24 }),
+  exitSpring: Object.freeze({ stiffness: 54, damping: 11 }),
+  activationSpring: Object.freeze({ stiffness: 170, damping: 21 }),
+  deactivationSpring: Object.freeze({ stiffness: 46, damping: 10 })
+});
+
+const HOLO_EFFECT_MODES = {
+  none: 0,
+  diamond: 1,
+  lightning: 2,
+  rainbow: 3,
+  crystal: 4,
+  holographic: 5,
+  laser: 6,
+  flame: 7,
+  galaxy: 8
+};
 
 const scratchRoughnessMap = createScratchTexture(false);
 const scratchHighlightMap = createScratchTexture(true);
@@ -134,6 +181,7 @@ function init() {
 
   controls.addEventListener("start", () => {
     orbitInputActive = true;
+    resetHoloHover(true);
     suppressControlSyncUntil = 0;
     bridge.setView({ motionOn: false });
   });
@@ -150,7 +198,17 @@ function init() {
   new ResizeObserver(resizeRenderer).observe(host);
   document.body.classList.add("three-preview-ready");
   status.textContent = "ACRYLIC / PBR";
-  window.cardBuilderThree = { captureCanvas, rebuild: () => currentState && rebuildShell(currentState) };
+  window.cardBuilderThree = {
+    captureCanvas,
+    rebuild: () => currentState && rebuildShell(currentState),
+    getHoverTiltState: () => ({
+      active: holoHover > 0.01,
+      targetActive: holoHoverTarget > 0,
+      pointer: { x: holoPointer.x, y: holoPointer.y },
+      rotation: { x: rootGroup.rotation.x, y: rootGroup.rotation.y },
+      scale: rootGroup.scale.x
+    })
+  };
 
   window.addEventListener("cardbuilder:state", (event) => applyState(event.detail));
   window.addEventListener("cardbuilder:view", (event) => applyExternalView(event.detail));
@@ -231,12 +289,14 @@ function createCard() {
   const front = new THREE.Mesh(new THREE.PlaneGeometry(CARD_WIDTH - 0.025, CARD_HEIGHT - 0.025), frontMaterial);
   front.name = "card-front-texture";
   front.position.z = CARD_DEPTH / 2 + 0.002;
+  frontCardMesh = front;
   cardGroup.add(front);
 
   const back = new THREE.Mesh(new THREE.PlaneGeometry(CARD_WIDTH - 0.025, CARD_HEIGHT - 0.025), backMaterial);
   back.name = "card-back-texture";
   back.position.z = -CARD_DEPTH / 2 - 0.002;
   back.rotation.y = Math.PI;
+  backCardMesh = back;
   cardGroup.add(back);
 
   foilMaterial = new THREE.MeshPhysicalMaterial({
@@ -258,6 +318,13 @@ function createCard() {
   foil.position.z = CARD_DEPTH / 2 + 0.006;
   foil.renderOrder = 8;
   cardGroup.add(foil);
+
+  holoMaterial = createHoloMaterial();
+  const holo = new THREE.Mesh(new THREE.PlaneGeometry(CARD_WIDTH - 0.035, CARD_HEIGHT - 0.035), holoMaterial);
+  holo.name = "card-pointer-holo-layer";
+  holo.position.z = CARD_DEPTH / 2 + 0.009;
+  holo.renderOrder = 9;
+  cardGroup.add(holo);
 }
 
 function createCardMaterial(texture) {
@@ -265,6 +332,106 @@ function createCardMaterial(texture) {
     color: 0xffffff,
     map: texture,
     side: THREE.FrontSide
+  });
+}
+
+function createHoloMaterial() {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uPointer: { value: new THREE.Vector2(0.5, 0.5) },
+      uHover: { value: 0 },
+      uTime: { value: 0 },
+      uStrength: { value: 0.5 },
+      uMode: { value: 0 },
+      uOpacity: { value: 0.45 },
+      uTint: { value: new THREE.Color(0xccefff) }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      precision highp float;
+
+      uniform vec2 uPointer;
+      uniform float uHover;
+      uniform float uTime;
+      uniform float uStrength;
+      uniform float uMode;
+      uniform float uOpacity;
+      uniform vec3 uTint;
+      varying vec2 vUv;
+
+      float hash21(vec2 point) {
+        return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
+      }
+
+      vec3 spectrum(float phase) {
+        return 0.55 + 0.45 * cos(6.2831853 * (phase + vec3(0.00, 0.33, 0.67)));
+      }
+
+      void main() {
+        vec2 fromPointer = vUv - uPointer;
+        float radial = pow(max(0.0, 1.0 - length(fromPointer) / 0.78), 2.1);
+        float diagonal = dot(vUv - uPointer * 0.35, normalize(vec2(0.82, -0.58)));
+        vec3 rainbow = spectrum(diagonal * 1.85 + uTime * 0.035);
+        float fineBands = 0.5 + 0.5 * sin((diagonal + uTime * 0.012) * 92.0);
+        float wideBand = pow(0.5 + 0.5 * sin((diagonal - uTime * 0.02) * 15.0), 5.0);
+        float cell = hash21(floor(vUv * vec2(88.0, 124.0)) + floor(uTime * 1.7));
+        float sparkle = step(0.975, cell) * (0.35 + 0.65 * radial);
+        float facet = pow(abs(sin(vUv.x * 28.0) * sin(vUv.y * 34.0)), 7.0);
+        float laser = pow(0.5 + 0.5 * sin((vUv.x * 1.25 - vUv.y) * 118.0), 18.0);
+        float flame = smoothstep(0.15, 0.92, 1.0 - vUv.y) * (0.4 + 0.6 * sin(vUv.x * 20.0 + uTime * 1.4));
+        float galaxy = sparkle + 0.28 * pow(0.5 + 0.5 * sin((vUv.x + vUv.y) * 23.0 - uTime * 0.3), 8.0);
+
+        vec3 effectColor = mix(uTint, rainbow, 0.38);
+        float pattern = radial * 0.55 + wideBand * 0.24;
+
+        if (uMode < 0.5) {
+          effectColor = mix(vec3(1.0), uTint, 0.38);
+          pattern = radial * 0.72;
+        } else if (uMode < 1.5) {
+          effectColor = mix(uTint, rainbow, 0.28);
+          pattern = radial * 0.42 + facet * 0.56 + sparkle * 0.42;
+        } else if (uMode < 2.5) {
+          effectColor = mix(vec3(0.58, 0.76, 1.0), uTint, 0.42);
+          pattern = radial * 0.38 + wideBand * 0.72 + laser * 0.24;
+        } else if (uMode < 3.5) {
+          effectColor = rainbow;
+          pattern = radial * 0.46 + fineBands * 0.22 + wideBand * 0.42;
+        } else if (uMode < 4.5) {
+          effectColor = mix(vec3(0.72, 0.96, 1.0), rainbow, 0.32);
+          pattern = radial * 0.4 + facet * 0.52 + fineBands * 0.15;
+        } else if (uMode < 5.5) {
+          effectColor = mix(rainbow, uTint, 0.24);
+          pattern = radial * 0.38 + fineBands * 0.2 + sparkle * 0.92;
+        } else if (uMode < 6.5) {
+          effectColor = mix(vec3(0.35, 0.86, 1.0), rainbow, 0.38);
+          pattern = radial * 0.32 + laser * 0.92 + wideBand * 0.22;
+        } else if (uMode < 7.5) {
+          effectColor = mix(vec3(1.0, 0.12, 0.02), vec3(1.0, 0.78, 0.12), clamp(flame, 0.0, 1.0));
+          pattern = radial * 0.26 + max(0.0, flame) * 0.58 + wideBand * 0.2;
+        } else {
+          effectColor = mix(vec3(0.18, 0.25, 0.92), vec3(0.92, 0.28, 1.0), radial);
+          pattern = radial * 0.34 + galaxy * 0.78;
+        }
+
+        float edgeFade = smoothstep(0.0, 0.045, vUv.x) * smoothstep(0.0, 0.045, vUv.y)
+          * smoothstep(0.0, 0.045, 1.0 - vUv.x) * smoothstep(0.0, 0.045, 1.0 - vUv.y);
+        float energy = clamp(pattern * (0.28 + uStrength * 0.84), 0.0, 1.0);
+        float alpha = energy * mix(0.16, 0.88, uHover) * uOpacity * edgeFade;
+        gl_FragColor = vec4(effectColor * (0.82 + radial * 0.55 + sparkle), alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.FrontSide,
+    blending: THREE.AdditiveBlending,
+    toneMapped: false
   });
 }
 
@@ -484,6 +651,23 @@ function updateFoilMaterial(data) {
   foilMaterial.metalness = data.rarity === "gold" ? 0.34 : data.rarity === "silver" ? 0.26 : 0.12;
   foilMaterial.color.set(data.rarity === "gold" ? 0xffd66f : data.effect === "lightning" ? 0xb9d9ff : 0xe6ecff);
   foilMaterial.needsUpdate = true;
+  updateHoloMaterial(data, effectStrength);
+}
+
+function updateHoloMaterial(data, effectStrength) {
+  if (!holoMaterial) return;
+  const rarityTint = {
+    base: 0xd9f5ff,
+    silver: 0xc8f2ff,
+    gold: 0xffd45f,
+    neon: 0x5dff8c,
+    rwb: 0xaec8ff,
+    black: 0xe6c76d
+  };
+  holoMaterial.uniforms.uMode.value = HOLO_EFFECT_MODES[data.effect] ?? 0;
+  holoMaterial.uniforms.uStrength.value = data.effect === "none" ? 0.18 : 0.34 + effectStrength * 0.66;
+  holoMaterial.uniforms.uOpacity.value = data.effect === "none" ? 0.34 : 0.48 + effectStrength * 0.34;
+  holoMaterial.uniforms.uTint.value.setHex(rarityTint[data.rarity] || rarityTint.base);
 }
 
 function cardEdgeColor(rarity) {
@@ -603,6 +787,7 @@ function bindInteraction() {
   }
 
   canvas.addEventListener("pointerdown", (event) => {
+    resetHoloHover(true);
     pointerStart = { x: event.clientX, y: event.clientY };
   });
   canvas.addEventListener("pointerup", (event) => {
@@ -612,6 +797,105 @@ function bindInteraction() {
     if (distance < 4) selectShellPart(event);
   });
   canvas.addEventListener("dblclick", () => bridge.flip());
+  canvas.addEventListener("pointermove", updateHoloPointer);
+  canvas.addEventListener("pointerleave", () => resetHoloHover());
+  canvas.addEventListener("pointercancel", () => resetHoloHover(true));
+}
+
+function updateHoloPointer(event) {
+  if (!frontCardMesh || !backCardMesh || reducedMotionQuery.matches || orbitInputActive || event.pointerType === "touch") {
+    resetHoloHover(true);
+    return;
+  }
+
+  const rect = canvas.getBoundingClientRect();
+  holoPointerNdc.set(
+    ((event.clientX - rect.left) / rect.width) * 2 - 1,
+    -((event.clientY - rect.top) / rect.height) * 2 + 1
+  );
+  holoRaycastPending = true;
+}
+
+function resolveHoloPointer() {
+  if (!holoRaycastPending) return;
+  holoRaycastPending = false;
+  holoRaycaster.setFromCamera(holoPointerNdc, camera);
+  const hit = holoRaycaster.intersectObjects([frontCardMesh, backCardMesh], false)[0];
+
+  if (!hit?.uv) {
+    resetHoloHover();
+    return;
+  }
+
+  holoPointerTarget.copy(hit.uv);
+  holoHoverTarget = 1;
+  holoExitAt = 0;
+  canvas.classList.add("is-holo-hover");
+}
+
+function resetHoloHover(immediate = false) {
+  holoRaycastPending = false;
+  if (!immediate && !reducedMotionQuery.matches && holoHoverTarget > 0) {
+    if (!holoExitAt) holoExitAt = performance.now() + HOVER_TILT_CONFIG.exitDelay;
+    return;
+  }
+  deactivateHoloTilt(immediate || reducedMotionQuery.matches);
+}
+
+function deactivateHoloTilt(immediate = false) {
+  holoExitAt = 0;
+  holoPointerTarget.set(0.5, 0.5);
+  holoHoverTarget = 0;
+  canvas.classList.remove("is-holo-hover");
+  if (!immediate) return;
+  holoPointer.set(0.5, 0.5);
+  holoPointerVelocity.set(0, 0);
+  holoHover = 0;
+  holoHoverVelocity = 0;
+  if (rootGroup) {
+    rootGroup.rotation.set(0, 0, 0);
+    rootGroup.scale.setScalar(1);
+  }
+}
+
+function advanceSpring(current, velocity, target, spring, deltaSeconds) {
+  const steps = Math.max(1, Math.ceil(deltaSeconds / 0.016));
+  const step = deltaSeconds / steps;
+  let next = current;
+  let speed = velocity;
+  for (let index = 0; index < steps; index += 1) {
+    speed += ((target - next) * spring.stiffness - speed * spring.damping) * step;
+    next += speed * step;
+  }
+  if (Math.abs(target - next) < 0.0001 && Math.abs(speed) < 0.0001) {
+    springStepResult.value = target;
+    springStepResult.velocity = 0;
+    return springStepResult;
+  }
+  springStepResult.value = next;
+  springStepResult.velocity = speed;
+  return springStepResult;
+}
+
+function advancePointerSpring(deltaSeconds, spring) {
+  let result = advanceSpring(
+    holoPointer.x,
+    holoPointerVelocity.x,
+    holoPointerTarget.x,
+    spring,
+    deltaSeconds
+  );
+  holoPointer.x = result.value;
+  holoPointerVelocity.x = result.velocity;
+  result = advanceSpring(
+    holoPointer.y,
+    holoPointerVelocity.y,
+    holoPointerTarget.y,
+    spring,
+    deltaSeconds
+  );
+  holoPointer.y = result.value;
+  holoPointerVelocity.y = result.velocity;
 }
 
 function selectShellPart(event) {
@@ -644,8 +928,41 @@ function selectShellPart(event) {
 
 function renderFrame(time) {
   controls.update();
-  const shimmer = 0.5 + Math.sin(time * 0.0007) * 0.5;
+  const reducedMotion = reducedMotionQuery.matches;
+  const deltaSeconds = lastRenderTime ? Math.min(0.04, (time - lastRenderTime) / 1000) : 0.016;
+  lastRenderTime = time;
+  resolveHoloPointer();
+
+  if (holoExitAt && time >= holoExitAt) deactivateHoloTilt();
+  if (reducedMotion) deactivateHoloTilt(true);
+  else {
+    const pointerSpring = holoHoverTarget > 0 ? HOVER_TILT_CONFIG.enterSpring : HOVER_TILT_CONFIG.exitSpring;
+    const activationSpring = holoHoverTarget > 0 ? HOVER_TILT_CONFIG.activationSpring : HOVER_TILT_CONFIG.deactivationSpring;
+    advancePointerSpring(deltaSeconds, pointerSpring);
+    const hoverStep = advanceSpring(
+      holoHover,
+      holoHoverVelocity,
+      holoHoverTarget,
+      activationSpring,
+      deltaSeconds
+    );
+    holoHover = hoverStep.value;
+    holoHoverVelocity = hoverStep.velocity;
+  }
+
+  const hoverActivation = reducedMotion ? 0 : THREE.MathUtils.clamp(holoHover, 0, 1.08);
+  rootGroup.rotation.x = (0.5 - holoPointer.y) * HOVER_TILT_CONFIG.rotation * 2 * hoverActivation;
+  rootGroup.rotation.y = (0.5 - holoPointer.x) * HOVER_TILT_CONFIG.rotation * 2 * hoverActivation;
+  rootGroup.scale.setScalar(1 + (HOVER_TILT_CONFIG.scale - 1) * hoverActivation);
+
+  const shimmer = reducedMotion ? 0.5 : 0.5 + Math.sin(time * 0.0007) * 0.5;
   foilMaterial.clearcoatRoughness = 0.07 + shimmer * 0.05;
+  if (holoMaterial) {
+    const idleEnergy = reducedMotion ? 0 : currentState?.motionOn ? 0.16 : 0.055;
+    holoMaterial.uniforms.uPointer.value.copy(holoPointer);
+    holoMaterial.uniforms.uHover.value = Math.max(THREE.MathUtils.clamp(holoHover, 0, 1), idleEnergy);
+    holoMaterial.uniforms.uTime.value = reducedMotion ? 0 : time * 0.001;
+  }
   renderer.render(scene, camera);
 }
 
