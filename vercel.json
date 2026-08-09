@@ -2,6 +2,30 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/api/players/:playerId/media",
+      "destination": "/api/players?playerId=:playerId&view=media"
+    },
+    {
+      "source": "/api/players/:playerId",
+      "destination": "/api/players?playerId=:playerId"
+    },
+    {
+      "source": "/api/player-media/:mediaId/file",
+      "destination": "/api/player-media?mediaId=:mediaId&view=file"
+    },
+    {
+      "source": "/api/player-media/:mediaId",
+      "destination": "/api/player-media?mediaId=:mediaId"
+    },
+    {
+      "source": "/api/admin/player-media/upload",
+      "destination": "/api/player-media?view=admin-upload"
+    },
+    {
+      "source": "/api/admin/player-media/:mediaId/revoke",
+      "destination": "/api/player-media?mediaId=:mediaId&view=admin-revoke"
+    },
+    {
       "source": "/api/cards/:id/thumbnail",
       "destination": "/api/cards?id=:id&view=thumbnail"
     },

@@ -608,8 +608,26 @@ async function handler(req, res) {
     .filter(Boolean);
   const rewrittenId = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
   const rewrittenView = Array.isArray(req.query.view) ? req.query.view[0] : req.query.view;
+  const rewrittenPlayerId = Array.isArray(req.query.playerId) ? req.query.playerId[0] : req.query.playerId;
+  const rewrittenMediaId = Array.isArray(req.query.mediaId) ? req.query.mediaId[0] : req.query.mediaId;
   try {
     if (parts.length === 1 && parts[0] === "health" && req.method === "GET") return await handleHealth(res);
+    if (parts.length === 1 && parts[0] === "players" && rewrittenPlayerId && rewrittenView === "media" && req.method === "GET") {
+      return await handleListPlayerMedia(req, res, rewrittenPlayerId);
+    }
+    if (parts.length === 1 && parts[0] === "players" && rewrittenPlayerId && req.method === "GET") return handleGetPlayer(res, rewrittenPlayerId);
+    if (parts.length === 1 && parts[0] === "player-media" && rewrittenMediaId && rewrittenView === "file" && req.method === "GET") {
+      return await handleGetMediaFile(req, res, rewrittenMediaId);
+    }
+    if (parts.length === 1 && parts[0] === "player-media" && rewrittenMediaId && rewrittenView === "admin-revoke" && req.method === "POST") {
+      return await handleAdminMediaRevoke(req, res, rewrittenMediaId);
+    }
+    if (parts.length === 1 && parts[0] === "player-media" && rewrittenView === "admin-upload" && req.method === "POST") {
+      return await handleAdminMediaUpload(req, res);
+    }
+    if (parts.length === 1 && parts[0] === "player-media" && rewrittenMediaId && req.method === "GET") {
+      return await handleGetMedia(res, rewrittenMediaId);
+    }
     if (parts.length === 1 && parts[0] === "players" && req.method === "GET") return handleListPlayers(req, res);
     if (parts.length === 2 && parts[0] === "players" && PLAYER_ID_REGEX.test(parts[1]) && req.method === "GET") return handleGetPlayer(res, parts[1]);
     if (parts.length === 3 && parts[0] === "players" && PLAYER_ID_REGEX.test(parts[1]) && parts[2] === "media" && req.method === "GET") {
