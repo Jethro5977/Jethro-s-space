@@ -1,0 +1,16 @@
+# Render Blueprint — full Card Builder deployment with persistent shared-library data.
+# The disk mount preserves server/data/cards across deploys and restarts.
+services:
+  - type: web
+    name: card-builder-full
+    runtime: node
+    region: singapore
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    disk:
+      name: card-builder-data
+      mountPath: /opt/render/project/src/server/data
+      sizeGB: 1
