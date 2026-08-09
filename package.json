@@ -16,11 +16,14 @@
   "scripts": {
     "start": "node server/shared-server.mjs",
     "server": "node server/shared-server.mjs",
-    "check": "node --check app.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && node --check 'api/[...route].js' && echo '✓ All files passed syntax check'",
+    "check": "node --check app.js && node --check player-media.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && node --check 'api/[...route].js' && node scripts/audit-player-media.mjs && echo '✓ All files passed syntax and media checks'",
     "verify": "bash scripts/verify-shared.sh",
-    "audit:players": "node scripts/audit-player-data.mjs"
+    "audit:players": "node scripts/audit-player-data.mjs",
+    "audit:media": "node scripts/audit-player-media.mjs",
+    "sync:players": "node scripts/sync-player-registry.mjs"
   },
   "dependencies": {
-    "@vercel/blob": "^2.7.0"
+    "@vercel/blob": "^2.7.0",
+    "sharp": "^0.35.3"
   }
 }

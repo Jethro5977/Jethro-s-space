@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-09T00:00:00.000Z",
+  "assets": [
+    {
+      "mediaId": "pm_project_cooper_flagg_showcase",
+      "playerId": "nba_1642843",
+      "category": "profile",
+      "tags": ["rookie", "showcase"],
+      "title": "Card Builder showcase portrait",
+      "capturedAt": null,
+      "season": "2025-26",
+      "teamAtCapture": "DAL",
+      "opponent": null,
+      "gameId": null,
+      "momentId": null,
+      "provider": "project_asset",
+      "providerAssetId": "cooper-flagg-home",
+      "sourceUrl": null,
+      "photographer": null,
+      "creditLine": "Card Builder project asset",
+      "licenseStatus": "review_required",
+      "licenseType": "project_asset",
+      "usageScope": ["web_display", "card_derivative"],
+      "licenseExpiresAt": null,
+      "variants": {
+        "card": "/assets/cooper-flagg-home.png",
+        "thumb": "/assets/cooper-flagg-home.png"
+      },
+      "sha256": null,
+      "width": 1024,
+      "height": 1536,
+      "focalPoint": { "x": 0.5, "y": 0.42 },
+      "subjectBbox": null,
+      "matchConfidence": 1,
+      "status": "project_showcase",
+      "reviewedBy": null,
+      "reviewedAt": null
+    }
+  ]
+}

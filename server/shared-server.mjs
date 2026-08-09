@@ -27,6 +27,7 @@ const MAX_FULLSTATE_CHARS = 2_000_000;
 const MAX_AUTHOR_LENGTH = 24;
 const THUMBNAIL_REGEX = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
 const REGISTRY_PATH = path.join(PROJECT_ROOT, "data", "player-registry.json");
+const PLAYER_MEDIA_PATH = path.join(PROJECT_ROOT, "data", "player-media.json");
 
 // 启动时自动创建数据目录
 fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -62,6 +63,54 @@ function loadPlayerRegistry() {
 }
 
 const PLAYER_REGISTRY = loadPlayerRegistry();
+const PLAYER_MEDIA_DOCUMENT = (() => {
+  try { return JSON.parse(fs.readFileSync(PLAYER_MEDIA_PATH, "utf8")); } catch { return { assets: [] }; }
+})();
+
+function findPlayerById(playerId) {
+  return Object.values(PLAYER_REGISTRY).find((player) => player.playerId === playerId) || null;
+}
+
+function publicLocalMedia(asset) {
+  return {
+    mediaId: asset.mediaId,
+    playerId: asset.playerId,
+    category: asset.category,
+    tags: asset.tags || [],
+    title: asset.title,
+    capturedAt: asset.capturedAt || null,
+    season: asset.season || null,
+    teamAtCapture: asset.teamAtCapture || null,
+    provider: asset.provider,
+    creditLine: asset.creditLine,
+    photographer: asset.photographer || null,
+    licenseStatus: asset.licenseStatus,
+    fallback: false,
+    cardUrl: asset.variants.card,
+    thumbUrl: asset.variants.thumb,
+  };
+}
+
+function localFallbackMedia(player) {
+  const mediaId = `pm_fallback_${player.nbaId}`;
+  return {
+    mediaId,
+    playerId: player.playerId,
+    category: "headshot_fallback",
+    tags: ["fallback"],
+    title: "Official headshot compatibility fallback",
+    capturedAt: null,
+    season: null,
+    teamAtCapture: player.team,
+    provider: "nba_cdn",
+    creditLine: "NBA CDN · temporary compatibility fallback",
+    photographer: null,
+    licenseStatus: "fallback_review_required",
+    fallback: true,
+    cardUrl: `/api/player-media/${mediaId}/file?variant=card`,
+    thumbUrl: `/api/player-media/${mediaId}/file?variant=thumb`,
+  };
+}
 
 function reportPlayerRegistry() {
   const entries = Object.values(PLAYER_REGISTRY).filter((entry) => entry && typeof entry === "object");
@@ -351,6 +400,49 @@ async function handleApi(req, res, url, pathname) {
 
     if (pathname === "/api/cards" && req.method === "POST") {
       return handlePublishCard(req, res);
+    }
+
+    if (pathname === "/api/players" && req.method === "GET") {
+      const team = String(url.searchParams.get("team") || "").toUpperCase();
+      let players = Object.values(PLAYER_REGISTRY);
+      if (url.searchParams.get("active") === "true") players = players.filter((player) => player.active === true);
+      if (team) players = players.filter((player) => player.team === team);
+      return json(res, 200, { players, total: players.length });
+    }
+
+    const playerMatch = pathname.match(/^\/api\/players\/(nba_[0-9]+)$/);
+    if (playerMatch && req.method === "GET") {
+      const player = findPlayerById(playerMatch[1]);
+      return player ? json(res, 200, { player }) : json(res, 404, { error: "Player not found" });
+    }
+
+    const playerMediaMatch = pathname.match(/^\/api\/players\/(nba_[0-9]+)\/media$/);
+    if (playerMediaMatch && req.method === "GET") {
+      const player = findPlayerById(playerMediaMatch[1]);
+      if (!player) return json(res, 404, { error: "Player not found" });
+      const category = String(url.searchParams.get("category") || "");
+      const media = (PLAYER_MEDIA_DOCUMENT.assets || [])
+        .filter((asset) => asset.playerId === player.playerId && asset.status === "published" && asset.licenseStatus === "valid")
+        .filter((asset) => !category || asset.category === category)
+        .map(publicLocalMedia);
+      if (!category || category === "headshot_fallback") media.push(localFallbackMedia(player));
+      return json(res, 200, { playerId: player.playerId, media, total: media.length, fallbackOnly: media.every((asset) => asset.fallback) });
+    }
+
+    const fallbackFileMatch = pathname.match(/^\/api\/player-media\/pm_fallback_([0-9]+)\/file$/);
+    if (fallbackFileMatch && req.method === "GET") {
+      const player = Object.values(PLAYER_REGISTRY).find((item) => item.nbaId === fallbackFileMatch[1]);
+      if (!player) return json(res, 404, { error: "Media not found" });
+      const variant = url.searchParams.get("variant") === "thumb" ? "260x190" : "1040x760";
+      const upstream = await fetch(`https://cdn.nba.com/headshots/nba/latest/${variant}/${player.nbaId}.png`);
+      if (!upstream.ok) return json(res, 502, { error: "Fallback image provider unavailable" });
+      const buffer = Buffer.from(await upstream.arrayBuffer());
+      res.writeHead(200, {
+        "Content-Type": "image/png",
+        "Content-Length": buffer.length,
+        "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      });
+      return res.end(buffer);
     }
 
     const thumbMatch = pathname.match(/^\/api\/cards\/([a-z0-9_]+)\/thumbnail$/);

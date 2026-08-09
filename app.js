@@ -5,7 +5,7 @@ const LIBRARY_STORAGE_KEY = "card-builder-library-v1";
 const LIBRARY_ASSET_DB_NAME = "card-builder-library-assets-v1";
 const LIBRARY_ASSET_STORE = "images";
 const LIBRARY_MAX_CARDS = 200;
-const PROJECT_VERSION = 6;
+const PROJECT_VERSION = 7;
 const AUTO_LIBRARY_SOURCE = "auto-nba-v7";
 const AUTO_LIBRARY_DATA_VERSION = 4;
 const SHOWCASE_PLAYER_IMAGE = "assets/cooper-flagg-home.png";
@@ -41,6 +41,13 @@ const DEFAULT_STATE = {
   jerseyStyle: "solid",
   teamPreset: "dal",
   playerImg: SHOWCASE_PLAYER_IMAGE,
+  playerId: "nba_1642843",
+  playerMediaId: "pm_project_cooper_flagg_showcase",
+  playerImageCategory: "profile",
+  playerImageCredit: "Card Builder project asset",
+  playerImageCapturedAt: null,
+  playerImageTeamAtCapture: "DAL",
+  playerImageLicenseSnapshot: "review_required",
   logoImg: SHOWCASE_TEAM_LOGO,
   photoScale: 100,
   photoX: 0,
@@ -216,7 +223,7 @@ const NBA_PLAYER_ROWS = [
 ];
 
 const NBA_PLAYERS_DB = NBA_PLAYER_ROWS.map((row) => Object.fromEntries(NBA_PLAYER_FIELDS.map((field, index) => [field, row[index]])))
-  .map((player) => ({ ...player, isRookie: player.name === "COOPER FLAGG" }));
+  .map((player) => ({ ...player, playerId: `nba_${player.nbaId}`, isRookie: player.name === "COOPER FLAGG" }));
 
 const NBA_TEAM_IDS = {
   thunder: 1610612760, bucks: 1610612749, nuggets: 1610612743, lakers: 1610612747,
@@ -341,6 +348,16 @@ function repairShowcaseDefaults(candidate) {
 function normalizeState(candidate) {
   const normalized = { ...cloneDefaultState(), ...candidate };
   const defaults = cloneDefaultState();
+  const seededPlayer = NBA_PLAYERS_DB.find((player) => player.name === String(normalized.playerName || "").trim().toUpperCase());
+  if (!candidate.playerId) normalized.playerId = seededPlayer?.playerId || "";
+  if (!candidate.playerMediaId && normalized.playerId !== DEFAULT_STATE.playerId) {
+    normalized.playerMediaId = "";
+    normalized.playerImageCategory = "";
+    normalized.playerImageCredit = "";
+    normalized.playerImageCapturedAt = "";
+    normalized.playerImageTeamAtCapture = "";
+    normalized.playerImageLicenseSnapshot = "";
+  }
   // Older drafts may contain explicit nulls, which override object-spread
   // defaults. Restore only absent values so valid DIY input stays untouched.
   FIELD_IDS.forEach((field) => {
@@ -356,6 +373,13 @@ function normalizeState(candidate) {
   if (!["solid", "stripe", "sash"].includes(normalized.jerseyStyle)) normalized.jerseyStyle = "solid";
   normalized.cardThickness = candidate.cardThickness !== false;
   normalized.playerImg = isSafeCardImage(normalized.playerImg) ? normalized.playerImg : null;
+  normalized.playerId = sanitizeMediaStateText(normalized.playerId, 48);
+  normalized.playerMediaId = sanitizeMediaStateText(normalized.playerMediaId, 80);
+  normalized.playerImageCategory = sanitizeMediaStateText(normalized.playerImageCategory, 32);
+  normalized.playerImageCredit = sanitizeMediaStateText(normalized.playerImageCredit, 180);
+  normalized.playerImageCapturedAt = sanitizeMediaStateText(normalized.playerImageCapturedAt, 40);
+  normalized.playerImageTeamAtCapture = sanitizeMediaStateText(normalized.playerImageTeamAtCapture, 8).toUpperCase();
+  normalized.playerImageLicenseSnapshot = sanitizeMediaStateText(normalized.playerImageLicenseSnapshot, 80);
   normalized.logoImg = isSafeCardImage(normalized.logoImg) ? normalized.logoImg : null;
   normalized.signatureData = isSafeSignatureImage(normalized.signatureData) ? normalized.signatureData : null;
   normalized.signatureColor = ["gold", "silver", "black", "white"].includes(normalized.signatureColor) ? normalized.signatureColor : "gold";
@@ -393,13 +417,18 @@ function isSafeSignatureImage(value) {
   return isSafeDataImage(value) || value === SHOWCASE_SIGNATURE_IMAGE || value === SHOWCASE_SIGNATURE_SOURCE;
 }
 
+function sanitizeMediaStateText(value, maxLength) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
 function isSafeCardImage(value) {
   if (isSafeDataImage(value)) return true;
   if ([SHOWCASE_PLAYER_IMAGE, SHOWCASE_TEAM_LOGO].includes(value)) return true;
   if (typeof value !== "string") return false;
   try {
-    const url = new URL(value);
-    return url.protocol === "https:" && TRUSTED_IMAGE_HOSTS.has(url.hostname);
+    const url = new URL(value, window.location.origin);
+    return url.origin === window.location.origin
+      || (url.protocol === "https:" && TRUSTED_IMAGE_HOSTS.has(url.hostname));
   } catch {
     return false;
   }
@@ -654,6 +683,13 @@ function updateInterface(d) {
   logoPreview.classList.toggle("has-image", Boolean(state.logoImg));
   $("#photoPreviewImg").src = state.playerImg || "";
   $("#logoPreviewImg").src = state.logoImg || "";
+  const mediaStatus = $("#playerMediaStatus");
+  if (mediaStatus) {
+    mediaStatus.textContent = state.playerMediaId
+      ? `${state.playerImageCategory || "MEDIA"} · ${state.playerImageTeamAtCapture || "TEAM N/A"} · ${state.playerImageCredit || "SOURCE PENDING"}`
+      : state.playerImg ? "用户上传 / 旧项目图片" : "尚未选择影像";
+    mediaStatus.classList.toggle("is-fallback", state.playerImageCategory === "headshot_fallback");
+  }
 
   refs.slabShell.className = `slab-shell slab-${state.slabType}`;
   refs.card3d.classList.toggle("no-thickness", !state.cardThickness);
@@ -1542,6 +1578,12 @@ function bindInterface() {
     const eventName = element.tagName === "SELECT" || element.type === "color" ? "change" : "input";
     element.addEventListener(eventName, () => {
       state[id] = element.value;
+      if (id === "playerName") {
+        const matched = NBA_PLAYERS_DB.find((player) => player.name === String(element.value).trim().toUpperCase());
+        const nextPlayerId = matched?.playerId || "";
+        if (state.playerId !== nextPlayerId) clearPlayerMediaSelection();
+        state.playerId = nextPlayerId;
+      }
       if (["teamName", "teamAbbr", "colorPrimary", "colorSecondary"].includes(id)) state.teamPreset = "";
       if (id === "colorPrimary") flashColorOutput($("#colorPrimaryOut"));
       if (id === "colorSecondary") flashColorOutput($("#colorSecondaryOut"));
@@ -1647,7 +1689,10 @@ function readImageFile(event, key) {
   const reader = new FileReader();
   reader.onload = () => {
     state[key] = reader.result;
-    if (key === "playerImg") state.imageMode = state.imageMode || "cutout";
+    if (key === "playerImg") {
+      state.imageMode = state.imageMode || "cutout";
+      clearPlayerMediaSelection();
+    }
     render();
     showToast(key === "playerImg" ? "球员照片已更新" : "球队 Logo 已更新", "success");
   };
@@ -1656,8 +1701,18 @@ function readImageFile(event, key) {
 
 function removePhoto() {
   state.playerImg = null;
+  clearPlayerMediaSelection();
   refs.photoInput.value = "";
   render();
+}
+
+function clearPlayerMediaSelection() {
+  state.playerMediaId = "";
+  state.playerImageCategory = "";
+  state.playerImageCredit = "";
+  state.playerImageCapturedAt = "";
+  state.playerImageTeamAtCapture = "";
+  state.playerImageLicenseSnapshot = "";
 }
 
 function removeLogo() {
@@ -3407,6 +3462,13 @@ function applyPlayerFacts(cardState, player) {
   return normalizeState({
     ...cardState,
     playerName: player.name,
+    playerId: player.playerId,
+    playerMediaId: "",
+    playerImageCategory: "",
+    playerImageCredit: "",
+    playerImageCapturedAt: "",
+    playerImageTeamAtCapture: "",
+    playerImageLicenseSnapshot: "",
     playerNumber: player.number,
     playerPosition: player.position,
     teamName: player.team,
@@ -4281,6 +4343,51 @@ window.CardBuilder.loadFullState = function (fullState) {
   state = normalizeState(fullState);
   hydrateInputs();
   render();
+};
+
+// Player Media Library bridge. The separate selector module never mutates the
+// editor's internal state directly, keeping old projects and manual uploads compatible.
+window.CardBuilderMediaBridge = {
+  getCurrentPlayer() {
+    const key = String(state.playerName || "").trim().toLowerCase();
+    const registered = window.PLAYER_REGISTRY?.[key];
+    const seeded = NBA_PLAYERS_DB.find((player) => player.name.toLowerCase() === key);
+    return {
+      playerId: state.playerId || registered?.playerId || seeded?.playerId || "",
+      displayName: registered?.displayName || seeded?.name || state.playerName || "",
+      currentTeam: registered?.team || seeded?.abbr || state.teamAbbr || "",
+      playerMediaId: state.playerMediaId || "",
+    };
+  },
+  async applyMedia(media) {
+    if (!media || typeof media !== "object" || !isSafeCardImage(media.cardUrl)) return false;
+    const localImage = isSafeDataImage(media.cardUrl)
+      ? media.cardUrl
+      : await loadRemoteImageAsDataUrl(media.cardUrl, {
+        timeoutMs: 8000,
+        maxWidth: 900,
+        maxHeight: 1260,
+        mimeType: "image/webp",
+        quality: 0.88,
+      });
+    if (!localImage) {
+      showToast("影像加载失败，请稍后重试或使用上传照片", "warning");
+      return false;
+    }
+    state.playerId = sanitizeMediaStateText(media.playerId, 48);
+    state.playerMediaId = sanitizeMediaStateText(media.mediaId, 80);
+    state.playerImageCategory = sanitizeMediaStateText(media.category, 32);
+    state.playerImageCredit = sanitizeMediaStateText(media.creditLine, 180);
+    state.playerImageCapturedAt = sanitizeMediaStateText(media.capturedAt, 40);
+    state.playerImageTeamAtCapture = sanitizeMediaStateText(media.teamAtCapture, 8).toUpperCase();
+    state.playerImageLicenseSnapshot = sanitizeMediaStateText(media.licenseStatus, 80);
+    state.playerImg = localImage;
+    state.imageMode = "fullart";
+    hydrateInputs();
+    render();
+    showToast("球员影像已应用到卡牌", "success");
+    return true;
+  },
 };
 
 window.dispatchEvent(new CustomEvent("cardbuilder:bridge-ready"));

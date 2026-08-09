@@ -40,6 +40,7 @@
 - **共享卡牌库**：无需账号系统，一键发布 DIY 卡牌供任何人浏览，含官方展示卡
 - **导出**：高清 PNG 导出（1500×2100 卡面、2400×3200 3D 视角），正反合图，项目 JSON 导入导出（含签名与蒙版数据完整还原）
 - **DIY 工具**：手写签名（4 色笔、位置与缩放调整）、自定义闪光蒙版、卡牌对比 PK、20 项收藏成就
+- **球员影像库**：按比赛 / 训练 / 里程碑 / 纪念 / 肖像筛选已授权照片，保存来源和拍摄球队；缺图时明确标记头像回退
 
 ### 快速开始
 
@@ -60,12 +61,15 @@ GitHub Pages 会自动从 `main` 部署静态版，保留制卡、3D 预览、�
 
 线上完整版使用 Vercel Functions（`api/[...route].js`）和 Vercel Blob 保存共享卡牌。部署后，在 Vercel 项目中创建并连接一个 **Blob Store**；平台会注入 `BLOB_READ_WRITE_TOKEN`，无需把令牌写入仓库。连接完成后访问 `/api/health` 应返回 `{ "status": "ok", "storage": "vercel-blob" }`，首次请求会自动写入官方展示卡。
 
+授权球员照片上传还需在 Vercel 环境变量中设置 `PLAYER_MEDIA_ADMIN_TOKEN`。接口、授权字段和撤回流程见 [`docs/PLAYER_MEDIA_RUNBOOK.md`](docs/PLAYER_MEDIA_RUNBOOK.md)。仓库不会自动抓取未授权 NBA 网页图片。
+
 ### 项目结构
 
 ```
 card-builder/
 ├── index.html              # 主页面
 ├── app.js                  # 卡片引擎：渲染、特效、卡库、导出
+├── player-media.js         # 球员影像选择器
 ├── styles.css               # 样式与特效动画
 ├── three-preview.js        # Three.js 3D 卡壳预览
 ├── shared-library.js       # 共享卡牌库前端逻辑
@@ -88,9 +92,11 @@ card-builder/
 | 命令 | 说明 |
 |---------|-------------|
 | `npm start` | 启动开发服务器（端口 4174） |
-| `npm run check` | 语法检查所有 JS 文件 |
+| `npm run check` | 语法与球员影像元数据检查 |
 | `npm run verify` | 共享库 API 冒烟测试（需先 `npm start`） |
 | `npm run audit:players` | 校验球员姓名与头像地址是否与 NBA/ESPN 一致 |
+| `npm run audit:media` | 校验 25 名球员 ID、媒体关联与授权闸门 |
+| `npm run sync:players` | 从种子球员数据重新生成统一注册表 |
 
 ### 技术栈
 
@@ -124,6 +130,7 @@ A zero-dependency, pure-web DIY 3D trading card builder with real-time Three.js 
 - **Shared Library** — Publish cards for anyone to browse, no accounts needed, with a featured showcase card.
 - **Export** — High-res PNG export (1500×2100 card face, 2400×3200 3D scene), front/back composite, and project JSON import/export with full signature and foil mask data.
 - **DIY Tools** — Hand-drawn signatures (4 colors, position/scale controls), custom foil masks, card comparison PK mode, and 20 collection achievements.
+- **Player Media Library** — Filter licensed images by game, training, milestone, commemorative, or portrait category while preserving source and team-at-capture metadata; headshots are clearly labeled as fallbacks.
 
 ### Quick Start
 
@@ -144,12 +151,15 @@ GitHub Pages deploys the static edition automatically from `main`. It includes c
 
 The full online edition uses Vercel Functions (`api/[...route].js`) with Vercel Blob for durable shared-card storage. Create and connect a **Blob Store** in the Vercel project; Vercel injects `BLOB_READ_WRITE_TOKEN`, so no token belongs in this repository. When connected, `/api/health` returns `{ "status": "ok", "storage": "vercel-blob" }` and the first request seeds the featured card automatically.
 
+Authorized player-media uploads additionally require `PLAYER_MEDIA_ADMIN_TOKEN` in Vercel environment variables. See [`docs/PLAYER_MEDIA_RUNBOOK.md`](docs/PLAYER_MEDIA_RUNBOOK.md) for the upload, license-gate, and revocation contract. This repository does not scrape unlicensed NBA web images.
+
 ### Project Structure
 
 ```
 card-builder/
 ├── index.html              # Main page
 ├── app.js                  # Card engine: rendering, effects, library, export
+├── player-media.js         # Licensed player-media picker
 ├── styles.css               # All styles and effect animations
 ├── three-preview.js        # Three.js 3D slab preview
 ├── shared-library.js       # Shared library frontend logic
@@ -172,9 +182,11 @@ card-builder/
 | Command | Description |
 |---------|-------------|
 | `npm start` | Start the dev server on port 4174 |
-| `npm run check` | Syntax-check all JS files |
+| `npm run check` | Syntax-check JS and audit player-media metadata |
 | `npm run verify` | Smoke-test the shared library API (server must be running) |
 | `npm run audit:players` | Verify player names and headshot URLs against NBA/ESPN |
+| `npm run audit:media` | Validate player IDs, media relationships, and license gates |
+| `npm run sync:players` | Regenerate the unified registry from seed player data |
 
 ### Tech Stack
 
