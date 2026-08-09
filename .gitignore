@@ -20,3 +20,5 @@ server/data/
 
 # Temporary / unrelated assets
 sng-logo-*.svg
+.vercel
+.env*

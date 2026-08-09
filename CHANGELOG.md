@@ -8,6 +8,10 @@
 
 ### 新增 / Added
 
+- 首批可追溯球员影像资源：为 Stephen Curry、Luka Dončić、Giannis Antetokounmpo、Nikola Jokić 与 Shai Gilgeous-Alexander 导入 5 张经画面核验的训练/比赛照片；每张均保存拍摄日期、当时球队、摄影师、Wikimedia Commons 来源页与 Creative Commons 许可，并生成 900×1260 卡牌图及 360×504 缩略图
+- EN: First traceable player-media batch: added five visually verified training/game photos for Stephen Curry, Luka Dončić, Giannis Antetokounmpo, Nikola Jokić, and Shai Gilgeous-Alexander; every record stores capture date, team at capture, photographer, Wikimedia Commons source page, and Creative Commons licence, with generated 900×1260 card art and 360×504 thumbnails
+- 新增 `docs/ASSET_ATTRIBUTIONS.md` 与可复现导入脚本，集中保留首批图片的署名、许可与来源；社交媒体和无明确许可的候选不会自动进入公开影像库
+- EN: Added `docs/ASSET_ATTRIBUTIONS.md` and a reproducible importer to retain first-batch credits, licences, and sources; social-media and unlicensed candidates never enter the public media library automatically
 - 品牌 Logo 与 favicon：采用「棱镜卡牌层叠 + 金色闪电」主标（logo-concept-a.svg + 16/32/48/180/192/512 PNG + ICO），接入页面头部与浏览器标签页图标
 - 预览区右下角新增小字水印 `DEVELOPED BY JETHRO`
 - 共享库新增「官方展示卡」：服务启动时自动写入 COOPER FLAGG #32 展示卡，置顶显示「官方展示」标记，所有访客打开页面即可检视
