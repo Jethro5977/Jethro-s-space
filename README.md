@@ -11,7 +11,7 @@
 <h3 align="center">DIY 3D Making Card Studio</h3>
 
 <p align="center">
-  <a href="https://cardsbuilder.netlify.app"><strong>在线体验 / Live Demo &rarr;</strong></a>
+  <a href="https://cardsbuilder.vercel.app"><strong>在线体验 / Live Demo &rarr;</strong></a>
   &nbsp;·&nbsp;
   <a href="https://jethro5977.github.io/Jethro-s-space/"><strong>GitHub Pages 静态版 &rarr;</strong></a>
 </p>
@@ -56,6 +56,10 @@ npm start
 
 GitHub Pages 会自动从 `main` 部署静态版，保留制卡、3D 预览、拆包和本地收藏；共享卡牌库的发布 / 浏览功能需要 Node 服务，因此仅在本地服务版中可用。
 
+### Vercel 完整版部署
+
+线上完整版使用 Vercel Functions（`api/[...route].js`）和 Vercel Blob 保存共享卡牌。部署后，在 Vercel 项目中创建并连接一个 **Blob Store**；平台会注入 `BLOB_READ_WRITE_TOKEN`，无需把令牌写入仓库。连接完成后访问 `/api/health` 应返回 `{ "status": "ok", "storage": "vercel-blob" }`，首次请求会自动写入官方展示卡。
+
 ### 项目结构
 
 ```
@@ -96,7 +100,7 @@ card-builder/
 - **3D**：Three.js（CDN ES Modules）+ PBR 材质
 - **服务端**：Node.js 内置 `http` 模块（无 Express，无框架）
 - **存储**：localStorage + IndexedDB（图片离线存储）
-- **部署**：Netlify（静态托管 + `_headers` 配置 CSP）
+- **部署**：Vercel（静态前端 + Functions + Blob），GitHub Pages 静态预览
 
 ### 数据来源
 
@@ -134,7 +138,11 @@ Open **http://127.0.0.1:4174/** in your browser. Do not open `index.html` via `f
 
 The dev server (`server/shared-server.mjs`) is a zero-dependency Node static server with a shared card library API. Other devices on your LAN can access it at `http://<your-ip>:4174/`.
 
-GitHub Pages deploys the static edition automatically from `main`. It includes card making, 3D preview, pack opening, and local collection; shared-library browsing and publishing require the Node server.
+GitHub Pages deploys the static edition automatically from `main`. It includes card making, 3D preview, pack opening, and local collection; shared-library browsing and publishing require the Node server or the Vercel Functions deployment.
+
+### Full Vercel deployment
+
+The full online edition uses Vercel Functions (`api/[...route].js`) with Vercel Blob for durable shared-card storage. Create and connect a **Blob Store** in the Vercel project; Vercel injects `BLOB_READ_WRITE_TOKEN`, so no token belongs in this repository. When connected, `/api/health` returns `{ "status": "ok", "storage": "vercel-blob" }` and the first request seeds the featured card automatically.
 
 ### Project Structure
 
@@ -176,7 +184,7 @@ Pure web — zero runtime dependencies.
 - **3D**: Three.js (ES modules via CDN) with PBR materials
 - **Server**: Node.js built-in `http` module (no Express, no frameworks)
 - **Storage**: localStorage + IndexedDB for image offloading
-- **Hosting**: Netlify (static + `_headers` for CSP)
+- **Hosting**: Vercel (static frontend + Functions + Blob), with GitHub Pages as a static preview
 
 ### Data Sources
 

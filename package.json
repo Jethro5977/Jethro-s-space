@@ -5,20 +5,22 @@
   "description": "DIY 3D making card studio with Three.js WebGL preview — design, customize, and collect NBA-style cards",
   "author": "Jethro",
   "license": "MIT",
-  "homepage": "https://cardsbuilder.netlify.app",
+  "homepage": "https://cardsbuilder.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/Jethro5977/Jethro-s-space.git"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "start": "node server/shared-server.mjs",
     "server": "node server/shared-server.mjs",
-    "check": "node --check app.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && echo '✓ All files passed syntax check'",
+    "check": "node --check app.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && node --check 'api/[...route].js' && echo '✓ All files passed syntax check'",
     "verify": "bash scripts/verify-shared.sh",
     "audit:players": "node scripts/audit-player-data.mjs"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@vercel/blob": "^2.7.0"
+  }
 }
