@@ -257,7 +257,11 @@ async function handler(req, res) {
   configureResponse(res);
   if (req.method === "OPTIONS") return res.status(204).end();
 
-  const parts = Array.isArray(req.query.route) ? req.query.route : [req.query.route].filter(Boolean);
+  const pathname = new URL(req.url, "http://vercel.local").pathname;
+  const parts = pathname
+    .replace(/^\/api\/?/, "")
+    .split("/")
+    .filter(Boolean);
   try {
     if (parts.length === 1 && parts[0] === "health" && req.method === "GET") return await handleHealth(res);
     if (parts.length === 1 && parts[0] === "cards" && req.method === "GET") return await handleListCards(res);
