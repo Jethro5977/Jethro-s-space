@@ -60,7 +60,7 @@ async function readRecord(id) {
     throw error;
   }
   try {
-    const result = await get(pathname, { access: "public", useCache: false });
+    const result = await get(pathname, { access: "private", useCache: false });
     if (result.statusCode !== 200 || !result.stream) {
       const error = new Error("Card not found");
       error.status = 404;
@@ -80,7 +80,7 @@ async function readRecord(id) {
 async function writeRecord(record) {
   requireStorage();
   return put(storagePath(record.id), JSON.stringify(record), {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: "application/json; charset=utf-8",
