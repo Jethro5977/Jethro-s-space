@@ -20,6 +20,7 @@
     "verify": "bash scripts/verify-shared.sh",
     "audit:players": "node scripts/audit-player-data.mjs",
     "audit:media": "node scripts/audit-player-media.mjs",
+    "ingest:media:manual": "node scripts/ingest-manual-player-media.mjs",
     "sync:players": "node scripts/sync-player-registry.mjs"
   },
   "dependencies": {

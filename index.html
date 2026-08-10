@@ -13,7 +13,7 @@
       window.location.replace("http://127.0.0.1:4174/");
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=29">
   <script type="importmap">
     {
       "imports": {
@@ -47,6 +47,9 @@
 
         <div class="stage" id="stage">
           <div class="stage-grid" aria-hidden="true"></div>
+          <button class="preview-card-nav preview-card-prev" id="previewPrevBtn" type="button" aria-label="查看上一张卡牌" title="上一张卡牌">
+            <span aria-hidden="true">&#8249;</span>
+          </button>
           <div class="card-scene" id="cardScene">
             <div class="three-card-stage" id="threeCardStage" aria-label="Three.js 3D 卡片预览">
               <canvas id="threeCardCanvas"></canvas>
@@ -76,6 +79,10 @@
               <div class="slab-side slab-side-right" aria-hidden="true"></div>
             </div>
           </div>
+          <button class="preview-card-nav preview-card-next" id="previewNextBtn" type="button" aria-label="查看下一张卡牌" title="下一张卡牌">
+            <span aria-hidden="true">&#8250;</span>
+          </button>
+          <output class="preview-card-position" id="previewCardPosition" aria-live="polite">1 / 1</output>
         </div>
 
         <button class="pack-mini-btn" id="packMiniBtn" type="button" title="拆包开卡" aria-label="拆包开卡">
@@ -139,7 +146,7 @@
             <button class="player-quick-btn primary" type="button" id="playerQuickApplyBtn">应用资料</button>
             <button class="player-quick-btn" type="button" id="playerQuickMediaBtn">查看影像</button>
           </div>
-          <p class="player-quick-status" id="playerQuickStatus" aria-live="polite">支持首批影像与 25 位球员资料</p>
+          <p class="player-quick-status" id="playerQuickStatus" aria-live="polite">已接入 46 张精选影像与 26 位球员资料</p>
         </section>
 
         <div class="tab-panel active" id="tab-design" role="group" aria-label="卡面设计">
@@ -148,14 +155,6 @@
             <button class="action-row save-trigger" type="button" id="saveToLibraryMainBtn">
               <span>保存当前卡牌到卡牌库</span><strong>&#9829; SAVE</strong>
             </button>
-            <button class="action-row auto-build-trigger" type="button" id="autoBuildBtn">
-              <span>校验 / 建库 · 25 位 NBA 球星</span><strong>25-26</strong>
-            </button>
-            <div class="auto-build-progress" id="autoBuildProgress" hidden>
-              <div class="auto-build-progress-head"><span>AUTO LIBRARY</span><strong id="autoBuildPercent">0%</strong></div>
-              <div class="auto-build-bar" role="progressbar" aria-label="批量建库进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="auto-build-fill" id="autoBuildFill"></div></div>
-              <div class="auto-build-status" id="autoBuildStatus" aria-live="polite">准备中...</div>
-            </div>
             <button class="action-row pack-open-trigger" type="button" id="packOpenBtn"><span>拆包开卡</span><strong>OPEN</strong></button>
             <button class="action-row" type="button" id="cardCompareBtn"><span>卡牌对比 PK</span><strong>VS</strong></button>
             <button class="action-row" type="button" id="openLibraryBtn"><span>打开卡牌库</span><strong>&#9776;</strong></button>
@@ -625,7 +624,7 @@
   <canvas id="exportCanvas" hidden></canvas>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=38"></script>
+  <script src="app.js?v=42"></script>
   <script src="player-media.js?v=2"></script>
   <script src="shared-library.js?v=3"></script>
   <script type="module" src="three-preview.js?v=8"></script>

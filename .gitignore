@@ -22,3 +22,8 @@ server/data/
 sng-logo-*.svg
 .vercel
 .env*
+
+# Private player-media intake and generated personal-library bundles
+# Originals stay local until source and image rights are documented.
+assets/player-media/inbox/
+.local/

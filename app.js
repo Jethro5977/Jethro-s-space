@@ -8,6 +8,10 @@ const LIBRARY_MAX_CARDS = 200;
 const PROJECT_VERSION = 7;
 const AUTO_LIBRARY_SOURCE = "auto-nba-v7";
 const AUTO_LIBRARY_DATA_VERSION = 4;
+const CURATED_LIBRARY_URL = "data/curated-library.json?v=3";
+const CURATED_SHOWCASE_SOURCE = "curated-showcase-v1";
+const CURATED_PLAYER_MEDIA_SOURCE = "curated-player-media-v1";
+const KNOWN_LIBRARY_SOURCES = new Set(["manual", AUTO_LIBRARY_SOURCE, CURATED_SHOWCASE_SOURCE, CURATED_PLAYER_MEDIA_SOURCE]);
 const SHOWCASE_PLAYER_IMAGE = "assets/cooper-flagg-home.png";
 const SHOWCASE_TEAM_LOGO = "assets/dallas-mavericks-logo.svg";
 const SHOWCASE_SIGNATURE_IMAGE = "assets/cooper-flagg-showcase-signature.svg";
@@ -49,6 +53,7 @@ const DEFAULT_STATE = {
   playerImageTeamAtCapture: "DAL",
   playerImageLicenseSnapshot: "review_required",
   logoImg: SHOWCASE_TEAM_LOGO,
+  logoScale: 100,
   photoScale: 100,
   photoX: 0,
   photoY: 0,
@@ -101,6 +106,15 @@ const EFFECT_META = {
   flame: { name: "FLAME", finish: "FLAME AURA" },
   galaxy: { name: "GALAXY", finish: "GALAXY SWIRL" }
 };
+
+function normalizeEffectIntensity(effect, value) {
+  const numeric = Number(value);
+  const safeValue = Number.isFinite(numeric) ? clamp(numeric, 0, 100) : 64;
+  if (effect === "galaxy") return Math.min(safeValue, 10);
+  if (effect === "crystal") return 32;
+  if (effect === "diamond") return 18;
+  return safeValue;
+}
 
 const RARITY_META = {
   base: { name: "BASE", suffix: "", serial: "OPEN" },
@@ -196,14 +210,15 @@ const NBA_PLAYER_FIELDS = [
 
 const NBA_PLAYER_ROWS = [
   ["SHAI GILGEOUS-ALEXANDER", "2", "PG", "OKLAHOMA CITY THUNDER", "OKC", "#007AC1", "#EF6100", "6'6\"", "195 LB", "TORONTO, ON, CANADA", "2018 / ROUND 1 / PICK 11", "2025-26", "68", "31.1", "4.3", "6.6", "55.3", "38.6", "2024-25 MVP and scoring champion. An elite two-way creator with silky mid-range craft and lockdown perimeter defense.", "1628983", "thunder", "4278073"],
-  ["GIANNIS ANTETOKOUNMPO", "34", "PF", "MILWAUKEE BUCKS", "MIL", "#00471B", "#EEE1C6", "6'11\"", "243 LB", "ATHENS, GREECE", "2013 / ROUND 1 / PICK 15", "2025-26", "36", "27.6", "9.8", "5.4", "62.4", "33.3", "Two-time MVP and a dominant force in the paint, combining transition power with versatile defense and improving playmaking. Traded to the Miami Heat in June 2026 after an injury-shortened season.", "203507", "bucks", "3032977"],
+  ["GIANNIS ANTETOKOUNMPO", "7", "PF", "MIAMI HEAT", "MIA", "#98002E", "#F9A01B", "6'11\"", "243 LB", "ATHENS, GREECE", "2013 / ROUND 1 / PICK 15", "2025-26", "36", "27.6", "9.8", "5.4", "62.4", "33.3", "A two-time MVP and NBA champion whose downhill power, length and playmaking make him one of basketball's defining two-way forces. Miami acquired him in June 2026.", "203507", "heat", "3032977"],
+  ["BAM ADEBAYO", "13", "C", "MIAMI HEAT", "MIA", "#98002E", "#F9A01B", "6'9\"", "255 LB", "NEWARK, NEW JERSEY", "2017 / ROUND 1 / PICK 14", "2025-26", "73", "20.1", "10.0", "3.2", "44.2", "31.8", "A versatile Miami cornerstone who anchors elite defenses, switches across positions and adds screening, passing and interior scoring on offense.", "1628389", "heat", "4066261"],
   ["NIKOLA JOKIC", "15", "C", "DENVER NUGGETS", "DEN", "#0E2240", "#FEC524", "6'11\"", "284 LB", "SOMBOR, SERBIA", "2014 / ROUND 2 / PICK 41", "2025-26", "65", "27.7", "12.9", "10.7", "56.9", "38.0", "Three-time MVP with generational passing vision, orchestrating Denver's offense with surgical precision from the center position.", "203999", "nuggets", "3112335"],
   ["LUKA DONCIC", "77", "PG", "LOS ANGELES LAKERS", "LAL", "#552583", "#FDB927", "6'7\"", "230 LB", "LJUBLJANA, SLOVENIA", "2018 / ROUND 1 / PICK 3", "2025-26", "64", "33.5", "7.7", "8.3", "47.6", "36.6", "A generational playmaker with an unguardable step-back three, elite shot creation and exceptional court vision.", "1629029", "lakers", "3945274"],
   ["ANTHONY EDWARDS", "5", "SG", "MINNESOTA TIMBERWOLVES", "MIN", "#0C2340", "#236192", "6'4\"", "225 LB", "ATLANTA, GEORGIA", "2020 / ROUND 1 / PICK 1", "2025-26", "61", "28.8", "5.0", "3.7", "48.9", "39.9", "An explosive two-way guard who pairs thunderous athleticism with rapidly improving perimeter shooting.", "1630162", "timberwolves", "4594268"],
   ["JAYSON TATUM", "0", "SF", "BOSTON CELTICS", "BOS", "#007A33", "#BA9653", "6'8\"", "210 LB", "ST. LOUIS, MISSOURI", "2017 / ROUND 1 / PICK 3", "2025-26", "16", "21.8", "10.0", "5.3", "41.1", "32.9", "A championship cornerstone and elite three-level scorer who returned from an Achilles tear to play 16 games in 2025-26.", "1628369", "celtics", "4065648"],
   ["KEVIN DURANT", "7", "SF", "HOUSTON ROCKETS", "HOU", "#CE1141", "#000000", "6'10\"", "240 LB", "WASHINGTON, D.C.", "2007 / ROUND 1 / PICK 2", "2025-26", "78", "26.0", "5.5", "4.8", "52.0", "41.3", "An all-time great scorer who joined Houston in a record seven-team 2025 offseason deal, bringing length, handle and feathery touch to the Rockets' young core.", "201142", "rockets", "3202"],
   ["STEPHEN CURRY", "30", "PG", "GOLDEN STATE WARRIORS", "GSW", "#1D428A", "#FFC72C", "6'2\"", "185 LB", "AKRON, OHIO", "2009 / ROUND 1 / PICK 7", "2025-26", "43", "26.6", "3.6", "4.7", "46.8", "39.3", "The greatest shooter ever, a four-time champion whose range and off-ball movement transformed modern basketball.", "201939", "warriors", "3975"],
-  ["LEBRON JAMES", "23", "SF", "LOS ANGELES LAKERS", "LAL", "#552583", "#FDB927", "6'9\"", "250 LB", "AKRON, OHIO", "2003 / ROUND 1 / PICK 1", "2025-26", "60", "20.9", "6.1", "7.2", "51.5", "31.7", "The all-time scoring leader and four-time champion, pairing elite court vision with transition power and remarkable longevity. Signed with the Philadelphia 76ers in July 2026.", "2544", "lakers", "1966"],
+  ["LEBRON JAMES", "23", "SF", "PHILADELPHIA 76ERS", "PHI", "#006BB6", "#ED174C", "6'9\"", "250 LB", "AKRON, OHIO", "2003 / ROUND 1 / PICK 1", "2025-26", "60", "20.9", "6.1", "7.2", "51.5", "31.7", "The NBA's all-time scoring leader and a four-time champion, pairing elite court vision with transition power and remarkable longevity. He signed with Philadelphia in July 2026.", "2544", "76ers", "1966"],
   ["VICTOR WEMBANYAMA", "1", "C", "SAN ANTONIO SPURS", "SAS", "#C4CED4", "#000000", "7'4\"", "235 LB", "LE CHESNAY, FRANCE", "2023 / ROUND 1 / PICK 1", "2025-26", "64", "25.0", "11.5", "3.1", "51.2", "34.9", "A generational rim protector with perimeter skill, redefining the center position through rare length and coordination.", "1641705", "spurs", "5104157"],
   ["DONOVAN MITCHELL", "45", "SG", "CLEVELAND CAVALIERS", "CLE", "#860038", "#FDBB30", "6'1\"", "215 LB", "ELMSFORD, NEW YORK", "2017 / ROUND 1 / PICK 13", "2025-26", "70", "27.9", "4.5", "5.7", "48.3", "36.4", "A dynamic scoring guard with explosive isolation creation, deep playoff experience and a fearless late-game approach.", "1628378", "cavaliers", "3908809"],
   ["CADE CUNNINGHAM", "2", "PG", "DETROIT PISTONS", "DET", "#C8102E", "#1D42BA", "6'6\"", "220 LB", "ARLINGTON, TEXAS", "2021 / ROUND 1 / PICK 1", "2025-26", "64", "23.9", "5.5", "9.9", "46.1", "34.2", "A big, poised floor general with a complete scoring package and elite vision, leading Detroit's resurgence.", "1630595", "pistons", "4432166"],
@@ -258,6 +273,7 @@ let isPointerInside = false;
 let idleRotX = 0;
 let motionElapsed = 0;
 let dragStart = { x: 0, y: 0, rotX: 0, rotY: 0 };
+let currentPreviewLibraryCardId = "curated_showcase_cooper_flagg";
 let sigCtx = null;
 let sigDrawing = false;
 let sigHasInk = false;
@@ -393,8 +409,8 @@ function normalizeState(candidate) {
   normalized.signatureY = clamp(Number(normalized.signatureY) || 78, 12, 92);
   normalized.customFoilMask = isSafeDataImage(normalized.customFoilMask) ? normalized.customFoilMask : null;
   normalized.customFoilOn = Boolean(normalized.customFoilOn);
-  const effectIntensity = Number(normalized.effectIntensity);
-  normalized.effectIntensity = Number.isFinite(effectIntensity) ? clamp(effectIntensity, 0, 100) : 80;
+  normalized.effectIntensity = normalizeEffectIntensity(normalized.effect, normalized.effectIntensity);
+  normalized.logoScale = clamp(Number(normalized.logoScale) || 100, 80, 135);
   const preset = TEAM_PRESETS[normalized.teamPreset];
   if (!preset || preset.name !== normalized.teamName || preset.abbr !== normalized.teamAbbr || preset.primary !== normalized.colorPrimary || preset.secondary !== normalized.colorSecondary) {
     normalized.teamPreset = "";
@@ -503,7 +519,7 @@ function photoMarkup(d) {
 
 function logoMarkup(d, className = "team-logo") {
   if (state.logoImg) {
-    return `<div class="${className}"><img src="${esc(state.logoImg)}" alt="${esc(d.abbr)} logo"></div>`;
+    return `<div class="${className}"><img src="${esc(state.logoImg)}" alt="${esc(d.abbr)} logo" style="transform:scale(${state.logoScale / 100});"></div>`;
   }
   return `<div class="${className}">${esc(d.abbr)}</div>`;
 }
@@ -544,6 +560,7 @@ function signatureMarkup() {
 }
 
 function renderFront(d) {
+  const nameSizeClass = d.name.length > 14 ? "player-name-xl" : d.name.length > 12 ? "player-name-lg" : "";
   const classes = [
     "card-design",
     `style-${state.style}`,
@@ -562,7 +579,7 @@ function renderFront(d) {
     <div class="number-seal">${esc(d.number)}</div>
     <div class="player-copy">
       <span class="position">${esc(d.posFull)}</span>
-      <h2>${esc(d.name)}</h2>
+      <h2 class="${nameSizeClass}">${esc(d.name)}</h2>
       <div class="team-line">${esc(d.team)} / ${esc(d.pos)} / #${esc(d.number)}</div>
     </div>
     <div class="serial-badge serial-badge-persistent">NO. ${esc(d.cardNum)}</div>
@@ -1542,6 +1559,7 @@ function bindInterface() {
   $$("[data-effect]").forEach((button) => {
     button.addEventListener("click", () => {
       state.effect = button.dataset.effect;
+      state.effectIntensity = normalizeEffectIntensity(state.effect, state.effectIntensity);
       render();
     });
   });
@@ -1607,7 +1625,9 @@ function bindInterface() {
   ["photoScale", "photoX", "photoY", "effectIntensity"].forEach((id) => {
     const element = document.getElementById(id);
     element.addEventListener("input", () => {
-      state[id] = Number(element.value);
+      state[id] = id === "effectIntensity"
+        ? normalizeEffectIntensity(state.effect, element.value)
+        : Number(element.value);
       render();
     });
   });
@@ -1793,7 +1813,9 @@ function bindCardInteraction() {
       x: event.clientX,
       y: event.clientY,
       rotX: state.rotX + idleRotX,
-      rotY: state.rotY + state.autoRotY
+      rotY: state.rotY + state.autoRotY,
+      pointerType: event.pointerType,
+      horizontalSwipe: false
     };
     state.autoRotY = 0;
     idleRotX = 0;
@@ -1809,16 +1831,31 @@ function bindCardInteraction() {
     refs.slabShell.style.setProperty("--mx", `${mx}%`);
     refs.slabShell.style.setProperty("--my", `${my}%`);
     if (!isDragging) return;
-    state.rotY = dragStart.rotY + (event.clientX - dragStart.x) * 0.42;
-    state.rotX = clamp(dragStart.rotX - (event.clientY - dragStart.y) * 0.34, -85, 85);
+    const deltaX = event.clientX - dragStart.x;
+    const deltaY = event.clientY - dragStart.y;
+    if (dragStart.pointerType === "touch") {
+      if (!dragStart.horizontalSwipe && Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY) * 1.1) {
+        dragStart.horizontalSwipe = true;
+      }
+      if (dragStart.horizontalSwipe) return;
+    }
+    state.rotY = dragStart.rotY + deltaX * 0.42;
+    state.rotX = clamp(dragStart.rotX - deltaY * 0.34, -85, 85);
     applyRotation();
   });
 
   const endDrag = (event) => {
     if (!isDragging) return;
     isDragging = false;
+    const shouldNavigate = event?.type !== "pointercancel"
+      && dragStart.pointerType === "touch"
+      && dragStart.horizontalSwipe
+      && Math.abs(event.clientX - dragStart.x) >= 50;
     if (event?.pointerId !== undefined && refs.cardScene.hasPointerCapture(event.pointerId)) {
       refs.cardScene.releasePointerCapture(event.pointerId);
+    }
+    if (shouldNavigate) {
+      navigateLibraryCard(event.clientX < dragStart.x ? 1 : -1);
     }
   };
   refs.cardScene.addEventListener("pointerup", endDrag);
@@ -2315,11 +2352,16 @@ function drawPlaceholderCanvas(ctx, d, x, y, width, height) {
 }
 
 async function drawFrontTypography(ctx, d, x, y, width, height) {
-  const lightText = !["heritage", "optic"].includes(state.style);
+  const lightText = state.style !== "heritage";
   const primaryText = lightText ? "#ffffff" : "#151a21";
   const mutedText = lightText ? "rgba(255,255,255,.72)" : "rgba(21,26,33,.68)";
   const pad = width * 0.05;
   ctx.save();
+  if (state.style === "optic") {
+    ctx.shadowColor = "rgba(0,0,0,.88)";
+    ctx.shadowBlur = width * 0.018;
+    ctx.shadowOffsetY = width * 0.008;
+  }
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = primaryText;
   ctx.font = `800 ${width * 0.027}px ui-monospace, monospace`;
@@ -2348,8 +2390,8 @@ async function drawFrontTypography(ctx, d, x, y, width, height) {
   }
 
   const copyY = y + height * 0.815;
-  if (state.style === "optic" || state.style === "heritage") {
-    ctx.fillStyle = state.style === "heritage" ? "rgba(238,229,210,.90)" : "rgba(247,247,243,.90)";
+  if (state.style === "heritage") {
+    ctx.fillStyle = "rgba(238,229,210,.90)";
     ctx.fillRect(x + pad, copyY - height * 0.03, width - pad * 2, height * 0.145);
   }
   ctx.fillStyle = lightText ? "rgba(0,0,0,.42)" : "rgba(255,255,255,.38)";
@@ -2378,7 +2420,7 @@ async function drawCanvasLogo(ctx, d, x, y, width, height, textColor) {
   if (state.logoImg) {
     try {
       const logo = await loadCanvasImage(state.logoImg);
-      const scale = Math.min(width * 0.82 / logo.naturalWidth, height * 0.82 / logo.naturalHeight);
+      const scale = Math.min(width * 0.82 / logo.naturalWidth, height * 0.82 / logo.naturalHeight) * (state.logoScale / 100);
       ctx.drawImage(logo, x + (width - logo.naturalWidth * scale) / 2, y + (height - logo.naturalHeight * scale) / 2, logo.naturalWidth * scale, logo.naturalHeight * scale);
     } catch (error) {
       drawLogoLetters(ctx, d.abbr, x, y, width, height, textColor);
@@ -2406,7 +2448,7 @@ function drawCanvasBadges(ctx, d, x, y, width, height) {
     const labels = { rc: "RC", mvp: "MVP", allstar: "ALL STAR", champion: "CHAMP" };
     const colors = { rc: "#d83e3e", mvp: "#d8ab34", allstar: "#dfe5e8", champion: "#173d2e" };
     const bx = x + width - 66 * scale;
-    const by = y + (58 + index * 29) * scale;
+    const by = y + (70 + index * 29) * scale;
     ctx.fillStyle = colors[id];
     ctx.fillRect(bx, by, 48 * scale, 22 * scale);
     ctx.fillStyle = id === "mvp" || id === "allstar" ? "#111" : "#fff";
@@ -3214,11 +3256,11 @@ function normalizeLibraryCard(candidate) {
     rarity: RARITY_META[candidate.rarity] ? candidate.rarity : fullState.rarity,
     slabType: ["none", "magnetic", "forge", "museum", "acrylic", "crystal", "gallery"].includes(candidate.slabType) ? candidate.slabType : fullState.slabType,
     badges: Array.isArray(candidate.badges) ? candidate.badges.filter((badge) => typeof badge === "string").slice(0, 12) : [...fullState.badges],
-    thumbnail: isSafeDataImage(candidate.thumbnail) ? candidate.thumbnail : createLibraryPlaceholder(fullState),
+    thumbnail: isSafeCardImage(candidate.thumbnail) ? candidate.thumbnail : createLibraryPlaceholder(fullState),
     fullState,
     createdAt: Number.isFinite(Number(candidate.createdAt)) ? Number(candidate.createdAt) : Date.now(),
     favorite: Boolean(candidate.favorite),
-    source: candidate.source === AUTO_LIBRARY_SOURCE ? AUTO_LIBRARY_SOURCE : "manual",
+    source: KNOWN_LIBRARY_SOURCES.has(candidate.source) ? candidate.source : "manual",
     sourcePlayerId: candidate.sourcePlayerId ? String(candidate.sourcePlayerId) : "",
     sourceDataVersion: Number.isFinite(Number(candidate.sourceDataVersion)) ? Number(candidate.sourceDataVersion) : 0
   };
@@ -3707,6 +3749,60 @@ function migrateLegacyAutoLibrary(library) {
   return { migrated: migratedIds.size, consolidated };
 }
 
+function isShowcaseLibraryCard(card) {
+  return card?.source === CURATED_SHOWCASE_SOURCE
+    || card?.id === "curated_showcase_cooper_flagg"
+    || card?.fullState?.playerMediaId === "pm_project_cooper_flagg_showcase";
+}
+
+async function installCuratedLibrary() {
+  const library = loadLibrary();
+  const legacyMigration = migrateLegacyAutoLibrary(library);
+  const initialCards = [...library.cards];
+  const withoutInitialBatch = library.cards.filter((card) => card.source !== AUTO_LIBRARY_SOURCE);
+  const removedInitial = library.cards.length - withoutInitialBatch.length;
+
+  let seedCards = [];
+  try {
+    const response = await fetch(CURATED_LIBRARY_URL, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`Curated library request failed (${response.status})`);
+    const payload = await response.json();
+    seedCards = Array.isArray(payload?.cards)
+      ? payload.cards.map(normalizeLibraryCard).filter(Boolean)
+      : [];
+  } catch (error) {
+    console.warn("Curated library load failed", error);
+  }
+
+  if (seedCards.length) {
+    const seedIds = new Set(seedCards.map((card) => card.id));
+    const existingShowcase = withoutInitialBatch.find(isShowcaseLibraryCard);
+    const existingById = new Map(withoutInitialBatch.map((card) => [card.id, card]));
+    const userCards = withoutInitialBatch.filter((card) => !seedIds.has(card.id) && !isShowcaseLibraryCard(card));
+    const hydratedSeed = seedCards.map((card) => {
+      const existing = card.source === CURATED_SHOWCASE_SOURCE ? existingShowcase : existingById.get(card.id);
+      return existing
+        ? { ...card, favorite: existing.favorite, createdAt: existing.createdAt || card.createdAt }
+        : card;
+    });
+    library.cards = [...hydratedSeed, ...userCards].slice(0, LIBRARY_MAX_CARDS);
+  } else {
+    library.cards = withoutInitialBatch;
+  }
+
+  const beforeSignature = initialCards.map((card) => `${card.id}:${card.source}:${card.sourceDataVersion}`).join("|");
+  const afterSignature = library.cards.map((card) => `${card.id}:${card.source}:${card.sourceDataVersion}`).join("|");
+  const changed = beforeSignature !== afterSignature
+    || legacyMigration.migrated > 0
+    || legacyMigration.consolidated > 0;
+  if (changed) {
+    library.achievements = {};
+    checkAchievements(library);
+    await saveLibraryResilient(library);
+  }
+  return { library, removedInitial, curatedCount: seedCards.length, changed };
+}
+
 async function autoBuildLibrary(progressCallback) {
   const library = loadLibrary();
   const legacyMigration = migrateLegacyAutoLibrary(library);
@@ -3845,17 +3941,51 @@ async function autoBuildLibrary(progressCallback) {
   };
 }
 
-async function loadFromLibrary(cardId) {
+function resolvePreviewLibraryIndex(cards) {
+  if (!cards.length) return -1;
+  let index = cards.findIndex((card) => card.id === currentPreviewLibraryCardId);
+  if (index < 0 && state.playerMediaId) {
+    index = cards.findIndex((card) => card.fullState?.playerMediaId === state.playerMediaId);
+  }
+  return index < 0 ? 0 : index;
+}
+
+function updatePreviewNavigationUI(library = loadLibrary()) {
+  const cards = library.cards || [];
+  const index = resolvePreviewLibraryIndex(cards);
+  if (index >= 0) currentPreviewLibraryCardId = cards[index].id;
+  const position = $("#previewCardPosition");
+  const prev = $("#previewPrevBtn");
+  const next = $("#previewNextBtn");
+  if (position) position.textContent = cards.length ? `${index + 1} / ${cards.length}` : "0 / 0";
+  [prev, next].forEach((button) => {
+    if (button) button.disabled = cards.length < 2;
+  });
+}
+
+async function navigateLibraryCard(direction) {
+  const library = loadLibrary();
+  const cards = library.cards || [];
+  if (cards.length < 2) return;
+  const index = resolvePreviewLibraryIndex(cards);
+  const nextIndex = (index + direction + cards.length) % cards.length;
+  await loadFromLibrary(cards[nextIndex].id, { closeDrawer: false, notify: false });
+}
+
+async function loadFromLibrary(cardId, options = {}) {
+  const { closeDrawer = true, notify = true } = options;
   const card = loadLibrary().cards.find((item) => item.id === cardId);
   if (!card) {
     showToast("未找到该卡片");
     return;
   }
+  currentPreviewLibraryCardId = card.id;
   state = normalizeState(card.fullState);
   hydrateInputs();
   render();
-  closeLibraryDrawer();
-  showToast(`已加载 ${card.name}`, "success");
+  updatePreviewNavigationUI();
+  if (closeDrawer) closeLibraryDrawer();
+  if (notify) showToast(`已加载 ${card.name}`, "success");
 
   try {
     const restoredImages = await restoreLibraryCardImages(card.fullState);
@@ -3863,6 +3993,7 @@ async function loadFromLibrary(cardId) {
     state = normalizeState({ ...state, ...restoredImages });
     hydrateInputs();
     render();
+    updatePreviewNavigationUI();
   } catch (error) {
     console.warn("Unable to restore source-quality library images", error);
   }
@@ -3908,14 +4039,29 @@ function importLibrary(event) {
       const imported = JSON.parse(reader.result);
       if (!imported || !Array.isArray(imported.cards)) throw new Error("Invalid library format");
       const library = loadLibrary();
-      const existingIds = new Set(library.cards.map((card) => card.id));
+      const existingIndexes = new Map(library.cards.map((card, index) => [card.id, index]));
       let added = 0;
+      let updated = 0;
       for (const candidate of imported.cards) {
-        if (library.cards.length >= LIBRARY_MAX_CARDS) break;
         const card = normalizeLibraryCard(candidate);
-        if (!card || existingIds.has(card.id)) continue;
+        if (!card) continue;
+        const existingIndex = existingIndexes.get(card.id);
+        if (existingIndex !== undefined) {
+          const existing = library.cards[existingIndex];
+          const incomingVersion = Number(card.sourceDataVersion || 0);
+          const existingVersion = Number(existing.sourceDataVersion || 0);
+          if (incomingVersion > existingVersion) {
+            library.cards[existingIndex] = {
+              ...card,
+              favorite: Boolean(existing.favorite || card.favorite)
+            };
+            updated += 1;
+          }
+          continue;
+        }
+        if (library.cards.length >= LIBRARY_MAX_CARDS) break;
         library.cards.push(card);
-        existingIds.add(card.id);
+        existingIndexes.set(card.id, library.cards.length - 1);
         added += 1;
       }
       const unlocks = checkAchievements(library);
@@ -3923,7 +4069,7 @@ function importLibrary(event) {
         updateLibraryDrawer();
         updateBackgroundMosaic();
         announceAchievements(unlocks);
-        showToast(`已导入 ${added} 张新卡片`);
+        showToast(`已导入 ${added} 张新卡片，更新 ${updated} 张卡片`);
       }
     } catch (error) {
       console.warn("Library import failed", error);
@@ -4293,7 +4439,7 @@ async function runAutoBuildFromUI() {
       status.textContent = "卡牌库空间不足，未添加新卡";
       showToast("卡牌库已满，请先导出并移除部分卡片", "warning");
     } else {
-      status.textContent = "25 位球星资料与图片均为最新版校验数据";
+      status.textContent = "26 位球星资料与图片均为最新版校验数据";
       showToast("球星卡资料校验通过");
       window.setTimeout(openLibraryDrawer, 500);
     }
@@ -4307,7 +4453,7 @@ async function runAutoBuildFromUI() {
   } finally {
     button.disabled = false;
     button.removeAttribute("aria-busy");
-    label.textContent = "校验 / 建库 · 25 位 NBA 球星";
+    label.textContent = "校验 / 建库 · 26 位 NBA 球星";
     autoBuildHideTimer = window.setTimeout(() => {
       progressWrap.hidden = true;
     }, 4500);
@@ -4316,7 +4462,8 @@ async function runAutoBuildFromUI() {
 
 function bindV6Events() {
   bindLibraryEvents();
-  $("#autoBuildBtn")?.addEventListener("click", runAutoBuildFromUI);
+  $("#previewPrevBtn")?.addEventListener("click", () => navigateLibraryCard(-1));
+  $("#previewNextBtn")?.addEventListener("click", () => navigateLibraryCard(1));
   $("#packOpenBtn")?.addEventListener("click", openPackExperience);
   $("#packMiniBtn")?.addEventListener("click", openPackExperience);
   $("#cardCompareBtn")?.addEventListener("click", startCompareMode);
@@ -4344,10 +4491,15 @@ async function initializeV6() {
     console.warn("Player registry load failed", error);
     window.PLAYER_REGISTRY = {};
   }
-  const library = loadLibrary();
+  const curated = await installCuratedLibrary();
+  const library = curated.library;
   const unlocks = checkAchievements(library);
   if (unlocks.length) await saveLibraryResilient(library);
   updateLibraryDrawer();
+  updatePreviewNavigationUI(library);
+  if (curated.removedInitial > 0) {
+    showToast(`已移除 ${curated.removedInitial} 张初始卡，精选卡库已更新`);
+  }
 }
 
 window.cardBuilder3D = {

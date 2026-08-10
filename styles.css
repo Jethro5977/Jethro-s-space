@@ -360,6 +360,75 @@ textarea:focus-visible {
   cursor: grabbing;
 }
 
+.preview-card-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 72px;
+  padding: 0 0 5px;
+  transform: translateY(-50%);
+  border: 1px solid rgba(124, 228, 236, 0.34);
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(22, 25, 38, 0.86), rgba(7, 9, 16, 0.76));
+  color: rgba(235, 251, 255, 0.92);
+  box-shadow: 0 13px 30px rgba(0, 0, 0, 0.34), inset 0 0 18px rgba(89, 213, 224, 0.06);
+  font: 300 46px/1 system-ui, sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.preview-card-prev { left: clamp(14px, 4.2vw, 76px); }
+.preview-card-next { right: clamp(14px, 4.2vw, 76px); }
+
+.preview-card-nav:hover,
+.preview-card-nav:focus-visible {
+  border-color: rgba(124, 228, 236, 0.72);
+  background: linear-gradient(180deg, rgba(43, 54, 72, 0.92), rgba(12, 16, 26, 0.88));
+  box-shadow: 0 15px 34px rgba(0, 0, 0, 0.42), 0 0 24px rgba(89, 213, 224, 0.14);
+  transform: translateY(-50%) scale(1.05);
+  outline: none;
+}
+
+.preview-card-nav:active { transform: translateY(-50%) scale(0.96); }
+.preview-card-nav:disabled { opacity: 0.3; cursor: default; }
+
+.preview-card-position {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 7;
+  min-width: 72px;
+  padding: 7px 10px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  background: rgba(7, 9, 16, 0.62);
+  color: rgba(231, 241, 247, 0.72);
+  text-align: center;
+  font: 700 9px/1 "Orbitron", ui-monospace, monospace;
+  letter-spacing: 1.3px;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 700px) {
+  .preview-card-nav {
+    top: 47%;
+    width: 40px;
+    height: 58px;
+    border-radius: 12px;
+    font-size: 38px;
+  }
+
+  .preview-card-prev { left: 8px; }
+  .preview-card-next { right: 8px; }
+  .preview-card-position { bottom: 11px; }
+}
+
 .slab-shell {
   position: relative;
   width: 344px;
@@ -1055,6 +1124,11 @@ textarea:focus-visible {
   color: #16253b;
 }
 
+.style-heritage .badge-rack {
+  top: 100px;
+  right: 20px;
+}
+
 .style-heritage .player-copy {
   left: 20px;
   right: 20px;
@@ -1165,20 +1239,48 @@ textarea:focus-visible {
 }
 
 .style-optic .player-copy {
-  padding: 9px;
-  background: rgba(245,246,242,0.88);
-  border-left: 5px solid var(--c1);
+  left: 14px;
+  right: 14px;
+  bottom: 28px;
+  min-height: 92px;
+  padding: 10px 8px 11px;
+  overflow: visible;
+  background: transparent;
+  border-left: 0;
 }
 
 .style-optic .player-copy .position {
-  background: transparent;
+  color: #fff;
+  background: rgba(5, 8, 15, 0.62);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
 }
 
 .style-optic .player-copy h2,
 .style-optic .player-copy .team-line,
 .style-optic .card-footline {
-  color: #15171b;
-  text-shadow: none;
+  color: #fff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.72);
+}
+
+.style-optic .player-copy h2 {
+  color: #fff;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: visible;
+  overflow-wrap: normal;
+  font-size: 23px;
+  line-height: 1;
+  text-shadow: 0 3px 4px rgba(0, 0, 0, 0.98), 0 0 13px rgba(0, 0, 0, 0.78);
+}
+
+.style-optic .player-copy h2.player-name-lg {
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+.style-optic .player-copy h2.player-name-xl {
+  font-size: 17px;
+  letter-spacing: -0.06em;
 }
 
 /* Rarity variants */
@@ -1289,7 +1391,7 @@ textarea:focus-visible {
 
 .badge-rack {
   position: absolute;
-  top: 55px;
+  top: 67px;
   right: 14px;
   display: flex;
   flex-direction: column;

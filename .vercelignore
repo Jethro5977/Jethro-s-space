@@ -1,0 +1,6 @@
+assets/player-media/inbox/
+.local/
+.git/
+.vercel/
+node_modules/
+*.log

@@ -8,6 +8,13 @@
 
 <p align="center"><sub>拆包体验预览 · Drag down to tear open the <strong>Elite Court</strong> pack</sub></p>
 
+<p align="center">
+  <img src="assets/readme/shai-prizm-acrylic.webp" alt="Shai Gilgeous-Alexander Prizm acrylic card showcase" width="390">
+  <img src="assets/readme/shai-crystal-acrylic.webp" alt="Shai Gilgeous-Alexander Crystal acrylic card showcase" width="390">
+</p>
+
+<p align="center"><sub>精选卡面展示 · Shai Gilgeous-Alexander Prizm &amp; Crystal acrylic variants</sub></p>
+
 <h3 align="center">DIY 3D Making Card Studio</h3>
 
 <p align="center">
@@ -36,7 +43,7 @@
 
 - **卡片设计**：6 种原创卡片系列（Prizm、Tactical、Heritage、Mosaic、Select、Optic），8 种动态特效（Diamond、Lightning、Rainbow、Crystal、Holographic、Laser、Flame、Galaxy），Cutout / Full Art 两种照片模式，球队配色、徽章、稀有度与 7 种卡壳类型
 - **3D 预览**：基于 Three.js 的 WebGL 渲染，PBR 透明亚克力材质、环境反射、折射与程序化划痕，支持 360° 旋转、自动展示、正反翻面
-- **卡牌库**：本地最多收藏 200 张，支持稀有度 / 系列 / 卡壳 / 收藏筛选；一键自动建库生成 25 位 NBA 球星卡（2025-26 赛季数据）；拆包体验含拖拽撕包、翻卡与稀有卡特效
+- **卡牌库**：本地最多收藏 200 张，支持稀有度 / 系列 / 卡壳 / 收藏筛选；精选库内置 1 张预览卡与 46 张人工核对影像卡（2025-26 赛季数据）；拆包体验含拖拽撕包、翻卡与稀有卡特效
 - **共享卡牌库**：无需账号系统，一键发布 DIY 卡牌供任何人浏览，含官方展示卡
 - **导出**：高清 PNG 导出（1500×2100 卡面、2400×3200 3D 视角），正反合图，项目 JSON 导入导出（含签名与蒙版数据完整还原）
 - **DIY 工具**：手写签名（4 色笔、位置与缩放调整）、自定义闪光蒙版、卡牌对比 PK、20 项收藏成就
@@ -126,7 +133,7 @@ A zero-dependency, pure-web DIY 3D trading card builder with real-time Three.js 
 
 - **Card Design** — 6 original card series (Prizm, Tactical, Heritage, Mosaic, Select, Optic) with 8 dynamic effects (Diamond, Lightning, Rainbow, Crystal, Holographic, Laser, Flame, Galaxy). Cutout and Full Art photo modes, team colorways, badges, rarity tiers, and 7 slab/case types.
 - **3D Preview** — Three.js WebGL renderer with PBR acrylic slab, environment reflections, iridescence, and procedural scratches. 360° orbit controls, auto-rotate, and front/back flip.
-- **Card Library** — Collect up to 200 cards locally, filterable by rarity, series, case type, and favorites. One-click auto-build fills your collection with 25 NBA stars (2025-26 season data). Pack-opening experience with drag-to-tear and rare card reveals.
+- **Card Library** — Collect up to 200 cards locally, filterable by rarity, series, case type, and favorites. The curated library includes one showcase card plus 46 manually reviewed player-media cards using 2025-26 season data. Pack-opening experience with drag-to-tear and rare card reveals.
 - **Shared Library** — Publish cards for anyone to browse, no accounts needed, with a featured showcase card.
 - **Export** — High-res PNG export (1500×2100 card face, 2400×3200 3D scene), front/back composite, and project JSON import/export with full signature and foil mask data.
 - **DIY Tools** — Hand-drawn signatures (4 colors, position/scale controls), custom foil masks, card comparison PK mode, and 20 collection achievements.

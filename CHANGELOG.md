@@ -8,6 +8,14 @@
 
 ### 新增 / Added
 
+- README 顶部新增两张 Shai Gilgeous-Alexander 亚克力封装卡面，采用并排响应式展示并压缩为 WebP，补充真实卡牌设计预览且控制仓库图片体积
+- EN: Added two Shai Gilgeous-Alexander acrylic card covers to the top of the README in a responsive side-by-side WebP layout, expanding the real card-design preview while keeping repository image weight low
+- 首页 3D 预览区新增上一张 / 下一张切换按钮与卡库位置指示；桌面端可点击循环检视，手机端同时支持按钮与在卡牌上左右滑动切换
+- EN: Added previous/next controls and a library position indicator to the homepage 3D preview; desktop users can click to cycle, while mobile users can also swipe horizontally on the card
+- 人工影像批次由 18 张扩展至 46 张唯一素材：新增 Giannis Antetokounmpo、Bam Adebayo、Cade Cunningham、Luka Dončić、Jalen Brunson、LeBron James、Kevin Durant、Tyrese Maxey 与 Shai Gilgeous-Alexander 卡片；重复图片按哈希去重，文件简称通过画面与球衣信息人工确认
+- EN: Expanded the manually reviewed media batch from 18 to 46 unique assets, adding cards for Giannis Antetokounmpo, Bam Adebayo, Cade Cunningham, Luka Dončić, Jalen Brunson, LeBron James, Kevin Durant, Tyrese Maxey, and Shai Gilgeous-Alexander; duplicate images were hash-deduplicated and abbreviated filenames were visually verified against uniforms and visible identifiers
+- 新增人工上传球员影像的审核与制卡流程：首批 18 张素材完成球员身份、球队、画面类型与历史节点核验，生成 900×1260 卡面、360×504 缩略图及可导入个人卡库的 18 张卡牌；原始上传文件继续保留在本地，部署包仅包含经用户确认公开展示的压缩卡面衍生图，来源未补齐的记录仍保持 `review_required`
+- EN: Added a review and card-generation pipeline for manually uploaded player media: the first 18 images were checked for player identity, team, composition type, and historical context, then converted into 900×1260 card art, 360×504 thumbnails, and an 18-card personal-library import; original uploads remain local, while the deployment contains only user-approved compressed card derivatives and records without documented provenance remain `review_required`
 - 编辑器顶部新增常驻「快速选择球员」栏：支持姓名建议、Enter/按钮应用完整球员资料，以及一键打开对应授权影像库；移动端采用输入框独占一行的触控布局，避免继续在长面板中寻找「球员档案」
 - EN: Added a sticky “Quick Player” bar at the top of the editor with name suggestions, Enter/button profile application, and one-click access to the matching licensed media library; mobile uses a touch-friendly full-row input so the buried Player Profile section is no longer required
 - 首批可追溯球员影像资源：为 Stephen Curry、Luka Dončić、Giannis Antetokounmpo、Nikola Jokić 与 Shai Gilgeous-Alexander 导入 5 张经画面核验的训练/比赛照片；每张均保存拍摄日期、当时球队、摄影师、Wikimedia Commons 来源页与 Creative Commons 许可，并生成 900×1260 卡牌图及 360×504 缩略图
@@ -22,6 +30,19 @@
 - 新特效 **LASER（镭射）**：网格 + 光谱 + 扫描线复合层，模拟镭射反光卡纹理，同样覆盖预览 / 导出 / 3D 全链路
 
 ### 改进 / Improvements
+
+- 首页精选卡顺序固定为官方预览卡、Shai Gilgeous-Alexander `PM-041`、LeBron James `PM-031`；同步校正截图指定卡片的系列、稀有度、特效、湖人队视觉、人物裁切与封装
+- EN: Pinned the featured-card order to the official showcase, Shai Gilgeous-Alexander `PM-041`, and LeBron James `PM-031`; also aligned the referenced cards with the supplied series, rarity, effect, Lakers visual, player crop, and slab treatments
+- 新卡编号改为可复现的稀缺度加权随机规则，分母仅使用 299、99、25、20、15、1；编号越稀有，RAW 封装概率越低，`/25` 及以下默认采用实体卡壳
+- EN: Card numbering now uses a reproducible rarity-weighted random rule limited to denominators 299, 99, 25, 20, 15, and 1; rarer serials are progressively less likely to be RAW, with `/25` and below receiving a physical slab by default
+- 统一限制卡面特效强度：GALAXY 为 10、CRYSTAL 为 32、DIAMOND 为 18，并将 LeBron James 43,000 分纪念卡固定为湖人队 CUTOUT 黑色 1/1 卡
+- EN: Standardized effect intensity to GALAXY 10, CRYSTAL 32, and DIAMOND 18, and pinned the LeBron James 43,000-point commemorative card as a Lakers CUTOUT black 1/1
+- 精选卡库现自动安装 47 张内容（1 张官方预览卡 + 46 张人工影像卡）；所有新增卡片补齐现役球队 Logo、球员简介与 2025-26 背板统计，转队球员另行保留照片拍摄时球队字段
+- EN: The curated library now installs 47 cards (one official showcase plus 46 manually reviewed media cards); every new card includes its current-team logo, a player biography, and 2025-26 back-side statistics, while transferred players retain a separate team-at-capture field for the image
+- 卡牌库改为自动安装 19 张精选内容（1 张官方预览卡 + 18 张人工影像卡）；首次加载时精准移除旧 `auto-nba-v7` 25 张初始卡并合并重复预览卡，同时移除旧自动建库入口，避免刷新或新浏览器再次生成初始批次
+- EN: The library now installs a 19-card curated set automatically (one official showcase plus 18 manually sourced image cards); first load precisely removes the legacy 25-card `auto-nba-v7` batch and consolidates duplicate showcase cards, while the old auto-build entry point is removed so the starter batch cannot return after refresh or in a new browser
+- 首批 18 张人工影像卡补齐现役球队队徽、球员档案与 2025-26 赛季背面数据；转队球员按当前球队与号码展示，并采用完整赛季合并统计
+- EN: Completed the first 18 manually sourced cards with current team logos, player profiles, and 2025-26 back-side statistics; transferred players now show their current team and number with full-season combined stats
 
 - 拆包体验全新重设计（PACK REDESIGN v2）：五阶段仪式（包体氛围 → 增强物理撕裂 → 爆破/彩带 → 卡牌堆叠逐张揭示 → 稀有卡全息 Spotlight + 汇总）；内置零依赖 `PackConfetti` 粒子引擎（算法参考 canvas-confetti），包体/Spotlight 鼠标跟随 3D 倾斜与全息反光（CSS 技术参考 pokemon-cards-css），稀有度分层揭示参考 altare-tcg；保留键盘操作与 reduced-motion 支持
 - 拆卡包装应用实体卡包贴图（NBA 25-26 赛季包装质感），支持两种拆法：**从上到下竖撕**（拖拽/键盘）或 **⚡ FLASH OPEN 闪光直拆**（白光 + 彩带 + 包体闪光）
@@ -48,6 +69,15 @@
 
 ### 修复 / Fixes
 
+- 球队 Logo 与 MVP / RC 等标识改为垂直分层，标识整体下移；同时去除队徽图片的透明留白，并为 Giannis Antetokounmpo 与 Bam Adebayo 卡面放大热火队 Logo
+- EN: Vertically separated team logos from MVP/RC badges by moving the badge rack down; transparent logo padding is now trimmed, with larger Miami Heat logos for Giannis Antetokounmpo and Bam Adebayo
+- 修复 Stephen Curry `PM-006` 人像顶部裁切，改用保持完整构图的 CUTOUT 渲染；卡面预览、Canvas 导出与卡库重载共享同一位置参数
+- EN: Fixed the cropped head on Stephen Curry `PM-006` by switching to a composition-preserving CUTOUT render; card preview, Canvas export, and library reload now share the same positioning values
+- 彻底移除 OPTIC 卡面的白色信息底板，并同步修复浏览器预览与 Canvas 导出；姓名改用自适应白字与深色阴影，长姓名不再被容器裁切
+- EN: Removed the white OPTIC information panel from both the browser preview and Canvas export; player names now use adaptive white type with a dark shadow and are no longer clipped by the container
+- 修复卡牌库导入遇到相同卡片 ID 时无法更新旧数据的问题；现在仅在导入卡片的数据版本更高时原位升级，并保留原收藏状态
+- EN: Fixed library imports skipping cards with an existing ID; imports now upgrade a card in place only when its data version is newer, while preserving its favourite state
+
 - 修复卡牌库抽屉面板缺少 flex 布局导致无法向下滚动查看更多卡片的问题
 - 修复卡壳封装按钮因脚本缓存未更新而失效（静态资源版本号统一升级）
 - 修复自动建库球员卡黑色矩形遮挡人像问题：根因是所有自动生成卡片继承了展示卡（Cooper Flagg）未抠图的原始不透明签名底图；现自动建库卡片不再继承任何签名数据
@@ -58,7 +88,17 @@
 - `AUTO_LIBRARY_DATA_VERSION`: 2 → 3 → 4（触发自动库重建修复）
 - 静态资源缓存版本：`app.js` v25 → v26，`styles.css` v10，`shared-library.js` v3，`three-preview.js` v8
 - 静态资源缓存版本本轮更新：`app.js` → v35，`styles.css` → v23
+- EN: Static asset cache versions updated in this change: `app.js` → v35 and `styles.css` → v23
+- 本轮静态资源缓存版本：`app.js` → v39，`styles.css` → v26
+- EN: Static asset cache versions for this change: `app.js` → v39 and `styles.css` → v26
+- 精选卡库迁移缓存版本：`app.js` → v40；新增 `data/curated-library.json` 与 36 个压缩卡面/缩略图衍生资源
+- EN: Curated-library migration cache version: `app.js` → v40; added `data/curated-library.json` and 36 compressed card-art/thumbnail derivative assets
+- 人工影像清单 / 精选卡库数据版本升至 v2；静态缓存更新为 `app.js` v41、`styles.css` v27，并生成 92 个压缩卡面 / 缩略图衍生资源
+- EN: Bumped the manual-media manifest and curated-library data to v2, updated static caches to `app.js` v41 and `styles.css` v27, and generated 92 compressed card-art/thumbnail derivatives
+- 人工影像清单 / 精选卡库数据版本升至 v3；静态缓存更新为 `app.js` v42、`styles.css` v29
+- EN: Bumped the manual-media manifest and curated-library data to v3 and updated static caches to `app.js` v42 and `styles.css` v29
 
 ---
 
-升级后需在页面内点击「校验 / 建库」以修复已存在的自动建库卡片。
+升级后卡牌库会自动迁移，无需再点击「校验 / 建库」。
+After upgrading, the card library migrates automatically; no manual “Verify / Build” action is required.
