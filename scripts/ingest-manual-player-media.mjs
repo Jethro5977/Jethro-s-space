@@ -192,6 +192,20 @@ const playerProfiles = {
     bio: "A big, poised floor general with a complete scoring package and elite vision, leading Detroit's resurgence.",
     sourceUrl: "https://www.nba.com/stats/player/1630595?Season=2025-26&SeasonType=Regular%20Season"
   },
+  "devin booker": {
+    height: "6'5\"", weight: "206 LB", hometown: "GRAND RAPIDS, MICHIGAN",
+    draft: "2015 / ROUND 1 / PICK 13", season: "2025-26",
+    gp: "64", ppg: "26.1", rpg: "3.9", apg: "6.0", fg: "45.6", tp: "33.0",
+    bio: "A lethal three-level scorer with silky footwork, elite shot-making and precise passing from either guard spot. Will wear No. 15 from 2026-27 in honor of his father.",
+    sourceUrl: "https://www.nba.com/stats/player/1626164?Season=2025-26&SeasonType=Regular%20Season"
+  },
+  "pj washington": {
+    height: "6'7\"", weight: "230 LB", hometown: "LOUISVILLE, KENTUCKY",
+    draft: "2019 / ROUND 1 / PICK 12", season: "2025-26",
+    gp: "56", ppg: "14.2", rpg: "7.0", apg: "1.8", fg: "45.0", tp: "32.5",
+    bio: "A versatile two-way forward whose rim pressure, switchable defense and corner shooting make him a rugged playoff wing for Dallas.",
+    sourceUrl: "https://www.nba.com/stats/player/1629023?Season=2025-26&SeasonType=Regular%20Season"
+  },
   "luka doncic": {
     height: "6'7\"", weight: "230 LB", hometown: "LJUBLJANA, SLOVENIA",
     draft: "2018 / ROUND 1 / PICK 3", season: "2025-26",

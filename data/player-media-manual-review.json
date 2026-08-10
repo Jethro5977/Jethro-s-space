@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "batchId": "manual-2026-08-09-01",
-  "sourceDataVersion": 6,
-  "reviewedAt": "2026-08-11T02:00:00.000Z",
+  "sourceDataVersion": 7,
+  "reviewedAt": "2026-08-11T04:00:00.000Z",
   "reviewedBy": "codex-visual-review",
   "rightsPolicy": "Private personal-card use only until source and licence are supplied.",
   "items": [
@@ -1208,6 +1208,89 @@
         "numbered"
       ],
       "cardTeam": "CLE"
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.03.55 AM.png",
+      "playerKey": "devin booker",
+      "category": "game_action",
+      "title": "Devin Booker Phoenix Suns game action",
+      "teamAtCapture": "PHX",
+      "season": "2025-26",
+      "tags": [
+        "suns",
+        "game-action",
+        "scoring"
+      ],
+      "matchConfidence": 0.98,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "lightning",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.04.52 AM.png",
+      "playerKey": "devin booker",
+      "category": "profile",
+      "title": "Devin Booker NBA 2K23 cover graphic",
+      "teamAtCapture": "PHX",
+      "season": "2025-26",
+      "tags": [
+        "2k23",
+        "cover",
+        "branded-graphic"
+      ],
+      "matchConfidence": 0.98,
+      "composition": "single_subject_branded_graphic",
+      "style": "optic",
+      "effect": "laser",
+      "rarity": "gold",
+      "badges": [
+        "allstar",
+        "numbered"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.05.58 AM.png",
+      "playerKey": "devin booker",
+      "category": "profile",
+      "title": "Devin Booker Phoenix Suns portrait",
+      "teamAtCapture": "PHX",
+      "season": "2025-26",
+      "tags": [
+        "suns",
+        "portrait",
+        "suits"
+      ],
+      "matchConfidence": 0.97,
+      "composition": "dual_subject_photo",
+      "style": "tactical",
+      "effect": "none",
+      "rarity": "base",
+      "badges": [
+        "allstar"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.20.49 AM.png",
+      "playerKey": "pj washington",
+      "category": "game_action",
+      "title": "P.J. Washington Dallas Mavericks number 25 moment",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "mavericks",
+        "game-action",
+        "number-25"
+      ],
+      "matchConfidence": 0.98,
+      "composition": "single_subject_photo",
+      "style": "select",
+      "effect": "holographic",
+      "rarity": "neon",
+      "badges": []
     }
   ]
 }

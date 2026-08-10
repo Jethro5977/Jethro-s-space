@@ -540,5 +540,25 @@
     "verifiedAt": null,
     "portrait": null,
     "portraitVerified": false
+  },
+  "pj washington": {
+    "playerId": "nba_1629023",
+    "name": "P.J. Washington",
+    "displayName": "P.J. WASHINGTON",
+    "aliases": [],
+    "active": true,
+    "team": "DAL",
+    "teamName": "DALLAS MAVERICKS",
+    "positionCode": "PF",
+    "position": "POWER FORWARD",
+    "jerseyNumber": "25",
+    "nbaId": "1629023",
+    "espnId": "4278078",
+    "sportradarId": null,
+    "sourceUrl": "https://www.nba.com/players",
+    "identityStatus": "needs_review",
+    "verifiedAt": null,
+    "portrait": null,
+    "portraitVerified": false
   }
 }

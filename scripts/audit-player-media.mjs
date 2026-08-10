@@ -15,7 +15,7 @@ const unique = (label, values) => {
   });
 };
 
-if (players.length !== 27) failures.push(`Expected 27 seed players, found ${players.length}`);
+if (players.length !== 28) failures.push(`Expected 28 seed players, found ${players.length}`);
 unique("playerId", players.map((player) => player.playerId));
 unique("nbaId", players.map((player) => player.nbaId));
 unique("espnId", players.map((player) => player.espnId));

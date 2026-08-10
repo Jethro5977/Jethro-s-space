@@ -17,7 +17,7 @@ const seenNbaIds = new Set();
 const seenEspnIds = new Set();
 const failures = [];
 
-if (rows.length !== 27) failures.push(`Expected 27 players, found ${rows.length}`);
+if (rows.length !== 28) failures.push(`Expected 28 players, found ${rows.length}`);
 
 for (const row of rows) {
   const [name,,,,,,,,,,,,,,,,,,, nbaId,, espnId] = row;

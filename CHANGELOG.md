@@ -8,6 +8,8 @@
 
 ### 新增 / Added
 
+- 新增 4 张用户确认的精选卡：Devin Booker（比赛瞬间 / NBA 2K23 封面 / 太阳队西装照）与 P.J. Washington（#25 比赛瞬间），沿用 2025-26 卡背数据与对应球队 logo，保持球员-数据-logo 一一对应
+- EN: Added 4 user-confirmed curated cards: Devin Booker (game action / NBA 2K23 cover / Suns suit portrait) and P.J. Washington (#25 game action), each with 2025-26 back-side stats and a matching team logo to keep player-data-logo one-to-one
 - 新增 8 张由用户提供卡面素材制作的精选卡：Cooper Flagg（2025 选秀纪念 / 比赛瞬间 / #32 城市插画 / NBA 最佳新秀）、Kyrie Irving（比赛瞬间）、Klay Thompson（2 张比赛瞬间）、James Harden（连续季后赛里程碑）；同时补齐 27 支球队的可跟踪 logo 资产（`assets/team-logos/*.webp`），每张卡自动嵌入对应球队 logo，确保球员-数据-logo 一一对应
 - EN: Added 8 curated cards from user-supplied cover art: Cooper Flagg (2025 draft commemorative / game action / #32 city illustration / NBA Rookie of the Year), Kyrie Irving (game action), Klay Thompson (two game-action moments), and James Harden (straight playoff appearances milestone); also added tracked logo assets for 27 teams under `assets/team-logos/*.webp`, with each card embedding its matching team logo so player-data-logo stay one-to-one
 - 新增 Kyrie Irving 与 Klay Thompson 的 2025-26 已核验赛季数据档案（写入卡背），并将 James Harden 的 2025-26 数据接入建卡管道
@@ -99,6 +101,8 @@
 
 ### 数据版本 / Data Versions
 
+- `player-media-manual-review` 手工审核批次由 54 条扩展至 58 条；`sourceDataVersion` 6 → 7；应用内球员库 27 → 28（新增 P.J. Washington）
+- EN: `player-media-manual-review` manual-review batch expanded from 54 to 58 items; `sourceDataVersion` 6 → 7; in-app player database 27 → 28 (added P.J. Washington)
 - `player-media-manual-review` 手工审核批次由 46 条扩展至 54 条；`sourceDataVersion` 5 → 6
 - EN: `player-media-manual-review` manual-review batch expanded from 46 to 54 items; `sourceDataVersion` 5 → 6
 - `AUTO_LIBRARY_DATA_VERSION`: 2 → 3 → 4（触发自动库重建修复）
