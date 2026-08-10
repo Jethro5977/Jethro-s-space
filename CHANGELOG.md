@@ -79,6 +79,8 @@
 
 ### 修复 / Fixes
 
+- 按用户预览确认删除 4 个槽位：Kyrie Irving `PM-049`（上轮已删，本轮确认）、Cooper Flagg `PM-051` 与 `PM-052`、P.J. Washington `PM-058`；精选卡库现为 55 张（1 张官方展示卡 + 54 张人工影像卡）
+- EN: Removed 4 slots per user preview confirmation: Kyrie Irving `PM-049` (already removed last round), Cooper Flagg `PM-051` and `PM-052`, and P.J. Washington `PM-058`; the curated library is now 55 cards (1 official showcase + 54 manual media cards)
 - 按本地预览反馈调整精选卡：删除 Kyrie Irving `PM-049`；Cooper Flagg `PM-051` 改为 CUTOUT 保持完整构图；Cooper Flagg `PM-052` 与 Devin Booker `PM-056` 卡面左移微调；James Harden `PM-054` 改为 BASE 稀有度并移除 MVP 徽章；全量徽章审核后移除 Anthony Edwards 与 Jalen Brunson 卡片上错误的 MVP 标识
 - EN: Adjusted curated cards per preview feedback — removed Kyrie Irving `PM-049`; switched Cooper Flagg `PM-051` to CUTOUT to preserve full composition; shifted Cooper Flagg `PM-052` and Devin Booker `PM-056` card art slightly left; changed James Harden `PM-054` to BASE rarity without the MVP badge; a full badge audit also removed erroneous MVP badges from Anthony Edwards and Jalen Brunson cards
 - 修复新批次球员识别偏差：第 54 号卡面初判为 LeBron James，经卡面 OCR 复核确认实为 James Harden（骑士队连续季后赛纪录卡），已更正球员、赛季数据与卡面对应关系
@@ -103,6 +105,8 @@
 
 ### 数据版本 / Data Versions
 
+- `player-media-manual-review` 批次保持 58 槽位；`sourceDataVersion` 8 → 9；精选卡库 58 → 55 张（4 个已删除槽位）
+- EN: `player-media-manual-review` batch keeps 58 slots; `sourceDataVersion` 8 → 9; curated library 58 → 55 cards (4 disabled slots)
 - `player-media-manual-review` 手工审核批次 58 条；`sourceDataVersion` 7 → 8；精选卡库共 58 张（1 张官方展示卡 + 57 张人工影像卡，含 1 张已删除占位）
 - EN: `player-media-manual-review` batch stays at 58 slots; `sourceDataVersion` 7 → 8; curated library now 58 cards (1 official showcase + 57 manual media cards, with one disabled slot)
 - `player-media-manual-review` 手工审核批次由 54 条扩展至 58 条；`sourceDataVersion` 6 → 7；应用内球员库 27 → 28（新增 P.J. Washington）

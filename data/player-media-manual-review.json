@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "batchId": "manual-2026-08-09-01",
-  "sourceDataVersion": 8,
-  "reviewedAt": "2026-08-11T06:00:00.000Z",
+  "sourceDataVersion": 9,
+  "reviewedAt": "2026-08-11T07:00:00.000Z",
   "reviewedBy": "codex-visual-review",
   "rightsPolicy": "Private personal-card use only until source and licence are supplied.",
   "items": [
@@ -1136,7 +1136,8 @@
         "rc",
         "numbered"
       ],
-      "imageMode": "cutout"
+      "imageMode": "cutout",
+      "disabled": true
     },
     {
       "file": "Screenshot 2026-08-10 at 1.23.56 AM.png",
@@ -1159,7 +1160,8 @@
         "rc",
         "numbered"
       ],
-      "photoX": -2
+      "photoX": -2,
+      "disabled": true
     },
     {
       "file": "Screenshot 2026-08-10 at 1.24.13 AM.png",
@@ -1287,7 +1289,8 @@
       "style": "select",
       "effect": "holographic",
       "rarity": "neon",
-      "badges": []
+      "badges": [],
+      "disabled": true
     }
   ]
 }
