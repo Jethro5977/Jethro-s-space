@@ -73,6 +73,10 @@
 
 ### 修复 / Fixes
 
+- 将 Shai Gilgeous-Alexander `PM-041` 的用户提供签名改为金色箔笔迹；保留原始笔画和安全位置，使其在高亮闪电背景上更清晰
+- EN: Changed the supplied signature on Shai Gilgeous-Alexander `PM-041` to gold foil while retaining its original strokes and safe placement for stronger contrast against the lightning background
+- 应用代码审计修复：影像缩略图加载失败时显示明确占位提示，打开影像库时保留当前卡面照片与队徽；同时为签名、卡库和拆包流程的反馈补齐成功、警告、错误状态
+- EN: Applied code-audit fixes: failed media thumbnails now show a clear placeholder, opening the media library preserves the current card photo and team logo, and signature/library/pack feedback now uses explicit success, warning, and error states
 - 球队 Logo 与 MVP / RC 等标识改为垂直分层，标识整体下移；同时去除队徽图片的透明留白，并为 Giannis Antetokounmpo 与 Bam Adebayo 卡面放大热火队 Logo
 - EN: Vertically separated team logos from MVP/RC badges by moving the badge rack down; transparent logo padding is now trimmed, with larger Miami Heat logos for Giannis Antetokounmpo and Bam Adebayo
 - 修复 Stephen Curry `PM-006` 人像顶部裁切，改用保持完整构图的 CUTOUT 渲染；卡面预览、Canvas 导出与卡库重载共享同一位置参数
@@ -103,6 +107,8 @@
 - EN: Bumped the manual-media manifest and curated-library data to v3 and updated static caches to `app.js` v42 and `styles.css` v29
 - 人工影像清单 / 精选卡库数据版本升至 v4；静态缓存更新为 `app.js` v43、`styles.css` v30
 - EN: Bumped the manual-media manifest and curated-library data to v4 and updated static caches to `app.js` v43 and `styles.css` v30
+- 人工影像清单 / 精选卡库数据版本升至 v5；静态缓存更新为 `app.js` v44、`styles.css` v31
+- EN: Bumped the manual-media manifest and curated-library data to v5 and updated static caches to `app.js` v44 and `styles.css` v31
 
 ---
 

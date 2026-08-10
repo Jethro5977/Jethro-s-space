@@ -8,7 +8,7 @@ const LIBRARY_MAX_CARDS = 200;
 const PROJECT_VERSION = 7;
 const AUTO_LIBRARY_SOURCE = "auto-nba-v7";
 const AUTO_LIBRARY_DATA_VERSION = 4;
-const CURATED_LIBRARY_URL = "data/curated-library.json?v=4";
+const CURATED_LIBRARY_URL = "data/curated-library.json?v=5";
 const CURATED_SHOWCASE_SOURCE = "curated-showcase-v1";
 const CURATED_PLAYER_MEDIA_SOURCE = "curated-player-media-v1";
 const KNOWN_LIBRARY_SOURCES = new Set(["manual", AUTO_LIBRARY_SOURCE, CURATED_SHOWCASE_SOURCE, CURATED_PLAYER_MEDIA_SOURCE]);
@@ -1226,12 +1226,12 @@ function bindSignaturePad() {
     sigHasInk = false;
     state.signatureData = null;
     render();
-    showToast("签名已清除");
+    showToast("签名已清除", "info");
   });
   $("#signatureApplyBtn").addEventListener("click", () => {
     state.signatureData = sigHasInk ? canvas.toDataURL("image/png") : null;
     render();
-    showToast(state.signatureData ? "签名已应用" : "请先绘制签名");
+    showToast(state.signatureData ? "签名已应用" : "请先绘制签名", state.signatureData ? "success" : "warning");
   });
   $$("#signatureColorRow [data-sig-color]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1270,7 +1270,7 @@ function bindSignatureUpload() {
     if (!file) return;
     if (!isSafeUploadImage(file) || file.size > 16 * 1024 * 1024) {
       event.target.value = "";
-      showToast("签名仅支持 16 MB 以内的 PNG、JPEG 或 WebP 图片");
+      showToast("签名仅支持 16 MB 以内的 PNG、JPEG 或 WebP 图片", "warning");
       return;
     }
     try {
@@ -1280,7 +1280,7 @@ function bindSignatureUpload() {
       refreshSignatureExtraction();
     } catch (error) {
       console.warn("Signature photo load error", error);
-      showToast("无法读取图片");
+      showToast("无法读取图片", "error");
     }
   });
 
@@ -1299,7 +1299,7 @@ function bindSignatureUpload() {
 
   $("#sigUploadApplyBtn").addEventListener("click", () => {
     if (!pendingSigMaskDataURL) {
-      showToast("请先选择一张签名照片");
+      showToast("请先选择一张签名照片", "warning");
       return;
     }
     state.signatureData = pendingSigMaskDataURL;
@@ -1729,7 +1729,26 @@ function bindPlayerQuickAccess() {
 
   applyButton.addEventListener("click", applySelectedPlayer);
   mediaButton.addEventListener("click", () => {
-    if (!applySelectedPlayer()) return;
+    const requestedName = String(input.value || "").trim().toUpperCase();
+    const player = NBA_PLAYERS_DB.find((candidate) => candidate.name === requestedName);
+    if (!player) {
+      status.textContent = "未找到该球员，请从输入建议中选择";
+      status.classList.add("is-error");
+      showToast("未找到该球员，请从列表中选择", "warning");
+      input.focus();
+      return;
+    }
+    // Apply player facts but preserve current photo so the card doesn't go blank
+    const preservedImg = state.playerImg;
+    const preservedLogo = state.logoImg;
+    state = applyPlayerFacts({ ...state, playerImg: null, logoImg: null }, player);
+    if (!state.playerImg && preservedImg) state.playerImg = preservedImg;
+    if (!state.logoImg && preservedLogo) state.logoImg = preservedLogo;
+    input.value = player.name;
+    status.textContent = `${player.name} · ${player.abbr} · #${player.number}`;
+    status.classList.remove("is-error");
+    hydrateInputs();
+    render();
     $("#playerMediaOpenBtn")?.click();
   });
   input.addEventListener("keydown", (event) => {
@@ -2073,7 +2092,7 @@ function resetProject() {
   localStorage.removeItem(STORAGE_KEY);
   hydrateInputs();
   render();
-  showToast("项目已重置");
+  showToast("项目已重置", "info");
 }
 
 function safeFilename(value) {
@@ -3472,7 +3491,7 @@ async function saveToLibrary() {
     return;
   }
 
-  showToast("正在生成卡牌快照...");
+  showToast("正在生成卡牌快照...", "info");
   const canvas = document.createElement("canvas");
   canvas.width = 360;
   canvas.height = 504;
@@ -3979,7 +3998,7 @@ async function loadFromLibrary(cardId, options = {}) {
   const { closeDrawer = true, notify = true } = options;
   const card = loadLibrary().cards.find((item) => item.id === cardId);
   if (!card) {
-    showToast("未找到该卡片");
+    showToast("未找到该卡片", "warning");
     return;
   }
   currentPreviewLibraryCardId = card.id;
@@ -4026,7 +4045,7 @@ async function toggleFavorite(cardId) {
 function exportLibrary() {
   const library = loadLibrary();
   if (!library.cards.length) {
-    showToast("卡牌库为空");
+    showToast("卡牌库为空", "warning");
     return;
   }
   downloadBlob(new Blob([JSON.stringify(library, null, 2)], { type: "application/json" }), `card_library_${Date.now()}.json`);
@@ -4072,11 +4091,11 @@ function importLibrary(event) {
         updateLibraryDrawer();
         updateBackgroundMosaic();
         announceAchievements(unlocks);
-        showToast(`已导入 ${added} 张新卡片，更新 ${updated} 张卡片`);
+        showToast(`已导入 ${added} 张新卡片，更新 ${updated} 张卡片`, "success");
       }
     } catch (error) {
       console.warn("Library import failed", error);
-      showToast("卡牌库文件格式无效");
+      showToast("卡牌库文件格式无效", "error");
     }
     event.target.value = "";
   };
@@ -4204,7 +4223,7 @@ function activateLibraryGridItem(event) {
     return true;
   }
   updateLibraryDrawer();
-  showToast(`已选择 ${compareSelections.length} / 2 张卡片`);
+  showToast(`已选择 ${compareSelections.length} / 2 张卡片`, "info");
   return true;
 }
 
@@ -4281,13 +4300,13 @@ function sleep(milliseconds) {
 
 function startCompareMode() {
   if (loadLibrary().cards.length < 2) {
-    showToast("卡牌库中至少需要 2 张卡片才能进行对比");
+    showToast("卡牌库中至少需要 2 张卡片才能进行对比", "warning");
     return;
   }
   compareMode = true;
   compareSelections = [];
   openLibraryDrawer();
-  showToast("请在卡牌库中选择两张卡片进行对比");
+  showToast("请在卡牌库中选择两张卡片进行对比", "info");
 }
 
 function openCompare(idA, idB) {
@@ -4379,7 +4398,7 @@ function checkAchievements(library) {
 
 function announceAchievements(achievements) {
   achievements.forEach((achievement, index) => {
-    window.setTimeout(() => showToast(`成就解锁: ${achievement.name}`), index * 950);
+    window.setTimeout(() => showToast(`成就解锁: ${achievement.name}`, "success"), index * 950);
   });
 }
 
@@ -4436,14 +4455,14 @@ async function runAutoBuildFromUI() {
       if (result.skipped) parts.push(`已有 ${result.skipped} 张`);
       if (result.partial) parts.push("卡牌库空间不足");
       status.textContent = `完成 · ${parts.join(" · ")}`;
-      showToast(`球星卡校验完成：${parts.slice(0, 2).join("，")}`);
+      showToast(`球星卡校验完成：${parts.slice(0, 2).join("，")}`, "info");
       window.setTimeout(openLibraryDrawer, 700);
     } else if (result.partial) {
       status.textContent = "卡牌库空间不足，未添加新卡";
       showToast("卡牌库已满，请先导出并移除部分卡片", "warning");
     } else {
       status.textContent = "26 位球星资料与图片均为最新版校验数据";
-      showToast("球星卡资料校验通过");
+      showToast("球星卡资料校验通过", "success");
       window.setTimeout(openLibraryDrawer, 500);
     }
   } catch (error) {
@@ -4452,7 +4471,7 @@ async function runAutoBuildFromUI() {
     const persistedRepaired = Number(error.persistedRepaired) || 0;
     const persisted = persistedCreated + persistedRepaired;
     status.textContent = persisted ? `存储空间不足 · 已处理 ${persisted} 张` : "生成失败，请重试";
-    showToast(persisted ? `已处理 ${persisted} 张，剩余卡片可稍后续建` : "自动建库失败");
+    showToast(persisted ? `已处理 ${persisted} 张，剩余卡片可稍后续建` : "自动建库失败", persisted ? "success" : "error");
   } finally {
     button.disabled = false;
     button.removeAttribute("aria-busy");
@@ -4501,7 +4520,7 @@ async function initializeV6() {
   updateLibraryDrawer();
   updatePreviewNavigationUI(library);
   if (curated.removedInitial > 0) {
-    showToast(`已移除 ${curated.removedInitial} 张初始卡，精选卡库已更新`);
+    showToast(`已移除 ${curated.removedInitial} 张初始卡，精选卡库已更新`, "success");
   }
 }
 
@@ -4860,7 +4879,7 @@ class PackDust {
 function openPackExperience() {
   const library = loadLibrary();
   if (library.cards.length < 3) {
-    showToast("卡牌库中至少需要 3 张卡片才能体验拆包");
+    showToast("卡牌库中至少需要 3 张卡片才能体验拆包", "warning");
     return;
   }
   packAbortController?.abort();

@@ -53,6 +53,10 @@
     image.alt = media.title || "球员影像";
     image.loading = "lazy";
     image.decoding = "async";
+    image.onerror = () => {
+      image.style.display = "none";
+      thumb.classList.add("thumb-error");
+    };
     const badge = document.createElement("span");
     badge.className = `player-media-badge${media.fallback ? " fallback" : ""}`;
     badge.textContent = media.fallback ? "临时回退" : (categoryNames[media.category] || media.category || "MEDIA");
