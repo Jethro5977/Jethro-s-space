@@ -8,7 +8,7 @@ const LIBRARY_MAX_CARDS = 200;
 const PROJECT_VERSION = 7;
 const AUTO_LIBRARY_SOURCE = "auto-nba-v7";
 const AUTO_LIBRARY_DATA_VERSION = 4;
-const CURATED_LIBRARY_URL = "data/curated-library.json?v=3";
+const CURATED_LIBRARY_URL = "data/curated-library.json?v=4";
 const CURATED_SHOWCASE_SOURCE = "curated-showcase-v1";
 const CURATED_PLAYER_MEDIA_SOURCE = "curated-player-media-v1";
 const KNOWN_LIBRARY_SOURCES = new Set(["manual", AUTO_LIBRARY_SOURCE, CURATED_SHOWCASE_SOURCE, CURATED_PLAYER_MEDIA_SOURCE]);
@@ -17,6 +17,7 @@ const SHOWCASE_TEAM_LOGO = "assets/dallas-mavericks-logo.svg";
 const SHOWCASE_SIGNATURE_IMAGE = "assets/cooper-flagg-showcase-signature.svg";
 const SHOWCASE_SIGNATURE_SOURCE = "assets/cooper-flagg-signature-source.png";
 const SAFE_IMAGE_DATA_URL = /^data:image\/(?:png|webp|jpeg);base64,/i;
+const SAFE_SIGNATURE_ASSET_URL = /^assets\/signatures\/[a-z0-9][a-z0-9._-]*\.(?:png|webp)$/i;
 const SAFE_UPLOAD_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const TRUSTED_IMAGE_HOSTS = new Set(["cdn.nba.com", "a.espncdn.com"]);
 
@@ -398,7 +399,7 @@ function normalizeState(candidate) {
   normalized.playerImageLicenseSnapshot = sanitizeMediaStateText(normalized.playerImageLicenseSnapshot, 80);
   normalized.logoImg = isSafeCardImage(normalized.logoImg) ? normalized.logoImg : null;
   normalized.signatureData = isSafeSignatureImage(normalized.signatureData) ? normalized.signatureData : null;
-  normalized.signatureColor = ["gold", "silver", "black", "white"].includes(normalized.signatureColor) ? normalized.signatureColor : "gold";
+  normalized.signatureColor = ["gold", "silver", "black", "white", "blue"].includes(normalized.signatureColor) ? normalized.signatureColor : "gold";
   normalized.signatureMode = normalized.signatureMode === "upload" ? "upload" : "draw";
   normalized.signatureThreshold = clamp(Number(normalized.signatureThreshold) || 128, 60, 220);
   normalized.signatureInvert = Boolean(normalized.signatureInvert);
@@ -430,7 +431,7 @@ function isSafeDataImage(value) {
 }
 
 function isSafeSignatureImage(value) {
-  return isSafeDataImage(value) || value === SHOWCASE_SIGNATURE_IMAGE || value === SHOWCASE_SIGNATURE_SOURCE;
+  return isSafeDataImage(value) || SAFE_SIGNATURE_ASSET_URL.test(value) || value === SHOWCASE_SIGNATURE_IMAGE || value === SHOWCASE_SIGNATURE_SOURCE;
 }
 
 function sanitizeMediaStateText(value, maxLength) {
@@ -555,7 +556,9 @@ function signatureMarkup() {
   // Keep the paper/background light so the existing multiply blend removes it.
   // The old brightness(0) filter turned an entire uploaded signature photo into
   // an opaque black rectangle on mobile and in restored library cards.
-  const colorFilter = state.signatureColor === "white" ? "brightness(1)" : "grayscale(1) contrast(1.35)";
+  const colorFilter = state.signatureColor === "blue"
+    ? "drop-shadow(0 0 1.2px rgba(255,255,255,0.86)) drop-shadow(0 1px 1.5px rgba(0,0,0,0.88))"
+    : state.signatureColor === "white" ? "brightness(1)" : "grayscale(1) contrast(1.35)";
   return `<img class="signature-layer signature-${state.signatureColor}" src="${esc(state.signatureData)}" alt="自定义签名" style="${baseStyle}filter:${colorFilter};">`;
 }
 
@@ -2871,7 +2874,7 @@ async function drawSignatureCanvas(ctx, x, y, width, height, side) {
     stops.forEach(([position, color]) => gradient.addColorStop(position, color));
     offscreenContext.fillStyle = gradient;
   } else {
-    offscreenContext.fillStyle = state.signatureColor === "white" ? "#f7f7f7" : "#111318";
+    offscreenContext.fillStyle = state.signatureColor === "white" ? "#f7f7f7" : state.signatureColor === "blue" ? "#1764c6" : "#111318";
   }
   offscreenContext.fillRect(0, 0, offscreen.width, offscreen.height);
   ctx.drawImage(offscreen, drawX, drawY, signatureWidth, signatureHeight);

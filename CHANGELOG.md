@@ -8,6 +8,10 @@
 
 ### 新增 / Added
 
+- 为用户指定的 Shai Gilgeous-Alexander `PM-041`、Stephen Curry `PM-005` 与 LeBron James 43,000 分纪念 `PM-032` 添加对应原始签名；蓝墨签保留原始蓝色并增加清晰描边，LeBron 黑色原签采用金色箔签呈现以适配黑色 1/1 卡面
+- EN: Added the supplied original signatures to Shai Gilgeous-Alexander `PM-041`, Stephen Curry `PM-005`, and the LeBron James 43,000-point commemorative `PM-032`; blue-ink signatures retain their original blue with a clarity outline, while LeBron's black signature is rendered as gold foil for the black 1/1 card
+- 新增可复现签名预处理脚本与受限签名资产路径，透明签名在浏览器预览、Canvas 导出及精选卡库重新导入时保持一致
+- EN: Added a reproducible signature-preparation script and restricted signature-asset paths so transparent signatures remain consistent in browser preview, Canvas export, and curated-library reimport
 - README 顶部新增两张 Shai Gilgeous-Alexander 亚克力封装卡面，采用并排响应式展示并压缩为 WebP，补充真实卡牌设计预览且控制仓库图片体积
 - EN: Added two Shai Gilgeous-Alexander acrylic card covers to the top of the README in a responsive side-by-side WebP layout, expanding the real card-design preview while keeping repository image weight low
 - 首页 3D 预览区新增上一张 / 下一张切换按钮与卡库位置指示；桌面端可点击循环检视，手机端同时支持按钮与在卡牌上左右滑动切换
@@ -97,6 +101,8 @@
 - EN: Bumped the manual-media manifest and curated-library data to v2, updated static caches to `app.js` v41 and `styles.css` v27, and generated 92 compressed card-art/thumbnail derivatives
 - 人工影像清单 / 精选卡库数据版本升至 v3；静态缓存更新为 `app.js` v42、`styles.css` v29
 - EN: Bumped the manual-media manifest and curated-library data to v3 and updated static caches to `app.js` v42 and `styles.css` v29
+- 人工影像清单 / 精选卡库数据版本升至 v4；静态缓存更新为 `app.js` v43、`styles.css` v30
+- EN: Bumped the manual-media manifest and curated-library data to v4 and updated static caches to `app.js` v43 and `styles.css` v30
 
 ---
 

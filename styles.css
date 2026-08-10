@@ -4745,6 +4745,10 @@ body {
   mix-blend-mode: screen;
 }
 
+.signature-layer.signature-blue {
+  mix-blend-mode: normal;
+}
+
 .workshop-section canvas {
   display: block;
   touch-action: none;
@@ -4908,7 +4912,7 @@ body {
 
 .signature-colors {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   margin-top: 10px;
 }
@@ -4946,6 +4950,7 @@ body {
 .sig-silver { background: #d9dde3; }
 .sig-black { background: #111318; }
 .sig-white { background: #f7f7f7; }
+.sig-blue { background: #1764c6; }
 
 /* V3 acrylic response and signature extraction */
 .signature-mode-tabs {

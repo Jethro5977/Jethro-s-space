@@ -80,7 +80,7 @@
       "favorite": false,
       "source": "curated-showcase-v1",
       "sourcePlayerId": "1642843",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_41",
@@ -100,12 +100,12 @@
         "effect": "lightning",
         "effectIntensity": 20,
         "cardThickness": true,
-        "signatureData": null,
-        "signatureColor": "black",
+        "signatureData": "assets/signatures/shai-gilgeous-alexander-blue.png",
+        "signatureColor": "blue",
         "signaturePlacement": "front",
-        "signatureScale": 1,
-        "signatureX": 50,
-        "signatureY": 62,
+        "signatureScale": 0.9,
+        "signatureX": 67,
+        "signatureY": 68,
         "signatureMode": "upload",
         "signatureThreshold": 156,
         "signatureInvert": false,
@@ -165,7 +165,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_31",
@@ -250,7 +250,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "2544",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_01",
@@ -337,7 +337,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1642843",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_02",
@@ -422,7 +422,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1642843",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_03",
@@ -509,7 +509,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1642843",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_04",
@@ -594,7 +594,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201939",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_05",
@@ -615,12 +615,12 @@
         "effect": "lightning",
         "effectIntensity": 20,
         "cardThickness": true,
-        "signatureData": null,
-        "signatureColor": "black",
+        "signatureData": "assets/signatures/stephen-curry-blue.png",
+        "signatureColor": "blue",
         "signaturePlacement": "front",
-        "signatureScale": 1,
-        "signatureX": 50,
-        "signatureY": 62,
+        "signatureScale": 0.92,
+        "signatureX": 66,
+        "signatureY": 68,
         "signatureMode": "upload",
         "signatureThreshold": 156,
         "signatureInvert": false,
@@ -681,7 +681,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201939",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_06",
@@ -762,7 +762,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201939",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_07",
@@ -847,7 +847,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201939",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_08",
@@ -934,7 +934,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201939",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_09",
@@ -1019,7 +1019,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630162",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_10",
@@ -1100,7 +1100,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630162",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_11",
@@ -1185,7 +1185,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630162",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_12",
@@ -1270,7 +1270,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630162",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_13",
@@ -1355,7 +1355,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630162",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_14",
@@ -1442,7 +1442,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628973",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_15",
@@ -1523,7 +1523,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628973",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_16",
@@ -1608,7 +1608,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628973",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_17",
@@ -1693,7 +1693,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1629027",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_18",
@@ -1778,7 +1778,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1629027",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_19",
@@ -1865,7 +1865,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "203507",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_20",
@@ -1950,7 +1950,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628389",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_21",
@@ -2035,7 +2035,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630595",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_22",
@@ -2120,7 +2120,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630595",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_23",
@@ -2201,7 +2201,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630595",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_24",
@@ -2286,7 +2286,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630595",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_25",
@@ -2367,7 +2367,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630595",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_26",
@@ -2452,7 +2452,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630595",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_27",
@@ -2539,7 +2539,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1629029",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_28",
@@ -2624,7 +2624,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628973",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_29",
@@ -2711,7 +2711,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628973",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_30",
@@ -2796,7 +2796,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "2544",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_32",
@@ -2817,12 +2817,12 @@
         "effect": "galaxy",
         "effectIntensity": 10,
         "cardThickness": true,
-        "signatureData": null,
-        "signatureColor": "black",
+        "signatureData": "assets/signatures/lebron-james-black.png",
+        "signatureColor": "gold",
         "signaturePlacement": "front",
-        "signatureScale": 1,
-        "signatureX": 50,
-        "signatureY": 62,
+        "signatureScale": 0.93,
+        "signatureX": 64,
+        "signatureY": 67,
         "signatureMode": "upload",
         "signatureThreshold": 156,
         "signatureInvert": false,
@@ -2883,7 +2883,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "2544",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_33",
@@ -2968,7 +2968,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201142",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_34",
@@ -3055,7 +3055,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "201142",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_35",
@@ -3140,7 +3140,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630178",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_36",
@@ -3225,7 +3225,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630178",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_37",
@@ -3310,7 +3310,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630178",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_38",
@@ -3391,7 +3391,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1630178",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_39",
@@ -3476,7 +3476,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_40",
@@ -3563,7 +3563,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_42",
@@ -3648,7 +3648,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_43",
@@ -3733,7 +3733,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_44",
@@ -3818,7 +3818,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_45",
@@ -3905,7 +3905,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     },
     {
       "id": "manual_manual-2026-08-09-01_46",
@@ -3992,7 +3992,7 @@
       "favorite": false,
       "source": "curated-player-media-v1",
       "sourcePlayerId": "1628983",
-      "sourceDataVersion": 3
+      "sourceDataVersion": 4
     }
   ]
 }
