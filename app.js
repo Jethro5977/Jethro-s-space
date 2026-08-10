@@ -8,7 +8,7 @@ const LIBRARY_MAX_CARDS = 200;
 const PROJECT_VERSION = 7;
 const AUTO_LIBRARY_SOURCE = "auto-nba-v7";
 const AUTO_LIBRARY_DATA_VERSION = 4;
-const CURATED_LIBRARY_URL = "data/curated-library.json?v=5";
+const CURATED_LIBRARY_URL = "data/curated-library.json?v=6";
 const CURATED_SHOWCASE_SOURCE = "curated-showcase-v1";
 const CURATED_PLAYER_MEDIA_SOURCE = "curated-player-media-v1";
 const KNOWN_LIBRARY_SOURCES = new Set(["manual", AUTO_LIBRARY_SOURCE, CURATED_SHOWCASE_SOURCE, CURATED_PLAYER_MEDIA_SOURCE]);
@@ -3802,7 +3802,13 @@ async function installCuratedLibrary() {
     const seedIds = new Set(seedCards.map((card) => card.id));
     const existingShowcase = withoutInitialBatch.find(isShowcaseLibraryCard);
     const existingById = new Map(withoutInitialBatch.map((card) => [card.id, card]));
-    const userCards = withoutInitialBatch.filter((card) => !seedIds.has(card.id) && !isShowcaseLibraryCard(card));
+    // 被移出精选库的托管卡（curated-player-media）必须随种子清理，
+    // 只保留用户自己保存的 DIY 卡与官方展示卡。
+    const userCards = withoutInitialBatch.filter((card) =>
+      !seedIds.has(card.id)
+      && card.source !== CURATED_PLAYER_MEDIA_SOURCE
+      && !isShowcaseLibraryCard(card)
+    );
     const hydratedSeed = seedCards.map((card) => {
       const existing = card.source === CURATED_SHOWCASE_SOURCE ? existingShowcase : existingById.get(card.id);
       return existing

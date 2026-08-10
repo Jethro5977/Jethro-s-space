@@ -79,6 +79,10 @@
 
 ### 修复 / Fixes
 
+- 修复已删除精选卡残留在用户本地卡库的问题：精选卡库更新时不再把已移除的托管卡当作用户卡保留（Kyrie Irving `PM-049` 等已删卡随刷新自动清除），用户自建 DIY 卡不受影响；静态缓存 `app.js` → v45、`curated-library.json` → v6
+- EN: Fixed deleted curated cards lingering in user libraries: managed `curated-player-media` cards removed from the seed are now pruned on refresh (deleted cards such as Kyrie Irving `PM-049` disappear automatically), while user DIY cards are untouched; static caches `app.js` → v45 and `curated-library.json` → v6
+- 全量徽章审核完成：RC 仅出现在 Cooper Flagg（唯一新秀）卡片上，MVP 仅真实 MVP（Curry / LeBron / Giannis / Shai），ALL STAR 仅全明星球员，NUMBERED 与编号一一对应；在库 54 张卡全部通过
+- EN: Completed a full badge audit: RC appears only on Cooper Flagg (the only rookie) cards, MVP only on actual MVPs (Curry / LeBron / Giannis / Shai), ALL STAR only on All-Stars, and NUMBERED matches card serials; all 54 cards in the library pass
 - 按用户预览确认删除 4 个槽位：Kyrie Irving `PM-049`（上轮已删，本轮确认）、Cooper Flagg `PM-051` 与 `PM-052`、P.J. Washington `PM-058`；精选卡库现为 55 张（1 张官方展示卡 + 54 张人工影像卡）
 - EN: Removed 4 slots per user preview confirmation: Kyrie Irving `PM-049` (already removed last round), Cooper Flagg `PM-051` and `PM-052`, and P.J. Washington `PM-058`; the curated library is now 55 cards (1 official showcase + 54 manual media cards)
 - 按本地预览反馈调整精选卡：删除 Kyrie Irving `PM-049`；Cooper Flagg `PM-051` 改为 CUTOUT 保持完整构图；Cooper Flagg `PM-052` 与 Devin Booker `PM-056` 卡面左移微调；James Harden `PM-054` 改为 BASE 稀有度并移除 MVP 徽章；全量徽章审核后移除 Anthony Edwards 与 Jalen Brunson 卡片上错误的 MVP 标识
@@ -105,6 +109,8 @@
 
 ### 数据版本 / Data Versions
 
+- 静态缓存：`app.js` v44 → v45；`curated-library.json` v5 → v6（触发本地卡库托管卡清理）
+- EN: Static caches: `app.js` v44 → v45; `curated-library.json` v5 → v6 (triggers managed-card pruning in local libraries)
 - `player-media-manual-review` 批次保持 58 槽位；`sourceDataVersion` 8 → 9；精选卡库 58 → 55 张（4 个已删除槽位）
 - EN: `player-media-manual-review` batch keeps 58 slots; `sourceDataVersion` 8 → 9; curated library 58 → 55 cards (4 disabled slots)
 - `player-media-manual-review` 手工审核批次 58 条；`sourceDataVersion` 7 → 8；精选卡库共 58 张（1 张官方展示卡 + 57 张人工影像卡，含 1 张已删除占位）
