@@ -13,6 +13,7 @@ const curatedRoot = path.join(root, "assets", "player-media", "curated");
 const curatedCardDirectory = path.join(curatedRoot, "card");
 const curatedThumbDirectory = path.join(curatedRoot, "thumb");
 const importDirectory = path.join(root, ".local", "card-library");
+const publicLogoDirectory = path.join(root, "assets", "team-logos");
 const curatedLibraryPath = path.join(root, "data", "curated-library.json");
 const manifestPath = path.join(root, "data", "player-media-manual-review.json");
 const registryPath = path.join(root, "data", "player-registry.json");
@@ -37,6 +38,22 @@ const teamMeta = {
   HOU: { name: "HOUSTON ROCKETS", primary: "#CE1141", secondary: "#000000" },
   OKC: { name: "OKLAHOMA CITY THUNDER", primary: "#007AC1", secondary: "#EF6100" },
   PHI: { name: "PHILADELPHIA 76ERS", primary: "#006BB6", secondary: "#ED174C" },
+  BOS: { name: "BOSTON CELTICS", primary: "#007A33", secondary: "#BA9653" },
+  BKN: { name: "BROOKLYN NETS", primary: "#000000", secondary: "#FFFFFF" },
+  CHA: { name: "CHARLOTTE HORNETS", primary: "#1D1160", secondary: "#00788C" },
+  CHI: { name: "CHICAGO BULLS", primary: "#CE1141", secondary: "#000000" },
+  CLE: { name: "CLEVELAND CAVALIERS", primary: "#860038", secondary: "#FDBB30" },
+  DEN: { name: "DENVER NUGGETS", primary: "#0E2240", secondary: "#FEC524" },
+  IND: { name: "INDIANA PACERS", primary: "#002D62", secondary: "#FDBB30" },
+  MEM: { name: "MEMPHIS GRIZZLIES", primary: "#5D76A9", secondary: "#EAAA00" },
+  MIL: { name: "MILWAUKEE BUCKS", primary: "#00471B", secondary: "#EEE1C6" },
+  NOP: { name: "NEW ORLEANS PELICANS", primary: "#0C2340", secondary: "#C8102E" },
+  PHX: { name: "PHOENIX SUNS", primary: "#1D1160", secondary: "#E56020" },
+  POR: { name: "PORTLAND TRAIL BLAZERS", primary: "#E03A3E", secondary: "#000000" },
+  SAC: { name: "SACRAMENTO KINGS", primary: "#5A2D81", secondary: "#63727A" },
+  SAS: { name: "SAN ANTONIO SPURS", primary: "#000000", secondary: "#C4CED4" },
+  TOR: { name: "TORONTO RAPTORS", primary: "#CE1141", secondary: "#A1A1A4" },
+  UTA: { name: "UTAH JAZZ", primary: "#002B5C", secondary: "#F9A01B" },
   USA: { name: "USA BASKETBALL", primary: "#002868", secondary: "#BF0A30" }
 };
 
@@ -51,14 +68,53 @@ const teamLogoFiles = {
   LAL: "lakers.png",
   HOU: "Houston Rockets.png",
   OKC: "Oklahoma City Thunder.png",
-  PHI: "Philadelphia 76ers .png"
+  PHI: "Philadelphia 76ers .png",
+  BOS: "Boston Celtics.png",
+  BKN: "Brooklyn Nets .png",
+  CHA: " Charlotte Hornets.png",
+  CHI: "Chicago Bulls.png",
+  CLE: " Cleveland Cavaliers.png",
+  DEN: "Denver Nuggets.png",
+  IND: "Pacers.png",
+  MEM: "Memphis Grizzlies.png",
+  MIL: " Milwaukee Bucks.png",
+  NOP: "New Orleans Pelicans.png",
+  PHX: "SUNS.png",
+  POR: "Portland Trail Blazers.png",
+  SAC: "acramento Kings.png",
+  SAS: "San Antonio Spurs .png",
+  TOR: "Raptors.png",
+  UTA: "Utah Jazz .png"
 };
 
 const officialTeamLogoUrls = {
+  ATL: "https://cdn.nba.com/logos/nba/1610612737/primary/L/logo.svg",
+  BOS: "https://cdn.nba.com/logos/nba/1610612738/primary/L/logo.svg",
+  BKN: "https://cdn.nba.com/logos/nba/1610612751/primary/L/logo.svg",
+  CHA: "https://cdn.nba.com/logos/nba/1610612766/primary/L/logo.svg",
+  CHI: "https://cdn.nba.com/logos/nba/1610612741/primary/L/logo.svg",
+  CLE: "https://cdn.nba.com/logos/nba/1610612739/primary/L/logo.svg",
   DAL: "https://cdn.nba.com/logos/nba/1610612742/primary/L/logo.svg",
+  DEN: "https://cdn.nba.com/logos/nba/1610612743/primary/L/logo.svg",
+  DET: "https://cdn.nba.com/logos/nba/1610612765/primary/L/logo.svg",
   GSW: "https://cdn.nba.com/logos/nba/1610612744/primary/L/logo.svg",
+  HOU: "https://cdn.nba.com/logos/nba/1610612745/primary/L/logo.svg",
+  IND: "https://cdn.nba.com/logos/nba/1610612754/primary/L/logo.svg",
+  LAL: "https://cdn.nba.com/logos/nba/1610612747/primary/L/logo.svg",
+  MEM: "https://cdn.nba.com/logos/nba/1610612763/primary/L/logo.svg",
+  MIA: "https://cdn.nba.com/logos/nba/1610612748/primary/L/logo.svg",
+  MIL: "https://cdn.nba.com/logos/nba/1610612749/primary/L/logo.svg",
   MIN: "https://cdn.nba.com/logos/nba/1610612750/primary/L/logo.svg",
+  NOP: "https://cdn.nba.com/logos/nba/1610612740/primary/L/logo.svg",
   NYK: "https://cdn.nba.com/logos/nba/1610612752/primary/L/logo.svg",
+  OKC: "https://cdn.nba.com/logos/nba/1610612760/primary/L/logo.svg",
+  PHI: "https://cdn.nba.com/logos/nba/1610612755/primary/L/logo.svg",
+  PHX: "https://cdn.nba.com/logos/nba/1610612756/primary/L/logo.svg",
+  POR: "https://cdn.nba.com/logos/nba/1610612757/primary/L/logo.svg",
+  SAC: "https://cdn.nba.com/logos/nba/1610612758/primary/L/logo.svg",
+  SAS: "https://cdn.nba.com/logos/nba/1610612759/primary/L/logo.svg",
+  TOR: "https://cdn.nba.com/logos/nba/1610612761/primary/L/logo.svg",
+  UTA: "https://cdn.nba.com/logos/nba/1610612762/primary/L/logo.svg",
   WAS: "https://cdn.nba.com/logos/nba/1610612764/primary/L/logo.svg"
 };
 
@@ -94,6 +150,13 @@ const playerProfiles = {
     bio: "A second-round steal turned franchise cornerstone, thriving through footwork, strength and fearless mid-range shot making.",
     sourceUrl: "https://www.nba.com/stats/player/1628973?Season=2025-26&SeasonType=Regular%20Season"
   },
+  "james harden": {
+    height: "6'5\"", weight: "220 LB", hometown: "LOS ANGELES, CALIFORNIA",
+    draft: "2009 / ROUND 1 / PICK 3", season: "2025-26",
+    gp: "70", ppg: "23.6", rpg: "4.8", apg: "8.0", fg: "43.4", tp: "37.5",
+    bio: "A former MVP and masterful floor general who joined Cleveland in a February 2026 trade, pairing crafty playmaking with elite court vision.",
+    sourceUrl: "https://www.nba.com/player/201935/james-harden"
+  },
   "giannis antetokounmpo": {
     height: "6'11\"", weight: "243 LB", hometown: "ATHENS, GREECE",
     draft: "2013 / ROUND 1 / PICK 15", season: "2025-26",
@@ -107,6 +170,20 @@ const playerProfiles = {
     gp: "73", ppg: "20.1", rpg: "10.0", apg: "3.2", fg: "44.2", tp: "31.8",
     bio: "A versatile Miami cornerstone who anchors elite defenses, switches across positions and adds screening, passing and interior scoring on offense.",
     sourceUrl: "https://www.nba.com/stats/player/1628389/traditional"
+  },
+  "kyrie irving": {
+    height: "6'2\"", weight: "195 LB", hometown: "MELBOURNE, AUSTRALIA",
+    draft: "2011 / ROUND 1 / PICK 1", season: "2025-26",
+    gp: "50", ppg: "24.7", rpg: "4.8", apg: "4.6", fg: "47.3", tp: "40.1",
+    bio: "A mesmerizing ball-handler and impossible finisher whose ambidextrous touch turns broken possessions into art. Out for the 2025-26 season with a knee injury; stats shown are from 2024-25.",
+    sourceUrl: "https://www.nba.com/player/202681/kyrie-irving"
+  },
+  "klay thompson": {
+    height: "6'6\"", weight: "215 LB", hometown: "LOS ANGELES, CALIFORNIA",
+    draft: "2011 / ROUND 1 / PICK 11", season: "2025-26",
+    gp: "69", ppg: "11.7", rpg: "2.1", apg: "1.4", fg: "39.3", tp: "38.3",
+    bio: "One of the greatest shooters in NBA history and a four-time champion whose lightning release and off-ball movement defined Golden State's dynasty; now a veteran wing in Dallas.",
+    sourceUrl: "https://www.nba.com/stats/player/202691?Season=2025-26&SeasonType=Regular%20Season"
   },
   "cade cunningham": {
     height: "6'6\"", weight: "220 LB", hometown: "ARLINGTON, TEXAS",
@@ -236,6 +313,14 @@ async function loadTeamLogoData(teamCode) {
     const response = await fetch(officialTeamLogoUrls[teamCode]);
     if (!response.ok) throw new Error(`Could not load ${teamCode} logo (${response.status})`);
     sourceBuffer = Buffer.from(await response.arrayBuffer());
+  }
+
+  if (!sourceBuffer) {
+    try {
+      sourceBuffer = await fs.readFile(path.join(publicLogoDirectory, `${teamCode}.webp`));
+    } catch {
+      sourceBuffer = null;
+    }
   }
 
   if (!sourceBuffer) return null;

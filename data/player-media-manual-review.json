@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "batchId": "manual-2026-08-09-01",
-  "sourceDataVersion": 5,
-  "reviewedAt": "2026-08-09T13:20:00.000Z",
+  "sourceDataVersion": 6,
+  "reviewedAt": "2026-08-11T02:00:00.000Z",
   "reviewedBy": "codex-visual-review",
   "rightsPolicy": "Private personal-card use only until source and licence are supplied.",
   "items": [
@@ -13,13 +13,20 @@
       "title": "Cooper Flagg 2025-26 cover athlete graphic",
       "teamAtCapture": "DAL",
       "season": "2025-26",
-      "tags": ["cover-athlete", "rookie", "branded-graphic"],
+      "tags": [
+        "cover-athlete",
+        "rookie",
+        "branded-graphic"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_graphic",
       "style": "prism",
       "effect": "lightning",
       "rarity": "silver",
-      "badges": ["rc", "numbered"]
+      "badges": [
+        "rc",
+        "numbered"
+      ]
     },
     {
       "file": "cooperflagg2.png",
@@ -28,13 +35,19 @@
       "title": "Cooper Flagg Dallas city illustration",
       "teamAtCapture": "DAL",
       "season": "2025-26",
-      "tags": ["rookie", "illustration", "city-edition"],
+      "tags": [
+        "rookie",
+        "illustration",
+        "city-edition"
+      ],
       "matchConfidence": 0.98,
       "composition": "single_subject_illustration",
       "style": "tactical",
       "effect": "laser",
       "rarity": "neon",
-      "badges": ["rc"]
+      "badges": [
+        "rc"
+      ]
     },
     {
       "file": "cooperflagg3.png",
@@ -43,13 +56,21 @@
       "title": "Cooper Flagg number 32 dunk poster",
       "teamAtCapture": "DAL",
       "season": "2025-26",
-      "tags": ["rookie", "dunk", "poster", "illustration"],
+      "tags": [
+        "rookie",
+        "dunk",
+        "poster",
+        "illustration"
+      ],
       "matchConfidence": 0.97,
       "composition": "single_subject_poster",
       "style": "select",
       "effect": "galaxy",
       "rarity": "gold",
-      "badges": ["rc", "numbered"]
+      "badges": [
+        "rc",
+        "numbered"
+      ]
     },
     {
       "file": "curry1.png",
@@ -58,13 +79,19 @@
       "title": "Stephen Curry on-court celebration",
       "teamAtCapture": "GSW",
       "season": null,
-      "tags": ["game", "celebration", "warriors"],
+      "tags": [
+        "game",
+        "celebration",
+        "warriors"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "prism",
       "effect": "diamond",
       "rarity": "silver",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
       "file": "curry2.png",
@@ -73,7 +100,11 @@
       "title": "Stephen Curry 12-time All-Star graphic",
       "teamAtCapture": "GSW",
       "season": "2025-26",
-      "tags": ["all-star", "12x", "branded-graphic"],
+      "tags": [
+        "all-star",
+        "12x",
+        "branded-graphic"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_graphic",
       "style": "optic",
@@ -88,7 +119,10 @@
         "y": 68,
         "scale": 0.92
       },
-      "badges": ["allstar", "numbered"]
+      "badges": [
+        "allstar",
+        "numbered"
+      ]
     },
     {
       "file": "curry3.png",
@@ -97,7 +131,11 @@
       "title": "Stephen Curry dribbling in game action",
       "teamAtCapture": "GSW",
       "season": null,
-      "tags": ["game-action", "dribble", "warriors"],
+      "tags": [
+        "game-action",
+        "dribble",
+        "warriors"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "mosaic",
@@ -117,13 +155,19 @@
       "title": "Stephen Curry black-uniform celebration",
       "teamAtCapture": "GSW",
       "season": null,
-      "tags": ["game", "celebration", "alternate-uniform"],
+      "tags": [
+        "game",
+        "celebration",
+        "alternate-uniform"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "heritage",
       "effect": "flame",
       "rarity": "rwb",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
       "file": "curry5.png",
@@ -133,14 +177,22 @@
       "capturedAt": "2025-02-16T00:00:00.000Z",
       "teamAtCapture": "GSW",
       "season": "2024-25",
-      "tags": ["all-star", "mvp", "trophy", "celebration"],
+      "tags": [
+        "all-star",
+        "mvp",
+        "trophy",
+        "celebration"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "factReference": "https://www.nba.com/allstar/2025",
       "style": "select",
       "effect": "galaxy",
       "rarity": "gold",
-      "badges": ["allstar", "mvp"]
+      "badges": [
+        "allstar",
+        "mvp"
+      ]
     },
     {
       "file": "edwards1.png",
@@ -149,13 +201,19 @@
       "title": "Anthony Edwards number 5 shooting",
       "teamAtCapture": "MIN",
       "season": null,
-      "tags": ["game-action", "shooting", "back-view"],
+      "tags": [
+        "game-action",
+        "shooting",
+        "back-view"
+      ],
       "matchConfidence": 0.97,
       "composition": "single_subject_photo_back_view",
       "style": "prism",
       "effect": "lightning",
       "rarity": "silver",
-      "badges": ["numbered"]
+      "badges": [
+        "numbered"
+      ]
     },
     {
       "file": "edwards2.png",
@@ -164,7 +222,11 @@
       "title": "Anthony Edwards attacking the basket",
       "teamAtCapture": "MIN",
       "season": null,
-      "tags": ["game-action", "drive", "timberwolves"],
+      "tags": [
+        "game-action",
+        "drive",
+        "timberwolves"
+      ],
       "matchConfidence": 0.99,
       "composition": "primary_subject_with_opponents",
       "style": "tactical",
@@ -179,13 +241,20 @@
       "title": "Anthony Edwards and Justin Jefferson ESPN cover",
       "teamAtCapture": "MIN",
       "season": null,
-      "tags": ["magazine-cover", "espn", "multi-subject", "justin-jefferson"],
+      "tags": [
+        "magazine-cover",
+        "espn",
+        "multi-subject",
+        "justin-jefferson"
+      ],
       "matchConfidence": 0.99,
       "composition": "multi_subject_branded_cover",
       "style": "mosaic",
       "effect": "rainbow",
       "rarity": "silver",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
       "file": "edwards4.png",
@@ -195,13 +264,19 @@
       "capturedAt": "2024-08-10T00:00:00.000Z",
       "teamAtCapture": "USA",
       "season": "2024",
-      "tags": ["olympics", "gold-medal", "team-usa"],
+      "tags": [
+        "olympics",
+        "gold-medal",
+        "team-usa"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "select",
       "effect": "crystal",
       "rarity": "gold",
-      "badges": ["mvp"]
+      "badges": [
+        "mvp"
+      ]
     },
     {
       "file": "edwards5.png",
@@ -210,13 +285,19 @@
       "title": "Anthony Edwards Team USA media portrait",
       "teamAtCapture": "USA",
       "season": "2024",
-      "tags": ["team-usa", "media-day", "portrait"],
+      "tags": [
+        "team-usa",
+        "media-day",
+        "portrait"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "optic",
       "effect": "holographic",
       "rarity": "rwb",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
       "file": "jalenburson.png",
@@ -226,14 +307,22 @@
       "capturedAt": "2026-06-14T00:00:00.000Z",
       "teamAtCapture": "NYK",
       "season": "2025-26",
-      "tags": ["nba-champion", "finals-mvp", "trophy", "celebration"],
+      "tags": [
+        "nba-champion",
+        "finals-mvp",
+        "trophy",
+        "celebration"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "factReference": "https://www.nba.com/news/history-finals-mvp-winners",
       "style": "heritage",
       "effect": "galaxy",
       "rarity": "gold",
-      "badges": ["mvp", "numbered"]
+      "badges": [
+        "mvp",
+        "numbered"
+      ]
     },
     {
       "file": "jalenburson1.png",
@@ -242,7 +331,11 @@
       "title": "Jalen Brunson shooting follow-through",
       "teamAtCapture": "NYK",
       "season": null,
-      "tags": ["game-action", "shooting", "knicks"],
+      "tags": [
+        "game-action",
+        "shooting",
+        "knicks"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "prism",
@@ -257,13 +350,19 @@
       "title": "Jalen Brunson on-court celebration",
       "teamAtCapture": "NYK",
       "season": null,
-      "tags": ["game", "celebration", "knicks"],
+      "tags": [
+        "game",
+        "celebration",
+        "knicks"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "optic",
       "effect": "laser",
       "rarity": "neon",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
       "file": "traeyoung1.png",
@@ -272,13 +371,19 @@
       "title": "Trae Young Washington media portrait",
       "teamAtCapture": "WAS",
       "season": "2025-26",
-      "tags": ["wizards", "media-day", "portrait"],
+      "tags": [
+        "wizards",
+        "media-day",
+        "portrait"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_photo",
       "style": "tactical",
       "effect": "neon",
       "rarity": "neon",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
       "file": "traeyoung2.png",
@@ -289,187 +394,820 @@
       "teamAtCapture": "ATL",
       "numberAtCapture": "11",
       "season": "2024-25",
-      "tags": ["all-star", "2025", "branded-graphic"],
+      "tags": [
+        "all-star",
+        "2025",
+        "branded-graphic"
+      ],
       "matchConfidence": 0.99,
       "composition": "single_subject_graphic",
       "factReference": "https://www.nba.com/news/hawks-trae-young-named-injury-replacement-2025-nba-all-star-game",
       "style": "select",
       "effect": "rainbow",
       "rarity": "silver",
-      "badges": ["allstar"]
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "antetokounmpo.png", "playerKey": "giannis antetokounmpo", "category": "media_day",
-      "title": "Giannis Antetokounmpo Miami Heat portrait", "teamAtCapture": "MIA", "season": "2026-27",
-      "tags": ["heat", "portrait", "new-team"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "select", "effect": "galaxy", "rarity": "gold", "logoScale": 120, "slabType": "acrylic", "badges": ["mvp", "allstar"]
+      "file": "antetokounmpo.png",
+      "playerKey": "giannis antetokounmpo",
+      "category": "media_day",
+      "title": "Giannis Antetokounmpo Miami Heat portrait",
+      "teamAtCapture": "MIA",
+      "season": "2026-27",
+      "tags": [
+        "heat",
+        "portrait",
+        "new-team"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "gold",
+      "logoScale": 120,
+      "slabType": "acrylic",
+      "badges": [
+        "mvp",
+        "allstar"
+      ]
     },
     {
-      "file": "bam.png", "playerKey": "bam adebayo", "category": "commemorative",
-      "title": "Bam Adebayo Miami 8/3 Day portrait", "teamAtCapture": "MIA", "season": "2025-26",
-      "tags": ["heat", "portrait", "8-3-day"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "heritage", "effect": "flame", "rarity": "rwb", "logoScale": 120, "badges": ["allstar"]
+      "file": "bam.png",
+      "playerKey": "bam adebayo",
+      "category": "commemorative",
+      "title": "Bam Adebayo Miami 8/3 Day portrait",
+      "teamAtCapture": "MIA",
+      "season": "2025-26",
+      "tags": [
+        "heat",
+        "portrait",
+        "8-3-day"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "heritage",
+      "effect": "flame",
+      "rarity": "rwb",
+      "logoScale": 120,
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "cc1.png", "playerKey": "cade cunningham", "category": "commemorative",
-      "title": "Cade Cunningham Detroit magazine cover", "teamAtCapture": "DET", "season": null,
-      "tags": ["pistons", "magazine-cover", "portrait"], "matchConfidence": 0.99, "composition": "single_subject_branded_cover",
-      "style": "optic", "effect": "lightning", "rarity": "silver", "badges": ["allstar"]
+      "file": "cc1.png",
+      "playerKey": "cade cunningham",
+      "category": "commemorative",
+      "title": "Cade Cunningham Detroit magazine cover",
+      "teamAtCapture": "DET",
+      "season": null,
+      "tags": [
+        "pistons",
+        "magazine-cover",
+        "portrait"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_cover",
+      "style": "optic",
+      "effect": "lightning",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "cc2.png", "playerKey": "cade cunningham", "category": "game_action",
-      "title": "Cade Cunningham number 2 game action", "teamAtCapture": "DET", "season": null,
-      "tags": ["pistons", "game-action", "number-2"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "diamond", "rarity": "silver", "badges": ["numbered"]
+      "file": "cc2.png",
+      "playerKey": "cade cunningham",
+      "category": "game_action",
+      "title": "Cade Cunningham number 2 game action",
+      "teamAtCapture": "DET",
+      "season": null,
+      "tags": [
+        "pistons",
+        "game-action",
+        "number-2"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "diamond",
+      "rarity": "silver",
+      "badges": [
+        "numbered"
+      ]
     },
     {
-      "file": "cc3.png", "playerKey": "cade cunningham", "category": "game_action",
-      "title": "Cade Cunningham Pistons game portrait", "teamAtCapture": "DET", "season": null,
-      "tags": ["pistons", "game", "portrait"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "tactical", "effect": "laser", "rarity": "neon", "badges": []
+      "file": "cc3.png",
+      "playerKey": "cade cunningham",
+      "category": "game_action",
+      "title": "Cade Cunningham Pistons game portrait",
+      "teamAtCapture": "DET",
+      "season": null,
+      "tags": [
+        "pistons",
+        "game",
+        "portrait"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "tactical",
+      "effect": "laser",
+      "rarity": "neon",
+      "badges": []
     },
     {
-      "file": "cc4.png", "playerKey": "cade cunningham", "category": "profile",
-      "title": "Cade Cunningham Detroit portrait", "teamAtCapture": "DET", "season": null,
-      "tags": ["pistons", "portrait", "profile"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "mosaic", "effect": "rainbow", "rarity": "silver", "badges": ["allstar"]
+      "file": "cc4.png",
+      "playerKey": "cade cunningham",
+      "category": "profile",
+      "title": "Cade Cunningham Detroit portrait",
+      "teamAtCapture": "DET",
+      "season": null,
+      "tags": [
+        "pistons",
+        "portrait",
+        "profile"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "mosaic",
+      "effect": "rainbow",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "cc5.png", "playerKey": "cade cunningham", "category": "game_action",
-      "title": "Cade Cunningham attacking in game action", "teamAtCapture": "DET", "season": null,
-      "tags": ["pistons", "game-action", "drive"], "matchConfidence": 0.99, "composition": "primary_subject_with_opponents",
-      "style": "select", "effect": "galaxy", "rarity": "gold", "badges": []
+      "file": "cc5.png",
+      "playerKey": "cade cunningham",
+      "category": "game_action",
+      "title": "Cade Cunningham attacking in game action",
+      "teamAtCapture": "DET",
+      "season": null,
+      "tags": [
+        "pistons",
+        "game-action",
+        "drive"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "primary_subject_with_opponents",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "gold",
+      "badges": []
     },
     {
-      "file": "cc7.png", "playerKey": "cade cunningham", "category": "game_action",
-      "title": "Cade Cunningham number 2 action portrait", "teamAtCapture": "DET", "season": null,
-      "tags": ["pistons", "game-action", "number-2"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "heritage", "effect": "crystal", "rarity": "rwb", "badges": ["numbered"]
+      "file": "cc7.png",
+      "playerKey": "cade cunningham",
+      "category": "game_action",
+      "title": "Cade Cunningham number 2 action portrait",
+      "teamAtCapture": "DET",
+      "season": null,
+      "tags": [
+        "pistons",
+        "game-action",
+        "number-2"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "heritage",
+      "effect": "crystal",
+      "rarity": "rwb",
+      "badges": [
+        "numbered"
+      ]
     },
     {
-      "file": "doncic1.png", "playerKey": "luka doncic", "category": "game_action",
-      "title": "Luka Doncic Lakers number 77 game portrait", "teamAtCapture": "LAL", "season": "2025-26",
-      "tags": ["lakers", "game-action", "number-77"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "lightning", "rarity": "gold", "badges": ["allstar", "numbered"]
+      "file": "doncic1.png",
+      "playerKey": "luka doncic",
+      "category": "game_action",
+      "title": "Luka Doncic Lakers number 77 game portrait",
+      "teamAtCapture": "LAL",
+      "season": "2025-26",
+      "tags": [
+        "lakers",
+        "game-action",
+        "number-77"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "lightning",
+      "rarity": "gold",
+      "badges": [
+        "allstar",
+        "numbered"
+      ]
     },
     {
-      "file": "JalenBurson3.png", "playerKey": "jalen brunson", "category": "celebration",
-      "title": "Jalen Brunson Knicks championship parade", "teamAtCapture": "NYK", "season": "2025-26",
-      "tags": ["knicks", "championship", "parade", "trophy"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "select", "effect": "galaxy", "rarity": "gold", "badges": ["mvp"]
+      "file": "JalenBurson3.png",
+      "playerKey": "jalen brunson",
+      "category": "celebration",
+      "title": "Jalen Brunson Knicks championship parade",
+      "teamAtCapture": "NYK",
+      "season": "2025-26",
+      "tags": [
+        "knicks",
+        "championship",
+        "parade",
+        "trophy"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "gold",
+      "badges": [
+        "mvp"
+      ]
     },
     {
-      "file": "JalenBurson5.png", "playerKey": "jalen brunson", "category": "milestone",
-      "title": "Jalen Brunson championship and Finals MVP trophies", "teamAtCapture": "NYK", "season": "2025-26",
-      "tags": ["knicks", "championship", "finals-mvp", "trophies"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "optic", "effect": "diamond", "rarity": "gold", "badges": ["mvp", "numbered"]
+      "file": "JalenBurson5.png",
+      "playerKey": "jalen brunson",
+      "category": "milestone",
+      "title": "Jalen Brunson championship and Finals MVP trophies",
+      "teamAtCapture": "NYK",
+      "season": "2025-26",
+      "tags": [
+        "knicks",
+        "championship",
+        "finals-mvp",
+        "trophies"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "optic",
+      "effect": "diamond",
+      "rarity": "gold",
+      "badges": [
+        "mvp",
+        "numbered"
+      ]
     },
     {
-      "file": "james.png", "playerKey": "lebron james", "category": "game_action",
-      "title": "LeBron James Lakers number 23 game action", "teamAtCapture": "LAL", "season": "2025-26",
-      "tags": ["lakers", "game-action", "number-23"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "diamond", "rarity": "silver", "cardTeam": "LAL", "badges": ["allstar"]
+      "file": "james.png",
+      "playerKey": "lebron james",
+      "category": "game_action",
+      "title": "LeBron James Lakers number 23 game action",
+      "teamAtCapture": "LAL",
+      "season": "2025-26",
+      "tags": [
+        "lakers",
+        "game-action",
+        "number-23"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "diamond",
+      "rarity": "silver",
+      "cardTeam": "LAL",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "james1.png", "playerKey": "lebron james", "category": "profile",
-      "title": "LeBron James Lakers portrait", "teamAtCapture": "LAL", "season": "2025-26",
-      "tags": ["lakers", "portrait", "number-23"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "none", "rarity": "base", "cardTeam": "LAL", "homepageOrder": 3, "badges": ["allstar"]
+      "file": "james1.png",
+      "playerKey": "lebron james",
+      "category": "profile",
+      "title": "LeBron James Lakers portrait",
+      "teamAtCapture": "LAL",
+      "season": "2025-26",
+      "tags": [
+        "lakers",
+        "portrait",
+        "number-23"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "none",
+      "rarity": "base",
+      "cardTeam": "LAL",
+      "homepageOrder": 3,
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "james12.png", "playerKey": "lebron james", "category": "milestone",
-      "title": "LeBron James 43000 career points milestone", "teamAtCapture": "LAL", "season": "2025-26",
-      "tags": ["lakers", "milestone", "43000-points"], "matchConfidence": 0.99, "composition": "single_subject_branded_graphic",
-      "style": "select", "effect": "galaxy", "rarity": "black", "cardTeam": "LAL", "imageMode": "cutout",
-      "photoScale": 126, "photoX": 0, "photoY": 4, "cardNum": "1/1", "slabType": "gallery",
-      "signature": { "asset": "assets/signatures/lebron-james-black.png", "color": "gold", "placement": "front", "x": 64, "y": 67, "scale": 0.93 },
-      "badges": ["mvp", "numbered"]
+      "file": "james12.png",
+      "playerKey": "lebron james",
+      "category": "milestone",
+      "title": "LeBron James 43000 career points milestone",
+      "teamAtCapture": "LAL",
+      "season": "2025-26",
+      "tags": [
+        "lakers",
+        "milestone",
+        "43000-points"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_graphic",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "black",
+      "cardTeam": "LAL",
+      "imageMode": "cutout",
+      "photoScale": 126,
+      "photoX": 0,
+      "photoY": 4,
+      "cardNum": "1/1",
+      "slabType": "gallery",
+      "signature": {
+        "asset": "assets/signatures/lebron-james-black.png",
+        "color": "gold",
+        "placement": "front",
+        "x": 64,
+        "y": 67,
+        "scale": 0.93
+      },
+      "badges": [
+        "mvp",
+        "numbered"
+      ]
     },
     {
-      "file": "kd1.png", "playerKey": "kevin durant", "category": "milestone",
-      "title": "Kevin Durant All-NBA Second Team graphic", "teamAtCapture": "HOU", "season": "2025-26",
-      "tags": ["rockets", "all-nba", "branded-graphic"], "matchConfidence": 0.99, "composition": "single_subject_branded_graphic",
-      "style": "optic", "effect": "laser", "rarity": "gold", "badges": ["allstar"]
+      "file": "kd1.png",
+      "playerKey": "kevin durant",
+      "category": "milestone",
+      "title": "Kevin Durant All-NBA Second Team graphic",
+      "teamAtCapture": "HOU",
+      "season": "2025-26",
+      "tags": [
+        "rockets",
+        "all-nba",
+        "branded-graphic"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_graphic",
+      "style": "optic",
+      "effect": "laser",
+      "rarity": "gold",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "kd2.png", "playerKey": "kevin durant", "category": "media_day",
-      "title": "Kevin Durant Houston Rockets number 7 portrait", "teamAtCapture": "HOU", "season": "2025-26",
-      "tags": ["rockets", "media-day", "number-7"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "tactical", "effect": "holographic", "rarity": "neon", "badges": ["allstar", "numbered"]
+      "file": "kd2.png",
+      "playerKey": "kevin durant",
+      "category": "media_day",
+      "title": "Kevin Durant Houston Rockets number 7 portrait",
+      "teamAtCapture": "HOU",
+      "season": "2025-26",
+      "tags": [
+        "rockets",
+        "media-day",
+        "number-7"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "tactical",
+      "effect": "holographic",
+      "rarity": "neon",
+      "badges": [
+        "allstar",
+        "numbered"
+      ]
     },
     {
-      "file": "maxies.png", "playerKey": "tyrese maxey", "category": "game_action",
-      "title": "Tyrese Maxey Philadelphia game action", "teamAtCapture": "PHI", "season": null,
-      "tags": ["76ers", "game-action", "number-0"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "diamond", "rarity": "silver", "badges": ["allstar"]
+      "file": "maxies.png",
+      "playerKey": "tyrese maxey",
+      "category": "game_action",
+      "title": "Tyrese Maxey Philadelphia game action",
+      "teamAtCapture": "PHI",
+      "season": null,
+      "tags": [
+        "76ers",
+        "game-action",
+        "number-0"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "diamond",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "maxies1.png", "playerKey": "tyrese maxey", "category": "profile",
-      "title": "Tyrese Maxey Philadelphia portrait", "teamAtCapture": "PHI", "season": null,
-      "tags": ["76ers", "portrait", "number-0"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "optic", "effect": "lightning", "rarity": "gold", "badges": ["allstar"]
+      "file": "maxies1.png",
+      "playerKey": "tyrese maxey",
+      "category": "profile",
+      "title": "Tyrese Maxey Philadelphia portrait",
+      "teamAtCapture": "PHI",
+      "season": null,
+      "tags": [
+        "76ers",
+        "portrait",
+        "number-0"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "optic",
+      "effect": "lightning",
+      "rarity": "gold",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "maxies2.png", "playerKey": "tyrese maxey", "category": "media_day",
-      "title": "Tyrese Maxey Philadelphia media portrait", "teamAtCapture": "PHI", "season": null,
-      "tags": ["76ers", "media-day", "portrait"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "mosaic", "effect": "rainbow", "rarity": "silver", "badges": ["allstar"]
+      "file": "maxies2.png",
+      "playerKey": "tyrese maxey",
+      "category": "media_day",
+      "title": "Tyrese Maxey Philadelphia media portrait",
+      "teamAtCapture": "PHI",
+      "season": null,
+      "tags": [
+        "76ers",
+        "media-day",
+        "portrait"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "mosaic",
+      "effect": "rainbow",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
     },
     {
-      "file": "maxies4.png", "playerKey": "tyrese maxey", "category": "game_action",
-      "title": "Tyrese Maxey attacking in Philadelphia uniform", "teamAtCapture": "PHI", "season": null,
-      "tags": ["76ers", "game-action", "drive"], "matchConfidence": 0.99, "composition": "primary_subject_with_opponents",
-      "style": "select", "effect": "galaxy", "rarity": "gold", "badges": []
+      "file": "maxies4.png",
+      "playerKey": "tyrese maxey",
+      "category": "game_action",
+      "title": "Tyrese Maxey attacking in Philadelphia uniform",
+      "teamAtCapture": "PHI",
+      "season": null,
+      "tags": [
+        "76ers",
+        "game-action",
+        "drive"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "primary_subject_with_opponents",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "gold",
+      "badges": []
     },
     {
-      "file": "shai.png", "playerKey": "shai gilgeous-alexander", "category": "game_action",
-      "title": "Shai Gilgeous-Alexander Oklahoma City game action", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "game-action", "number-2"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "lightning", "rarity": "silver", "badges": ["mvp"]
+      "file": "shai.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "game_action",
+      "title": "Shai Gilgeous-Alexander Oklahoma City game action",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "game-action",
+        "number-2"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "lightning",
+      "rarity": "silver",
+      "badges": [
+        "mvp"
+      ]
     },
     {
-      "file": "shai1.png", "playerKey": "shai gilgeous-alexander", "category": "commemorative",
-      "title": "Shai Gilgeous-Alexander SLAM cover", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "slam-cover", "magazine"], "matchConfidence": 0.99, "composition": "single_subject_branded_cover",
-      "style": "optic", "effect": "diamond", "rarity": "gold", "badges": ["mvp", "allstar"]
+      "file": "shai1.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "commemorative",
+      "title": "Shai Gilgeous-Alexander SLAM cover",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "slam-cover",
+        "magazine"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_cover",
+      "style": "optic",
+      "effect": "diamond",
+      "rarity": "gold",
+      "badges": [
+        "mvp",
+        "allstar"
+      ]
     },
     {
-      "file": "shai2.png", "playerKey": "shai gilgeous-alexander", "category": "game_action",
-      "title": "Shai Gilgeous-Alexander number 2 game portrait", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "game-action", "number-2"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "lightning", "rarity": "silver", "homepageOrder": 2, "slabType": "acrylic",
-      "signature": { "asset": "assets/signatures/shai-gilgeous-alexander-blue.png", "color": "gold", "placement": "front", "x": 67, "y": 68, "scale": 0.9 },
-      "badges": ["mvp"]
+      "file": "shai2.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "game_action",
+      "title": "Shai Gilgeous-Alexander number 2 game portrait",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "game-action",
+        "number-2"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "lightning",
+      "rarity": "silver",
+      "homepageOrder": 2,
+      "slabType": "acrylic",
+      "signature": {
+        "asset": "assets/signatures/shai-gilgeous-alexander-blue.png",
+        "color": "gold",
+        "placement": "front",
+        "x": 67,
+        "y": 68,
+        "scale": 0.9
+      },
+      "badges": [
+        "mvp"
+      ]
     },
     {
-      "file": "shai3.png", "playerKey": "shai gilgeous-alexander", "category": "commemorative",
-      "title": "Generation Shai SLAM cover", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "slam-cover", "generation-shai"], "matchConfidence": 0.99, "composition": "single_subject_branded_cover",
-      "style": "mosaic", "effect": "rainbow", "rarity": "rwb", "badges": ["mvp"]
+      "file": "shai3.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "commemorative",
+      "title": "Generation Shai SLAM cover",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "slam-cover",
+        "generation-shai"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_cover",
+      "style": "mosaic",
+      "effect": "rainbow",
+      "rarity": "rwb",
+      "badges": [
+        "mvp"
+      ]
     },
     {
-      "file": "shai4.png", "playerKey": "shai gilgeous-alexander", "category": "commemorative",
-      "title": "Shai Gilgeous-Alexander number 2 illustration", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "illustration", "number-2"], "matchConfidence": 0.98, "composition": "single_subject_illustration",
-      "style": "prism", "effect": "crystal", "rarity": "silver", "slabType": "acrylic", "badges": ["mvp"]
+      "file": "shai4.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "commemorative",
+      "title": "Shai Gilgeous-Alexander number 2 illustration",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "illustration",
+        "number-2"
+      ],
+      "matchConfidence": 0.98,
+      "composition": "single_subject_illustration",
+      "style": "prism",
+      "effect": "crystal",
+      "rarity": "silver",
+      "slabType": "acrylic",
+      "badges": [
+        "mvp"
+      ]
     },
     {
-      "file": "shai5.png", "playerKey": "shai gilgeous-alexander", "category": "profile",
-      "title": "Shai Gilgeous-Alexander studio media portrait", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "studio", "media"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "select", "effect": "crystal", "rarity": "silver", "badges": ["mvp"]
+      "file": "shai5.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "profile",
+      "title": "Shai Gilgeous-Alexander studio media portrait",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "studio",
+        "media"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "select",
+      "effect": "crystal",
+      "rarity": "silver",
+      "badges": [
+        "mvp"
+      ]
     },
     {
-      "file": "shai6.png", "playerKey": "shai gilgeous-alexander", "category": "commemorative",
-      "title": "Shai Gilgeous-Alexander magazine action cover", "teamAtCapture": "OKC", "season": null,
-      "tags": ["thunder", "magazine-cover", "game-action"], "matchConfidence": 0.99, "composition": "single_subject_branded_cover",
-      "style": "optic", "effect": "lightning", "rarity": "gold", "badges": ["mvp", "allstar"]
+      "file": "shai6.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "commemorative",
+      "title": "Shai Gilgeous-Alexander magazine action cover",
+      "teamAtCapture": "OKC",
+      "season": null,
+      "tags": [
+        "thunder",
+        "magazine-cover",
+        "game-action"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_cover",
+      "style": "optic",
+      "effect": "lightning",
+      "rarity": "gold",
+      "badges": [
+        "mvp",
+        "allstar"
+      ]
     },
     {
-      "file": "shai7.png", "playerKey": "shai gilgeous-alexander", "category": "celebration",
-      "title": "Shai Gilgeous-Alexander championship parade trophy", "teamAtCapture": "OKC", "season": "2025-26",
-      "tags": ["thunder", "championship", "parade", "trophy"], "matchConfidence": 0.99, "composition": "single_subject_photo",
-      "style": "prism", "effect": "galaxy", "rarity": "gold", "slabType": "none", "badges": ["mvp", "numbered"]
+      "file": "shai7.png",
+      "playerKey": "shai gilgeous-alexander",
+      "category": "celebration",
+      "title": "Shai Gilgeous-Alexander championship parade trophy",
+      "teamAtCapture": "OKC",
+      "season": "2025-26",
+      "tags": [
+        "thunder",
+        "championship",
+        "parade",
+        "trophy"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "galaxy",
+      "rarity": "gold",
+      "slabType": "none",
+      "badges": [
+        "mvp",
+        "numbered"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.19.53 AM.png",
+      "playerKey": "cooper flagg",
+      "category": "commemorative",
+      "title": "Cooper Flagg 2025 NBA Draft number one pick graphic",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "draft",
+        "duke",
+        "rookie",
+        "branded-graphic"
+      ],
+      "matchConfidence": 0.95,
+      "composition": "single_subject_branded_graphic",
+      "style": "prism",
+      "effect": "lightning",
+      "rarity": "silver",
+      "badges": [
+        "rc"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.20.37 AM.png",
+      "playerKey": "cooper flagg",
+      "category": "game_action",
+      "title": "Cooper Flagg Dallas Mavericks game action",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "mavericks",
+        "game-action",
+        "rookie"
+      ],
+      "matchConfidence": 0.96,
+      "composition": "single_subject_photo",
+      "style": "prism",
+      "effect": "none",
+      "rarity": "base",
+      "badges": [
+        "rc"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.20.43 AM.png",
+      "playerKey": "kyrie irving",
+      "category": "game_action",
+      "title": "Kyrie Irving Dallas Mavericks game action",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "mavericks",
+        "game-action",
+        "handles"
+      ],
+      "matchConfidence": 0.97,
+      "composition": "single_subject_photo",
+      "style": "tactical",
+      "effect": "holographic",
+      "rarity": "neon",
+      "badges": [
+        "allstar"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.21.06 AM.png",
+      "playerKey": "klay thompson",
+      "category": "game_action",
+      "title": "Klay Thompson Dallas Mavericks game action",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "mavericks",
+        "game-action",
+        "shooting"
+      ],
+      "matchConfidence": 0.96,
+      "composition": "single_subject_photo",
+      "style": "optic",
+      "effect": "diamond",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.22.59 AM.png",
+      "playerKey": "cooper flagg",
+      "category": "commemorative",
+      "title": "Cooper Flagg number 32 city illustration",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "rookie",
+        "illustration",
+        "number-32"
+      ],
+      "matchConfidence": 0.85,
+      "composition": "single_subject_illustration",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "gold",
+      "badges": [
+        "rc",
+        "numbered"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.23.56 AM.png",
+      "playerKey": "cooper flagg",
+      "category": "milestone",
+      "title": "Cooper Flagg NBA Rookie of the Year",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "rookie-of-the-year",
+        "award",
+        "mavericks"
+      ],
+      "matchConfidence": 0.99,
+      "composition": "single_subject_branded_graphic",
+      "style": "prism",
+      "effect": "laser",
+      "rarity": "gold",
+      "badges": [
+        "rc",
+        "numbered"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.24.13 AM.png",
+      "playerKey": "klay thompson",
+      "category": "game_action",
+      "title": "Klay Thompson Dallas Mavericks shooting moment",
+      "teamAtCapture": "DAL",
+      "season": "2025-26",
+      "tags": [
+        "mavericks",
+        "shooting",
+        "game-action"
+      ],
+      "matchConfidence": 0.98,
+      "composition": "single_subject_photo",
+      "style": "optic",
+      "effect": "diamond",
+      "rarity": "silver",
+      "badges": [
+        "allstar"
+      ]
+    },
+    {
+      "file": "Screenshot 2026-08-10 at 1.37.16 AM.png",
+      "playerKey": "james harden",
+      "category": "milestone",
+      "title": "James Harden straight playoff appearances milestone",
+      "teamAtCapture": "CLE",
+      "season": "2025-26",
+      "tags": [
+        "cavaliers",
+        "playoffs",
+        "milestone",
+        "harden"
+      ],
+      "matchConfidence": 0.93,
+      "composition": "single_subject_branded_graphic",
+      "style": "select",
+      "effect": "galaxy",
+      "rarity": "black",
+      "badges": [
+        "mvp",
+        "numbered"
+      ],
+      "cardTeam": "CLE"
     }
   ]
 }

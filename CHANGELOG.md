@@ -8,6 +8,10 @@
 
 ### 新增 / Added
 
+- 新增 8 张由用户提供卡面素材制作的精选卡：Cooper Flagg（2025 选秀纪念 / 比赛瞬间 / #32 城市插画 / NBA 最佳新秀）、Kyrie Irving（比赛瞬间）、Klay Thompson（2 张比赛瞬间）、James Harden（连续季后赛里程碑）；同时补齐 27 支球队的可跟踪 logo 资产（`assets/team-logos/*.webp`），每张卡自动嵌入对应球队 logo，确保球员-数据-logo 一一对应
+- EN: Added 8 curated cards from user-supplied cover art: Cooper Flagg (2025 draft commemorative / game action / #32 city illustration / NBA Rookie of the Year), Kyrie Irving (game action), Klay Thompson (two game-action moments), and James Harden (straight playoff appearances milestone); also added tracked logo assets for 27 teams under `assets/team-logos/*.webp`, with each card embedding its matching team logo so player-data-logo stay one-to-one
+- 新增 Kyrie Irving 与 Klay Thompson 的 2025-26 已核验赛季数据档案（写入卡背），并将 James Harden 的 2025-26 数据接入建卡管道
+- EN: Added verified 2025-26 season stat profiles for Kyrie Irving and Klay Thompson (written to the card back) and wired James Harden's 2025-26 stats into the card-ingestion pipeline
 - 为用户指定的 Shai Gilgeous-Alexander `PM-041`、Stephen Curry `PM-005` 与 LeBron James 43,000 分纪念 `PM-032` 添加对应原始签名；蓝墨签保留原始蓝色并增加清晰描边，LeBron 黑色原签采用金色箔签呈现以适配黑色 1/1 卡面
 - EN: Added the supplied original signatures to Shai Gilgeous-Alexander `PM-041`, Stephen Curry `PM-005`, and the LeBron James 43,000-point commemorative `PM-032`; blue-ink signatures retain their original blue with a clarity outline, while LeBron's black signature is rendered as gold foil for the black 1/1 card
 - 新增可复现签名预处理脚本与受限签名资产路径，透明签名在浏览器预览、Canvas 导出及精选卡库重新导入时保持一致
@@ -73,6 +77,8 @@
 
 ### 修复 / Fixes
 
+- 修复新批次球员识别偏差：第 54 号卡面初判为 LeBron James，经卡面 OCR 复核确认实为 James Harden（骑士队连续季后赛纪录卡），已更正球员、赛季数据与卡面对应关系
+- EN: Fixed a player-identity mismatch in the new batch: card #54 was initially read as LeBron James, then OCR re-check confirmed it is James Harden (Cavaliers straight-playoff-appearances card); player, season stats, and card mapping corrected
 - 将 Shai Gilgeous-Alexander `PM-041` 的用户提供签名改为金色箔笔迹；保留原始笔画和安全位置，使其在高亮闪电背景上更清晰
 - EN: Changed the supplied signature on Shai Gilgeous-Alexander `PM-041` to gold foil while retaining its original strokes and safe placement for stronger contrast against the lightning background
 - 应用代码审计修复：影像缩略图加载失败时显示明确占位提示，打开影像库时保留当前卡面照片与队徽；同时为签名、卡库和拆包流程的反馈补齐成功、警告、错误状态
@@ -93,6 +99,8 @@
 
 ### 数据版本 / Data Versions
 
+- `player-media-manual-review` 手工审核批次由 46 条扩展至 54 条；`sourceDataVersion` 5 → 6
+- EN: `player-media-manual-review` manual-review batch expanded from 46 to 54 items; `sourceDataVersion` 5 → 6
 - `AUTO_LIBRARY_DATA_VERSION`: 2 → 3 → 4（触发自动库重建修复）
 - 静态资源缓存版本：`app.js` v25 → v26，`styles.css` v10，`shared-library.js` v3，`three-preview.js` v8
 - 静态资源缓存版本本轮更新：`app.js` → v35，`styles.css` → v23
