@@ -389,6 +389,7 @@ const catalogAssets = [];
 const now = Date.parse("2026-08-09T13:20:00.000Z");
 
 for (const [index, item] of manifest.items.entries()) {
+  if (item.disabled) continue; // 保留槽位编号，但跳过已删除卡片
   const player = registry[item.playerKey];
   if (!player) throw new Error(`Unknown playerKey: ${item.playerKey}`);
   const profile = playerProfiles[item.playerKey];

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "batchId": "manual-2026-08-09-01",
-  "sourceDataVersion": 7,
-  "reviewedAt": "2026-08-11T04:00:00.000Z",
+  "sourceDataVersion": 8,
+  "reviewedAt": "2026-08-11T06:00:00.000Z",
   "reviewedBy": "codex-visual-review",
   "rightsPolicy": "Private personal-card use only until source and licence are supplied.",
   "items": [
@@ -274,9 +274,7 @@
       "style": "select",
       "effect": "crystal",
       "rarity": "gold",
-      "badges": [
-        "mvp"
-      ]
+      "badges": []
     },
     {
       "file": "edwards5.png",
@@ -320,7 +318,6 @@
       "effect": "galaxy",
       "rarity": "gold",
       "badges": [
-        "mvp",
         "numbered"
       ]
     },
@@ -617,9 +614,7 @@
       "style": "select",
       "effect": "galaxy",
       "rarity": "gold",
-      "badges": [
-        "mvp"
-      ]
+      "badges": []
     },
     {
       "file": "JalenBurson5.png",
@@ -640,7 +635,6 @@
       "effect": "diamond",
       "rarity": "gold",
       "badges": [
-        "mvp",
         "numbered"
       ]
     },
@@ -1097,7 +1091,8 @@
       "rarity": "neon",
       "badges": [
         "allstar"
-      ]
+      ],
+      "disabled": true
     },
     {
       "file": "Screenshot 2026-08-10 at 1.21.06 AM.png",
@@ -1140,7 +1135,8 @@
       "badges": [
         "rc",
         "numbered"
-      ]
+      ],
+      "imageMode": "cutout"
     },
     {
       "file": "Screenshot 2026-08-10 at 1.23.56 AM.png",
@@ -1162,7 +1158,8 @@
       "badges": [
         "rc",
         "numbered"
-      ]
+      ],
+      "photoX": -2
     },
     {
       "file": "Screenshot 2026-08-10 at 1.24.13 AM.png",
@@ -1202,9 +1199,8 @@
       "composition": "single_subject_branded_graphic",
       "style": "select",
       "effect": "galaxy",
-      "rarity": "black",
+      "rarity": "base",
       "badges": [
-        "mvp",
         "numbered"
       ],
       "cardTeam": "CLE"
@@ -1250,7 +1246,8 @@
       "badges": [
         "allstar",
         "numbered"
-      ]
+      ],
+      "photoX": -2
     },
     {
       "file": "Screenshot 2026-08-10 at 1.05.58 AM.png",

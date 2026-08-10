@@ -79,6 +79,8 @@
 
 ### 修复 / Fixes
 
+- 按本地预览反馈调整精选卡：删除 Kyrie Irving `PM-049`；Cooper Flagg `PM-051` 改为 CUTOUT 保持完整构图；Cooper Flagg `PM-052` 与 Devin Booker `PM-056` 卡面左移微调；James Harden `PM-054` 改为 BASE 稀有度并移除 MVP 徽章；全量徽章审核后移除 Anthony Edwards 与 Jalen Brunson 卡片上错误的 MVP 标识
+- EN: Adjusted curated cards per preview feedback — removed Kyrie Irving `PM-049`; switched Cooper Flagg `PM-051` to CUTOUT to preserve full composition; shifted Cooper Flagg `PM-052` and Devin Booker `PM-056` card art slightly left; changed James Harden `PM-054` to BASE rarity without the MVP badge; a full badge audit also removed erroneous MVP badges from Anthony Edwards and Jalen Brunson cards
 - 修复新批次球员识别偏差：第 54 号卡面初判为 LeBron James，经卡面 OCR 复核确认实为 James Harden（骑士队连续季后赛纪录卡），已更正球员、赛季数据与卡面对应关系
 - EN: Fixed a player-identity mismatch in the new batch: card #54 was initially read as LeBron James, then OCR re-check confirmed it is James Harden (Cavaliers straight-playoff-appearances card); player, season stats, and card mapping corrected
 - 将 Shai Gilgeous-Alexander `PM-041` 的用户提供签名改为金色箔笔迹；保留原始笔画和安全位置，使其在高亮闪电背景上更清晰
@@ -101,6 +103,8 @@
 
 ### 数据版本 / Data Versions
 
+- `player-media-manual-review` 手工审核批次 58 条；`sourceDataVersion` 7 → 8；精选卡库共 58 张（1 张官方展示卡 + 57 张人工影像卡，含 1 张已删除占位）
+- EN: `player-media-manual-review` batch stays at 58 slots; `sourceDataVersion` 7 → 8; curated library now 58 cards (1 official showcase + 57 manual media cards, with one disabled slot)
 - `player-media-manual-review` 手工审核批次由 54 条扩展至 58 条；`sourceDataVersion` 6 → 7；应用内球员库 27 → 28（新增 P.J. Washington）
 - EN: `player-media-manual-review` manual-review batch expanded from 54 to 58 items; `sourceDataVersion` 6 → 7; in-app player database 27 → 28 (added P.J. Washington)
 - `player-media-manual-review` 手工审核批次由 46 条扩展至 54 条；`sourceDataVersion` 5 → 6
