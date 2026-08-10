@@ -79,6 +79,8 @@
 
 ### 修复 / Fixes
 
+- 更正 `PM-047` 球员识别：卡面为 Kyrie Irving 2011 年 Duke 状元选秀画面，此前误判为 Cooper Flagg；已改为 KYRIE IRVING（DAL），背板同步 2025-26 数据（50 场 / 24.7 分 / 4.8 板 / 4.6 助 / 47.3% / 40.1% 三分），徽章由 RC 更正为 ALL STAR，拍摄时球队保留 CLE
+- EN: Corrected the `PM-047` player identity: the art is Kyrie Irving's 2011 Duke No. 1 draft moment, previously misread as Cooper Flagg; the card is now KYRIE IRVING (DAL) with 2025-26 back stats (50 GP / 24.7 PPG / 4.8 RPG / 4.6 APG / 47.3 FG% / 40.1 3P%), the badge changed from RC to ALL STAR, and the team-at-capture remains CLE
 - 修复已删除精选卡残留在用户本地卡库的问题：精选卡库更新时不再把已移除的托管卡当作用户卡保留（Kyrie Irving `PM-049` 等已删卡随刷新自动清除），用户自建 DIY 卡不受影响；静态缓存 `app.js` → v45、`curated-library.json` → v6
 - EN: Fixed deleted curated cards lingering in user libraries: managed `curated-player-media` cards removed from the seed are now pruned on refresh (deleted cards such as Kyrie Irving `PM-049` disappear automatically), while user DIY cards are untouched; static caches `app.js` → v45 and `curated-library.json` → v6
 - 全量徽章审核完成：RC 仅出现在 Cooper Flagg（唯一新秀）卡片上，MVP 仅真实 MVP（Curry / LeBron / Giannis / Shai），ALL STAR 仅全明星球员，NUMBERED 与编号一一对应；在库 54 张卡全部通过
@@ -109,6 +111,8 @@
 
 ### 数据版本 / Data Versions
 
+- `player-media-manual-review` `sourceDataVersion` 9 → 10（`PM-047` 球员更正）
+- EN: `player-media-manual-review` `sourceDataVersion` 9 → 10 (`PM-047` player correction)
 - 静态缓存：`app.js` v44 → v45；`curated-library.json` v5 → v6（触发本地卡库托管卡清理）
 - EN: Static caches: `app.js` v44 → v45; `curated-library.json` v5 → v6 (triggers managed-card pruning in local libraries)
 - `player-media-manual-review` 批次保持 58 槽位；`sourceDataVersion` 8 → 9；精选卡库 58 → 55 张（4 个已删除槽位）

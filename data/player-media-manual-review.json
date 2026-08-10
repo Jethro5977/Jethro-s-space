@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "batchId": "manual-2026-08-09-01",
-  "sourceDataVersion": 9,
-  "reviewedAt": "2026-08-11T07:00:00.000Z",
+  "sourceDataVersion": 10,
+  "reviewedAt": "2026-08-11T08:00:00.000Z",
   "reviewedBy": "codex-visual-review",
   "rightsPolicy": "Private personal-card use only until source and licence are supplied.",
   "items": [
@@ -1031,24 +1031,25 @@
     },
     {
       "file": "Screenshot 2026-08-10 at 1.19.53 AM.png",
-      "playerKey": "cooper flagg",
+      "playerKey": "kyrie irving",
       "category": "commemorative",
-      "title": "Cooper Flagg 2025 NBA Draft number one pick graphic",
-      "teamAtCapture": "DAL",
+      "title": "Kyrie Irving 2011 NBA Draft number one pick graphic",
+      "teamAtCapture": "CLE",
       "season": "2025-26",
       "tags": [
         "draft",
         "duke",
-        "rookie",
-        "branded-graphic"
+        "cavaliers",
+        "branded-graphic",
+        "number-one-pick"
       ],
-      "matchConfidence": 0.95,
+      "matchConfidence": 0.99,
       "composition": "single_subject_branded_graphic",
       "style": "prism",
       "effect": "lightning",
       "rarity": "silver",
       "badges": [
-        "rc"
+        "allstar"
       ]
     },
     {
