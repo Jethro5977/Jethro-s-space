@@ -8,6 +8,18 @@
 
 ### 新增 / Added
 
+- 为 `@card-builder/renderer` 新增可发布的 Rollup 双格式构建与产物测试：ESM 保持 `three` peer dependency，UMD 通过经典 `<script>` 的全局 `THREE` 接入；包内现在包含 LICENSE、类型声明和受测试保护的发布清单
+- EN: Added a publishable Rollup dual-format build and artifact tests for `@card-builder/renderer`: ESM keeps `three` as a peer dependency, while UMD uses the classic `<script>` global `THREE`; the package now includes its LICENSE, type declarations, and a tested publish manifest
+- 新增 `npm run audit:css`：解析 CSS 规则与媒体查询，为共享卡库 Tab、全局 reduced-motion 和移动工具按钮建立层叠回归守卫
+- EN: Added `npm run audit:css`, which parses CSS rules and media queries to guard the shared-library tabs, global reduced-motion behavior, and mobile tool-button cascade against regressions
+- 新增 8 种导出特效的 Chromium RGBA 像素哈希基线测试；每次测试均生成真实 PNG、解码像素并比对 SHA-256，任何视觉变化需显式审阅和更新基线
+- EN: Added Chromium RGBA pixel-hash baselines for all eight export effects; every test produces a real PNG, decodes its pixels, and compares SHA-256 so visual changes require explicit review and baseline updates
+- 新增 `server/shared-api-core.cjs`，统一本地文件服务器与 Vercel Blob API 的卡牌发布校验、HTML 清理、缩略图解析、token 哈希、列表排序、球员筛选和直连/重写路由解析；存储与媒体上传保留为环境适配层
+- EN: Added `server/shared-api-core.cjs` to unify card-publish validation, HTML sanitization, thumbnail decoding, token hashing, list sorting, player filtering, and direct/rewritten route resolution across the local-file and Vercel Blob APIs; storage and media upload remain environment adapters
+- 新增 Playwright 浏览器 E2E 套件，覆盖编辑器/3D 预览启动、三阶段键盘导航、样式与特效、正反翻面、PNG 导出、本地卡库、共享库 health 与拆包完成等 8 条主流程
+- EN: Added a Playwright browser E2E suite covering editor and 3D-preview boot, keyboard stage navigation, style and effects, front/back flip, PNG export, local library, shared-library health, and completed pack opening across eight primary journeys
+- 将原 1,021 行的 `export.js` 拆为兼容门面、Canvas 卡牌渲染、独立特效画师与导出工作流四层；高复杂度 `drawExportEffect` 改为按特效名称分发的纯画师映射，保留既有导出 API
+- EN: Split the former 1,021-line `export.js` into a compatibility facade, canvas-card rendering, dedicated effect painters, and export workflows; the high-complexity `drawExportEffect` is now a name-dispatched pure-painter map while preserving the existing export API
 - 新增本地 workspace 包 `@card-builder/renderer`：把 Three.js 3D 卡牌与亚克力卡壳引擎从页面自启动脚本抽为显式 `createCardRenderer()` API，支持状态/视角更新、重建、缩放、高清捕获、悬停状态读取与完整销毁生命周期
 - EN: Added the local `@card-builder/renderer` workspace package, extracting the Three.js card and acrylic-slab engine from a page-owned bootstrap script into an explicit `createCardRenderer()` API with state/view updates, rebuilding, resizing, high-resolution capture, hover-state inspection, and full lifecycle teardown
 - 新增渲染状态归一化与单元测试，并将 `npm run check` 扩展到主应用、兼容适配器和 renderer 包共 18 个 ES Module
@@ -47,6 +59,10 @@
 
 ### 改进 / Improvements
 
+- 渲染器将浏览器运行时能力改为可注入的 `runtime`，移除包内对 `window` 与 `document.body` 的直接读写；页面级 `three-preview.js` 继续负责原有全局桥接和就绪样式类
+- EN: Made browser runtime capabilities injectable through `runtime`, removing direct package reads/writes of `window` and `document.body`; page-level `three-preview.js` continues to own the legacy global bridge and ready-state CSS class
+- 收敛 `styles.css` 的三组确定性重复覆盖：共享卡牌库 v1/v2 Tab 皮肤、全局 reduced-motion 规则，以及 ≤560px/≤700px 工具按钮尺寸；样式表由 8,034 行降至 7,970 行，保留包卡揭示等有意分层的视觉规则
+- EN: Consolidated three deterministic duplicate cascades in `styles.css`: shared-library v1/v2 tab skins, the global reduced-motion rule, and ≤560px/≤700px tool-button sizing; the stylesheet drops from 8,034 to 7,970 lines while preserving intentionally layered visual rules such as the pack-card reveal
 - 将前端主入口由 5,198 行单文件迁移为 15 个领域 ES Module，并通过 `app-core.js` late binding 保留跨模块调用；`three-preview.js` 现仅承担现有全局桥接兼容，渲染核心不再绑定固定 DOM 或写入 `window`
 - EN: Migrated the 5,198-line frontend entry into 15 domain ES modules with `app-core.js` late binding for cross-module calls; `three-preview.js` now serves only as the legacy global-bridge adapter, while the renderer core no longer owns fixed DOM queries or writes to `window`
 - 编辑器恢复「01 卡面设计 → 02 球员资料 → 03 保存导出」三阶段导航，移动端不再一次展开全部面板；补齐方向键、Home/End 键盘切换，并将移动端主要预览控制提升为 44px 触控目标

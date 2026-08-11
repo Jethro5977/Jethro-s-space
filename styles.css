@@ -2892,9 +2892,13 @@ textarea:focus-visible {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.001ms !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ui-ripple {
+    display: none !important;
   }
 }
 
@@ -3669,8 +3673,6 @@ body {
   }
 
   .tool-btn {
-    min-width: 34px;
-    width: 34px;
     padding: 0;
   }
 
@@ -3722,24 +3724,6 @@ body {
 
   .player-quick-btn {
     min-height: 40px;
-  }
-
-  .zoom-controls,
-  .rotate-controls {
-    grid-template-columns: 44px 44px;
-    height: 44px;
-  }
-
-  .zoom-btn,
-  .rotate-btn {
-    width: 44px;
-    height: 44px;
-  }
-
-  .tool-btn {
-    min-width: 44px;
-    width: 44px;
-    height: 44px;
   }
 
   .panel-section {
@@ -5722,39 +5706,8 @@ body {
 
 /* ============================================================
    Shared Card Library (共享卡牌库)
+   Tab 样式由本节统一定义，避免 v1/v2 皮肤在层叠中互相覆盖。
    ============================================================ */
-
-.library-tabs {
-  display: flex;
-  gap: 6px;
-  padding: 0 18px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.library-tab {
-  flex: 1;
-  padding: 9px 10px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--cream-dim, #a89a83);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.library-tab:hover {
-  border-color: rgba(255, 196, 89, 0.45);
-  color: #f4e8cf;
-}
-
-.library-tab.active {
-  color: #14100a;
-  background: linear-gradient(135deg, #ffcf6b, #d99a3d);
-  border-color: #ffcf6b;
-}
 
 .shared-header {
   padding: 12px 18px 8px;
@@ -6003,9 +5956,7 @@ body {
   }
 }
 
-/* ============================
-   SHARED LIBRARY v2.0 — Tab 切换
-   ============================ */
+/* Shared library tabs */
 .library-tabs {
   display: flex;
   flex: 0 0 auto;
@@ -7022,22 +6973,6 @@ input[type="range"]:active::-webkit-slider-thumb {
   outline-offset: 2px;
   border-radius: 3px;
 }
-
-/* 13.1 prefers-reduced-motion 全局覆盖（必须放在最后） */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .ui-ripple {
-    display: none !important;
-  }
-}
-
 
 /* ===== PACK REDESIGN v2 — Elite Court Real Image Pack =====
  *

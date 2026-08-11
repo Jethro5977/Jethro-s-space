@@ -29,8 +29,10 @@ function bootWhenReady() {
       status,
       bridge,
       eventTarget: window,
-      documentTarget: document
+      documentTarget: document,
+      runtime: window
     });
+    document.body.classList.add("three-preview-ready");
     window.cardBuilderThree = createCompatibilityApi(rendererInstance);
   } catch (error) {
     console.error("Unable to start Card Builder renderer", error);
@@ -50,6 +52,7 @@ function createCompatibilityApi(renderer) {
 function destroyRenderer() {
   rendererInstance?.destroy();
   rendererInstance = null;
+  document.body.classList.remove("three-preview-ready");
   delete window.cardBuilderThree;
 }
 

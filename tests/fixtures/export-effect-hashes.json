@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "capture": "Chromium front-standard PNG at a requested 80% effect intensity (diamond/crystal/galaxy use product caps), decoded to raw RGBA pixels",
+  "effects": {
+    "diamond": "b098b7875c713567b072d2ec72cd17e13bccda283684ec79f2494cbfe8e606e4",
+    "rainbow": "0a16a3085c18dfde444f86584a79b6842c57820209972e7e1a67bbfacbed9f2c",
+    "crystal": "db3d70e2df2a6a78fa54e68d8ff6a6fbcf815411cb87a52ce62703108b18b777",
+    "holographic": "595faf9153260d53b2b8ef0ce188f3d6db885104669449e03c8922dee31b1b5b",
+    "laser": "e9ec91dcedd3b1c0f116cd98b4a018edee3c4bb9abcbb07af955eda916448e69",
+    "lightning": "9c4fc5fd2953f935603918ae40e8905b50e2ecb1d1434d0b9756dd9056adff3f",
+    "flame": "5e6430d3693365c2fc87e4fb758e57d617461170ba555e81f2314b038db1a69c",
+    "galaxy": "2597a9002c708351bdad8457378eec6c7f0e7528e24bacea5d6a5d8652565f8c"
+  }
+}

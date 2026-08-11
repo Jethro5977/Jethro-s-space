@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 
 const moduleFiles = [
   "three-preview.js",
-  ...listNumberedModules("src", 15),
+  ...listNumberedModules("src", 18),
   "packages/renderer/src/config.js",
   "packages/renderer/src/index.js"
 ];
@@ -27,6 +27,9 @@ function listNumberedModules(directory, expectedCount) {
     "constants.js",
     "effects.js",
     "export.js",
+    "export-canvas.js",
+    "export-effects.js",
+    "export-workflows.js",
     "foil.js",
     "interaction.js",
     "library.js",

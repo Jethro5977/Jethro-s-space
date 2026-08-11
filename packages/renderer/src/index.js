@@ -26,16 +26,21 @@ export function createCardRenderer({
   canvas,
   status = null,
   bridge,
-  eventTarget = window,
-  documentTarget = document,
+  runtime = globalThis,
+  eventTarget = runtime,
+  documentTarget = runtime.document,
   autoListen = true
 } = {}) {
   if (!host || !canvas) throw new TypeError("createCardRenderer requires host and canvas elements");
   validateBridge(bridge);
+  if (!documentTarget?.createElement) throw new TypeError("createCardRenderer requires a documentTarget with createElement()");
 
   let destroyed = false;
   let resizeObserver = null;
-  const interactionAbortController = new AbortController();
+  const interactionAbortController = new runtime.AbortController();
+  const setTimer = runtime.setTimeout.bind(runtime);
+  const clearTimer = runtime.clearTimeout.bind(runtime);
+  const now = () => runtime.performance?.now?.() ?? Date.now();
   const handleStateEvent = (event) => applyState(event.detail);
   const handleViewEvent = (event) => applyExternalView(event.detail);
 
@@ -78,7 +83,7 @@ let environmentTexture = null;
 // Pointer-driven foil/glare interaction inspired by the public technique in
 // simeydotme/pokemon-cards-css. This WebGL shader is an original adaptation;
 // no upstream card art, foil textures, or CSS source is bundled here.
-const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const reducedMotionQuery = runtime.matchMedia?.("(prefers-reduced-motion: reduce)") || { matches: false };
 const holoRaycaster = new THREE.Raycaster();
 const holoPointerNdc = new THREE.Vector2();
 const holoPointer = new THREE.Vector2(0.5, 0.5);
@@ -142,7 +147,7 @@ function init() {
     return;
   }
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(runtime.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.82;
@@ -189,7 +194,7 @@ function init() {
   });
   controls.addEventListener("end", () => {
     syncViewToApp();
-    window.setTimeout(() => {
+    setTimer(() => {
       orbitInputActive = false;
       syncViewToApp();
     }, 160);
@@ -197,9 +202,10 @@ function init() {
   controls.addEventListener("change", scheduleControlSync);
 
   bindInteraction();
-  resizeObserver = new ResizeObserver(resizeRenderer);
-  resizeObserver.observe(host);
-  documentTarget.body?.classList.add("three-preview-ready");
+  if (runtime.ResizeObserver) {
+    resizeObserver = new runtime.ResizeObserver(resizeRenderer);
+    resizeObserver.observe(host);
+  }
   setStatus(CARD_RENDERER_STATUS.ready);
 
   if (autoListen) {
@@ -695,15 +701,15 @@ function captureCanvas(width, height) {
 }
 
 function scheduleTextureRefresh() {
-  clearTimeout(textureRefreshTimer);
-  textureRefreshTimer = window.setTimeout(refreshCardTextures, 90);
+  clearTimer(textureRefreshTimer);
+  textureRefreshTimer = setTimer(refreshCardTextures, 90);
 }
 
 function getCardTextureSize() {
   // Match the source texture to the actual preview density so uploaded photos
   // stay crisp on Retina displays without allocating an unbounded canvas.
   const previewWidth = Math.max(host?.clientWidth || 0, 520);
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  const pixelRatio = Math.min(runtime.devicePixelRatio || 1, 2);
   const width = THREE.MathUtils.clamp(Math.round(previewWidth * pixelRatio * 1.45), 1080, 1800);
   return { width, height: Math.round(width * (CARD_HEIGHT / CARD_WIDTH)) };
 }
@@ -739,7 +745,7 @@ function replaceCardTexture(material, sourceCanvas) {
 
 function applyExternalView(view) {
   if (!controls || !view) return;
-  if (orbitInputActive || performance.now() < ignoreExternalViewUntil) return;
+  if (orbitInputActive || now() < ignoreExternalViewUntil) return;
   const scale = THREE.MathUtils.clamp(Number(view.viewScale) || 1, 0.6, 1.6);
   const rotX = THREE.MathUtils.clamp(Number(view.rotX) || 0, -85, 85);
   const rotY = Number(view.rotY) || 0;
@@ -748,21 +754,21 @@ function applyExternalView(view) {
     THREE.MathUtils.degToRad(90 - rotX),
     THREE.MathUtils.degToRad(rotY)
   );
-  suppressControlSyncUntil = performance.now() + 90;
+  suppressControlSyncUntil = now() + 90;
   camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
   camera.lookAt(controls.target);
   controls.update();
 }
 
 function scheduleControlSync() {
-  if (performance.now() < suppressControlSyncUntil) return;
-  clearTimeout(controlSyncTimer);
-  controlSyncTimer = window.setTimeout(syncViewToApp, 55);
+  if (now() < suppressControlSyncUntil) return;
+  clearTimer(controlSyncTimer);
+  controlSyncTimer = setTimer(syncViewToApp, 55);
 }
 
 function syncViewToApp() {
   const spherical = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
-  ignoreExternalViewUntil = performance.now() + 140;
+  ignoreExternalViewUntil = now() + 140;
   bridge.setView({
     rotX: THREE.MathUtils.clamp(90 - THREE.MathUtils.radToDeg(spherical.phi), -85, 85),
     rotY: THREE.MathUtils.radToDeg(spherical.theta),
@@ -827,7 +833,7 @@ function resolveHoloPointer() {
 function resetHoloHover(immediate = false) {
   holoRaycastPending = false;
   if (!immediate && !reducedMotionQuery.matches && holoHoverTarget > 0) {
-    if (!holoExitAt) holoExitAt = performance.now() + HOVER_TILT_CONFIG.exitDelay;
+    if (!holoExitAt) holoExitAt = now() + HOVER_TILT_CONFIG.exitDelay;
     return;
   }
   deactivateHoloTilt(immediate || reducedMotionQuery.matches);
@@ -900,7 +906,7 @@ function selectShellPart(event) {
   const hit = raycaster.intersectObjects(shellPickables, false)[0];
   if (!hit?.object?.material?.emissive) return;
 
-  clearTimeout(selectedRestoreTimer);
+  clearTimer(selectedRestoreTimer);
   if (selectedMaterial) {
     selectedMaterial.emissive.setHex(selectedMaterial.userData.previousEmissive || 0x000000);
     selectedMaterial.emissiveIntensity = selectedMaterial.userData.previousEmissiveIntensity || 1;
@@ -910,7 +916,7 @@ function selectShellPart(event) {
   selectedMaterial.userData.previousEmissiveIntensity = selectedMaterial.emissiveIntensity;
   selectedMaterial.emissive.setHex(0x78d8ff);
   selectedMaterial.emissiveIntensity = 0.22;
-  selectedRestoreTimer = window.setTimeout(() => {
+  selectedRestoreTimer = setTimer(() => {
     selectedMaterial?.emissive.setHex(selectedMaterial.userData.previousEmissive || 0x000000);
     if (selectedMaterial) selectedMaterial.emissiveIntensity = selectedMaterial.userData.previousEmissiveIntensity || 1;
     selectedMaterial = null;
@@ -1095,9 +1101,9 @@ function destroy() {
   if (destroyed) return;
   destroyed = true;
   textureRevision += 1;
-  clearTimeout(textureRefreshTimer);
-  clearTimeout(controlSyncTimer);
-  clearTimeout(selectedRestoreTimer);
+  clearTimer(textureRefreshTimer);
+  clearTimer(controlSyncTimer);
+  clearTimer(selectedRestoreTimer);
   interactionAbortController.abort();
   resizeObserver?.disconnect();
   if (autoListen) {
@@ -1111,7 +1117,6 @@ function destroy() {
   scratchRoughnessMap.dispose();
   scratchHighlightMap.dispose();
   renderer?.dispose();
-  documentTarget.body?.classList.remove("three-preview-ready");
   canvas.classList.remove("is-holo-hover");
 }
 }

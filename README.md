@@ -86,11 +86,13 @@ card-builder/
 ├── shared-library.js       # 共享卡牌库前端逻辑
 ├── server/
 │   ├── shared-server.mjs   # Node HTTP 服务器 + 共享库 API
+│   ├── shared-api-core.cjs # 本地/Vercel 共用的 API 契约、校验与路由解析
 │   └── featured-card.json  # 官方展示卡数据
 ├── assets/                 # Logo、图标、球员图片、签名素材
 ├── scripts/
 │   ├── audit-player-data.mjs   # 校验球员数据与 NBA/ESPN 一致性
 │   └── verify-shared.sh        # 共享库 API 冒烟测试
+├── tests/e2e/                  # Playwright 浏览器主流程回归测试
 ├── data/
 │   └── player-registry.json    # NBA 球员数据库
 ├── docs/                   # 产品需求与设计文档
@@ -104,7 +106,10 @@ card-builder/
 |---------|-------------|
 | `npm start` | 启动开发服务器（端口 4174） |
 | `npm run check` | 语法与球员影像元数据检查 |
-| `npm run test:renderer` | 运行独立 3D 渲染器的公共配置/API 单测 |
+| `npm run test:renderer` | 构建独立 3D 渲染器，并验证配置、ESM、UMD 与 npm 包清单契约 |
+| `npm run test:api` | 运行本地与 Vercel 共用 API 契约单测 |
+| `npm run test:e2e` | 运行 8 条浏览器主流程回归测试（会复用或启动本地服务器） |
+| `npm run test:visual` | 导出 8 种特效并核验 Chromium RGBA 像素哈希基线 |
 | `npm run verify` | 共享库 API 冒烟测试（需先 `npm start`） |
 | `npm run audit:players` | 校验球员姓名与头像地址是否与 NBA/ESPN 一致 |
 | `npm run audit:media` | 校验 25 名球员 ID、媒体关联与授权闸门 |
@@ -181,11 +186,13 @@ card-builder/
 ├── shared-library.js       # Shared library frontend logic
 ├── server/
 │   ├── shared-server.mjs   # Node HTTP server + shared library API
+│   ├── shared-api-core.cjs # Shared local/Vercel API contract, validation, and route resolver
 │   └── featured-card.json  # Featured showcase card data
 ├── assets/                 # Logos, icons, player images, signatures
 ├── scripts/
 │   ├── audit-player-data.mjs   # Verify player data against NBA/ESPN
 │   └── verify-shared.sh        # Shared library API smoke test
+├── tests/e2e/                  # Playwright browser journey regression tests
 ├── data/
 │   └── player-registry.json    # NBA player database
 ├── docs/                   # Product specs and design docs
@@ -199,7 +206,10 @@ card-builder/
 |---------|-------------|
 | `npm start` | Start the dev server on port 4174 |
 | `npm run check` | Syntax-check JS and audit player-media metadata |
-| `npm run test:renderer` | Run public configuration/API tests for the standalone 3D renderer |
+| `npm run test:renderer` | Build the standalone 3D renderer and verify its configuration, ESM, UMD, and npm-package contracts |
+| `npm run test:api` | Run shared local/Vercel API contract unit tests |
+| `npm run test:e2e` | Run eight browser journey regressions (reuses or starts the local server) |
+| `npm run test:visual` | Export all eight effects and verify Chromium RGBA pixel-hash baselines |
 | `npm run verify` | Smoke-test the shared library API (server must be running) |
 | `npm run audit:players` | Verify player names and headshot URLs against NBA/ESPN |
 | `npm run audit:media` | Validate player IDs, media relationships, and license gates |

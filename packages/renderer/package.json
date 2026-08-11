@@ -3,10 +3,29 @@
   "version": "0.1.0",
   "description": "Embeddable Three.js renderer for Card Builder cards and acrylic slabs",
   "type": "module",
-  "exports": "./src/index.js",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/card-renderer.esm.js",
+      "default": "./dist/card-renderer.esm.js"
+    },
+    "./config": {
+      "types": "./src/config.d.ts",
+      "import": "./src/config.js"
+    },
+    "./src": {
+      "import": "./src/index.js"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./dist/card-renderer.esm.js",
+  "module": "./dist/card-renderer.esm.js",
+  "unpkg": "./dist/card-renderer.umd.js",
   "files": [
     "src",
-    "README.md"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "license": "MIT",
@@ -17,6 +36,11 @@
     "three": "^0.185.1"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "build": "node build.mjs",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepublishOnly": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
   }
 }
