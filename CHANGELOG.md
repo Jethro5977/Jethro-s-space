@@ -8,6 +8,12 @@
 
 ### 新增 / Added
 
+- 新增本地 workspace 包 `@card-builder/renderer`：把 Three.js 3D 卡牌与亚克力卡壳引擎从页面自启动脚本抽为显式 `createCardRenderer()` API，支持状态/视角更新、重建、缩放、高清捕获、悬停状态读取与完整销毁生命周期
+- EN: Added the local `@card-builder/renderer` workspace package, extracting the Three.js card and acrylic-slab engine from a page-owned bootstrap script into an explicit `createCardRenderer()` API with state/view updates, rebuilding, resizing, high-resolution capture, hover-state inspection, and full lifecycle teardown
+- 新增渲染状态归一化与单元测试，并将 `npm run check` 扩展到主应用、兼容适配器和 renderer 包共 18 个 ES Module
+- EN: Added renderer-state normalization and unit tests, and expanded `npm run check` to cover 18 ES modules across the application, compatibility adapter, and renderer package
+- 新增 `docs/PROJECT_AUDIT_2026-08-11.md` 客观项目审计报告，覆盖产品定位、功能、UI/UX、可访问性、代码架构、部署与素材权利风险，并给出继续投入的阶段性验证门槛
+- EN: Added the objective `docs/PROJECT_AUDIT_2026-08-11.md` project audit covering positioning, functionality, UI/UX, accessibility, code architecture, deployment, and asset-rights risk, with stage-gated criteria for further investment
 - 新增 4 张用户确认的精选卡：Devin Booker（比赛瞬间 / NBA 2K23 封面 / 太阳队西装照）与 P.J. Washington（#25 比赛瞬间），沿用 2025-26 卡背数据与对应球队 logo，保持球员-数据-logo 一一对应
 - EN: Added 4 user-confirmed curated cards: Devin Booker (game action / NBA 2K23 cover / Suns suit portrait) and P.J. Washington (#25 game action), each with 2025-26 back-side stats and a matching team logo to keep player-data-logo one-to-one
 - 新增 8 张由用户提供卡面素材制作的精选卡：Cooper Flagg（2025 选秀纪念 / 比赛瞬间 / #32 城市插画 / NBA 最佳新秀）、Kyrie Irving（比赛瞬间）、Klay Thompson（2 张比赛瞬间）、James Harden（连续季后赛里程碑）；同时补齐 27 支球队的可跟踪 logo 资产（`assets/team-logos/*.webp`），每张卡自动嵌入对应球队 logo，确保球员-数据-logo 一一对应
@@ -41,6 +47,12 @@
 
 ### 改进 / Improvements
 
+- 将前端主入口由 5,198 行单文件迁移为 15 个领域 ES Module，并通过 `app-core.js` late binding 保留跨模块调用；`three-preview.js` 现仅承担现有全局桥接兼容，渲染核心不再绑定固定 DOM 或写入 `window`
+- EN: Migrated the 5,198-line frontend entry into 15 domain ES modules with `app-core.js` late binding for cross-module calls; `three-preview.js` now serves only as the legacy global-bridge adapter, while the renderer core no longer owns fixed DOM queries or writes to `window`
+- 编辑器恢复「01 卡面设计 → 02 球员资料 → 03 保存导出」三阶段导航，移动端不再一次展开全部面板；补齐方向键、Home/End 键盘切换，并将移动端主要预览控制提升为 44px 触控目标
+- EN: Restored the three-step editor navigation — 01 Design → 02 Player → 03 Save & Export — so mobile no longer expands every panel at once; added Arrow/Home/End keyboard navigation and raised primary mobile preview controls to 44px touch targets
+- 产品界面与 README 新增非官方定位及素材权利提示，明确照片、Logo、签名等内容在上传、导出和公开发布前需确认相应使用权限
+- EN: Added an unofficial-project and asset-rights notice to the product UI and README, clarifying that permissions for photos, logos, signatures, and other assets must be confirmed before upload, export, or public release
 - 首页精选卡顺序固定为官方预览卡、Shai Gilgeous-Alexander `PM-041`、LeBron James `PM-031`；同步校正截图指定卡片的系列、稀有度、特效、湖人队视觉、人物裁切与封装
 - EN: Pinned the featured-card order to the official showcase, Shai Gilgeous-Alexander `PM-041`, and LeBron James `PM-031`; also aligned the referenced cards with the supplied series, rarity, effect, Lakers visual, player crop, and slab treatments
 - 新卡编号改为可复现的稀缺度加权随机规则，分母仅使用 299、99、25、20、15、1；编号越稀有，RAW 封装概率越低，`/25` 及以下默认采用实体卡壳
@@ -79,6 +91,12 @@
 
 ### 修复 / Fixes
 
+- 修复初次模块拆分中的语法错误、重复声明、缺少跨模块导入、错误导出名与 imported state 赋值问题；浏览器回归确认 3D 初始化、翻面及 2400×3200 PNG 导出正常且控制台无警告/错误
+- EN: Fixed syntax errors, duplicate declarations, missing cross-module imports, incorrect export names, and imported-state assignments from the initial module split; browser regression now confirms clean 3D initialization, flipping, and 2400×3200 PNG export with no console warnings or errors
+- 修复关闭状态卡牌库抽屉中的控件仍可被键盘聚焦的问题：抽屉现使用 `inert` 与 `aria-hidden` 同步隔离，关闭后焦点返回原触发按钮
+- EN: Fixed controls inside the closed library drawer remaining keyboard-focusable: the drawer now synchronizes `inert` with `aria-hidden`, and focus returns to the original trigger after closing
+- 修复快速球员栏与自动建库状态长期硬编码旧数量的问题：页面现在根据实际精选卡库与球员数据库显示 54 张精选影像和 28 位球员，后续数据扩充无需再手动同步文案
+- EN: Fixed stale hard-coded counts in the Quick Player bar and auto-build status: the UI now derives 54 curated media cards and 28 players from the actual library and player database, so future data additions no longer require manual copy updates
 - 更正 `PM-047` 球员识别：卡面为 Kyrie Irving 2011 年 Duke 状元选秀画面，此前误判为 Cooper Flagg；已改为 KYRIE IRVING（DAL），背板同步 2025-26 数据（50 场 / 24.7 分 / 4.8 板 / 4.6 助 / 47.3% / 40.1% 三分），徽章由 RC 更正为 ALL STAR，拍摄时球队保留 CLE
 - EN: Corrected the `PM-047` player identity: the art is Kyrie Irving's 2011 Duke No. 1 draft moment, previously misread as Cooper Flagg; the card is now KYRIE IRVING (DAL) with 2025-26 back stats (50 GP / 24.7 PPG / 4.8 RPG / 4.6 APG / 47.3 FG% / 40.1 3P%), the badge changed from RC to ALL STAR, and the team-at-capture remains CLE
 - 修复已删除精选卡残留在用户本地卡库的问题：精选卡库更新时不再把已移除的托管卡当作用户卡保留（Kyrie Irving `PM-049` 等已删卡随刷新自动清除），用户自建 DIY 卡不受影响；静态缓存 `app.js` → v45、`curated-library.json` → v6
@@ -111,6 +129,10 @@
 
 ### 数据版本 / Data Versions
 
+- 静态缓存：`app.js` v46 → v47；`styles.css` v31 → v32（三阶段导航、键盘/焦点与移动触控改进）
+- EN: Static caches: `app.js` v46 → v47; `styles.css` v31 → v32 (three-step navigation, keyboard/focus, and mobile touch improvements)
+- 静态缓存：`app.js` v45 → v46（动态项目进度计数）
+- EN: Static cache: `app.js` v45 → v46 (dynamic project-progress counts)
 - `player-media-manual-review` `sourceDataVersion` 9 → 10（`PM-047` 球员更正）
 - EN: `player-media-manual-review` `sourceDataVersion` 9 → 10 (`PM-047` player correction)
 - 静态缓存：`app.js` v44 → v45；`curated-library.json` v5 → v6（触发本地卡库托管卡清理）

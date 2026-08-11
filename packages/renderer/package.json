@@ -1,0 +1,22 @@
+{
+  "name": "@card-builder/renderer",
+  "version": "0.1.0",
+  "description": "Embeddable Three.js renderer for Card Builder cards and acrylic slabs",
+  "type": "module",
+  "exports": "./src/index.js",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "three": "^0.185.1"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

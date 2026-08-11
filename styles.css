@@ -3412,21 +3412,76 @@ body {
   border: 0;
 }
 
+.player-quick-bar {
+  position: relative;
+  top: auto;
+}
+
 .inspector-tabs {
-  display: none;
+  position: sticky;
+  top: 78px;
+  z-index: 114;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: 54px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(89,213,224,0.18);
+  background: rgba(13,13,19,0.96);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+  backdrop-filter: blur(14px);
 }
 
 .tab-panel,
-.tab-panel.active,
 .tab-panel[hidden] {
-  display: block !important;
+  display: none !important;
   width: 100%;
   height: auto;
   overflow: visible;
+  scroll-margin-top: 132px;
+}
+
+.tab-panel.active:not([hidden]) {
+  display: block !important;
 }
 
 .tab-panel + .tab-panel {
-  border-top: 8px solid #0a0a0f;
+  border-top: 0;
+}
+
+.tab-btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 0 10px;
+  border-color: rgba(255,255,255,0.07);
+  background: rgba(11,11,17,0.82);
+  color: #777481;
+  font-family: "Orbitron", ui-sans-serif, sans-serif;
+}
+
+.tab-btn span {
+  color: #514d5a;
+  font: 700 7px/1 "SFMono-Regular", Consolas, monospace;
+}
+
+.tab-btn strong {
+  overflow: hidden;
+  font-size: 8px;
+  letter-spacing: .4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  background: linear-gradient(180deg, rgba(89,213,224,0.09), rgba(17,17,24,0.96));
+  color: #f4f7fa;
+}
+
+.tab-btn.active span {
+  color: var(--cyan);
 }
 
 .panel-section {
@@ -3447,6 +3502,28 @@ body {
   color: #5f5a68;
   font-size: 7px;
   letter-spacing: 0;
+}
+
+.usage-notice {
+  margin: 14px 20px 24px;
+  padding: 13px 14px;
+  border: 1px solid rgba(244,196,78,0.22);
+  border-radius: 7px;
+  background: rgba(244,196,78,0.055);
+  color: #8d8993;
+}
+
+.usage-notice strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #dac784;
+  font: 800 8px/1.2 "Orbitron", ui-sans-serif, sans-serif;
+  letter-spacing: .7px;
+}
+
+.usage-notice p {
+  font-size: 9px;
+  line-height: 1.55;
 }
 
 .choice-btn,
@@ -3626,8 +3703,13 @@ body {
   }
 
   .player-quick-bar {
-    top: 74px;
+    position: relative;
+    top: auto;
     padding: 12px 16px;
+  }
+
+  .inspector-tabs {
+    top: 74px;
   }
 
   .player-quick-controls {
@@ -3640,6 +3722,24 @@ body {
 
   .player-quick-btn {
     min-height: 40px;
+  }
+
+  .zoom-controls,
+  .rotate-controls {
+    grid-template-columns: 44px 44px;
+    height: 44px;
+  }
+
+  .zoom-btn,
+  .rotate-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .tool-btn {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
   }
 
   .panel-section {
@@ -7913,3 +8013,22 @@ input[type="range"]:active::-webkit-slider-thumb {
 }
 
 /* ===== END PACK CARD REVEAL v3 ===== */
+
+@media (max-width: 700px) {
+  .zoom-controls,
+  .rotate-controls {
+    grid-template-columns: 44px 44px;
+    height: 44px;
+  }
+
+  .zoom-btn,
+  .rotate-btn,
+  .tool-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .tool-btn {
+    min-width: 44px;
+  }
+}

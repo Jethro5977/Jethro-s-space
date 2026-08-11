@@ -13,10 +13,14 @@
   "engines": {
     "node": ">=20"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "node server/shared-server.mjs",
     "server": "node server/shared-server.mjs",
-    "check": "node --check app.js && node --check player-media.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && node --check 'api/[...route].js' && node scripts/audit-player-media.mjs && echo '✓ All files passed syntax and media checks'",
+    "check": "node --check app.js && node --check player-media.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check 'api/[...route].js' && node scripts/check-es-modules.mjs && node scripts/audit-player-media.mjs && echo '✓ All files passed syntax and media checks'",
+    "test:renderer": "npm --workspace @card-builder/renderer test",
     "verify": "bash scripts/verify-shared.sh",
     "audit:players": "node scripts/audit-player-data.mjs",
     "audit:media": "node scripts/audit-player-media.mjs",
@@ -26,5 +30,8 @@
   "dependencies": {
     "@vercel/blob": "^2.7.0",
     "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "three": "0.185.1"
   }
 }

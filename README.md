@@ -25,8 +25,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
-  <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node 18+">
-  <img src="https://img.shields.io/badge/zero_dependencies-yes-brightgreen" alt="Zero Dependencies">
+  <img src="https://img.shields.io/badge/node-%3E%3D20-green" alt="Node 20+">
+  <img src="https://img.shields.io/badge/browser_runtime-zero_dependencies-brightgreen" alt="Zero browser runtime dependencies">
 </p>
 
 <p align="center">
@@ -39,11 +39,13 @@
 
 一个零依赖的纯 Web DIY 3D 球星卡制作器，支持实时 Three.js WebGL 预览、卡面特效、亚克力卡壳渲染，以及本地 / 共享卡牌库。
 
+> **定位与使用边界：** 本项目是非官方的个人创作与作品展示工具，不隶属于或代表 NBA、其球队、球员或卡牌品牌。上传、导出或公开发布照片、Logo、签名等素材前，请确认拥有相应的版权、商标及肖像使用权限。
+
 ### 功能
 
 - **卡片设计**：6 种原创卡片系列（Prizm、Tactical、Heritage、Mosaic、Select、Optic），8 种动态特效（Diamond、Lightning、Rainbow、Crystal、Holographic、Laser、Flame、Galaxy），Cutout / Full Art 两种照片模式，球队配色、徽章、稀有度与 7 种卡壳类型
 - **3D 预览**：基于 Three.js 的 WebGL 渲染，PBR 透明亚克力材质、环境反射、折射与程序化划痕，支持 360° 旋转、自动展示、正反翻面
-- **卡牌库**：本地最多收藏 200 张，支持稀有度 / 系列 / 卡壳 / 收藏筛选；精选库内置 1 张预览卡与 46 张人工核对影像卡（2025-26 赛季数据）；拆包体验含拖拽撕包、翻卡与稀有卡特效
+- **卡牌库**：本地最多收藏 200 张，支持稀有度 / 系列 / 卡壳 / 收藏筛选；精选库内置 1 张预览卡与 54 张人工核对影像卡（2025-26 赛季数据）；拆包体验含拖拽撕包、翻卡与稀有卡特效
 - **共享卡牌库**：无需账号系统，一键发布 DIY 卡牌供任何人浏览，含官方展示卡
 - **导出**：高清 PNG 导出（1500×2100 卡面、2400×3200 3D 视角），正反合图，项目 JSON 导入导出（含签名与蒙版数据完整还原）
 - **DIY 工具**：手写签名（4 色笔、位置与缩放调整）、自定义闪光蒙版、卡牌对比 PK、20 项收藏成就
@@ -75,10 +77,12 @@ GitHub Pages 会自动从 `main` 部署静态版，保留制卡、3D 预览、�
 ```
 card-builder/
 ├── index.html              # 主页面
-├── app.js                  # 卡片引擎：渲染、特效、卡库、导出
+├── src/                    # 按领域拆分的前端 ES Modules（主入口 main.js）
+├── app.js                  # 迁移前单文件实现，仅作兼容审阅/备份
 ├── player-media.js         # 球员影像选择器
 ├── styles.css               # 样式与特效动画
-├── three-preview.js        # Three.js 3D 卡壳预览
+├── three-preview.js        # 3D 渲染器兼容适配器
+├── packages/renderer/      # 可嵌入的 @card-builder/renderer 工作区包
 ├── shared-library.js       # 共享卡牌库前端逻辑
 ├── server/
 │   ├── shared-server.mjs   # Node HTTP 服务器 + 共享库 API
@@ -100,6 +104,7 @@ card-builder/
 |---------|-------------|
 | `npm start` | 启动开发服务器（端口 4174） |
 | `npm run check` | 语法与球员影像元数据检查 |
+| `npm run test:renderer` | 运行独立 3D 渲染器的公共配置/API 单测 |
 | `npm run verify` | 共享库 API 冒烟测试（需先 `npm start`） |
 | `npm run audit:players` | 校验球员姓名与头像地址是否与 NBA/ESPN 一致 |
 | `npm run audit:media` | 校验 25 名球员 ID、媒体关联与授权闸门 |
@@ -107,7 +112,7 @@ card-builder/
 
 ### 技术栈
 
-纯 Web 项目，零运行时依赖。
+无前端框架的纯 Web 项目；主应用以 import map 加载 Three.js，独立渲染器将 `three` 声明为 peer dependency。
 
 - **前端**：原生 JS、CSS 自定义属性、Canvas 2D 导出
 - **3D**：Three.js（CDN ES Modules）+ PBR 材质
@@ -129,11 +134,13 @@ MIT &copy; 2026 Jethro
 
 A zero-dependency, pure-web DIY 3D trading card builder with real-time Three.js WebGL preview, dynamic card effects, PBR acrylic slab rendering, and a local/shared card library.
 
+> **Positioning and usage boundary:** This is an unofficial tool for personal creation and portfolio demonstration. It is not affiliated with or endorsed by the NBA, its teams, players, or trading-card brands. Confirm that you hold the necessary copyright, trademark, and publicity permissions before uploading, exporting, or publishing photos, logos, signatures, or other assets.
+
 ### Features
 
 - **Card Design** — 6 original card series (Prizm, Tactical, Heritage, Mosaic, Select, Optic) with 8 dynamic effects (Diamond, Lightning, Rainbow, Crystal, Holographic, Laser, Flame, Galaxy). Cutout and Full Art photo modes, team colorways, badges, rarity tiers, and 7 slab/case types.
 - **3D Preview** — Three.js WebGL renderer with PBR acrylic slab, environment reflections, iridescence, and procedural scratches. 360° orbit controls, auto-rotate, and front/back flip.
-- **Card Library** — Collect up to 200 cards locally, filterable by rarity, series, case type, and favorites. The curated library includes one showcase card plus 46 manually reviewed player-media cards using 2025-26 season data. Pack-opening experience with drag-to-tear and rare card reveals.
+- **Card Library** — Collect up to 200 cards locally, filterable by rarity, series, case type, and favorites. The curated library includes one showcase card plus 54 manually reviewed player-media cards using 2025-26 season data. Pack-opening experience with drag-to-tear and rare card reveals.
 - **Shared Library** — Publish cards for anyone to browse, no accounts needed, with a featured showcase card.
 - **Export** — High-res PNG export (1500×2100 card face, 2400×3200 3D scene), front/back composite, and project JSON import/export with full signature and foil mask data.
 - **DIY Tools** — Hand-drawn signatures (4 colors, position/scale controls), custom foil masks, card comparison PK mode, and 20 collection achievements.
@@ -165,10 +172,12 @@ Authorized player-media uploads additionally require `PLAYER_MEDIA_ADMIN_TOKEN` 
 ```
 card-builder/
 ├── index.html              # Main page
-├── app.js                  # Card engine: rendering, effects, library, export
+├── src/                    # Domain-based frontend ES modules (main.js entry)
+├── app.js                  # Pre-migration single-file implementation kept for review/backup
 ├── player-media.js         # Licensed player-media picker
 ├── styles.css               # All styles and effect animations
-├── three-preview.js        # Three.js 3D slab preview
+├── three-preview.js        # 3D renderer compatibility adapter
+├── packages/renderer/      # Embeddable @card-builder/renderer workspace package
 ├── shared-library.js       # Shared library frontend logic
 ├── server/
 │   ├── shared-server.mjs   # Node HTTP server + shared library API
@@ -190,6 +199,7 @@ card-builder/
 |---------|-------------|
 | `npm start` | Start the dev server on port 4174 |
 | `npm run check` | Syntax-check JS and audit player-media metadata |
+| `npm run test:renderer` | Run public configuration/API tests for the standalone 3D renderer |
 | `npm run verify` | Smoke-test the shared library API (server must be running) |
 | `npm run audit:players` | Verify player names and headshot URLs against NBA/ESPN |
 | `npm run audit:media` | Validate player IDs, media relationships, and license gates |
@@ -197,7 +207,7 @@ card-builder/
 
 ### Tech Stack
 
-Pure web — zero runtime dependencies.
+Framework-free web application. The main app loads Three.js through an import map; the standalone renderer declares `three` as a peer dependency.
 
 - **Frontend**: Vanilla JS, CSS custom properties, Canvas 2D export
 - **3D**: Three.js (ES modules via CDN) with PBR materials
