@@ -1,6 +1,6 @@
 {
   "name": "@card-builder/renderer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Embeddable Three.js renderer for Card Builder cards and acrylic slabs",
   "type": "module",
   "exports": {
@@ -29,6 +29,11 @@
   ],
   "sideEffects": false,
   "license": "MIT",
+  "author": {
+    "name": "Jethro",
+    "email": "jethroyu5977@gmail.com",
+    "url": "https://github.com/Jethro5977"
+  },
   "engines": {
     "node": ">=20"
   },

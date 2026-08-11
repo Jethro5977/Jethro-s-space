@@ -154,6 +154,13 @@ npm test          # Run unit tests
 npm run build     # Build ESM + UMD bundles in dist/
 ```
 
+## Commercial licensing & support
+
+Looking to embed this renderer in your own card platform, need custom slab types or effects, or want integration support? Reach out:
+
+- **Email:** [jethroyu5977@gmail.com](mailto:jethroyu5977@gmail.com)
+- **GitHub:** [github.com/Jethro5977](https://github.com/Jethro5977)
+
 ## License
 
 MIT
