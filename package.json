@@ -21,6 +21,7 @@
     "server": "node server/shared-server.mjs",
     "check": "node --check app.js && node --check player-media.js && node --check shared-library.js && node --check server/shared-api-core.cjs && node --check server/shared-server.mjs && node --check 'api/[...route].js' && node scripts/check-es-modules.mjs && node scripts/audit-player-media.mjs && node scripts/audit-css.mjs && echo '✓ All files passed syntax and media checks'",
     "test:renderer": "npm --workspace @card-builder/renderer test",
+    "test:renderer:browser": "npm run build --workspace @card-builder/renderer && playwright test tests/e2e/renderer-package.spec.mjs --workers=1",
     "test:api": "node --test server/test/*.test.mjs api/test/*.test.mjs",
     "test:e2e": "playwright test tests/e2e/card-builder.spec.mjs",
     "test:visual": "playwright test tests/e2e/export-effects.spec.mjs",

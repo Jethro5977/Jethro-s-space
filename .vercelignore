@@ -4,3 +4,6 @@ assets/player-media/inbox/
 .vercel/
 node_modules/
 *.log
+test-results/
+playwright-report/
+.env*

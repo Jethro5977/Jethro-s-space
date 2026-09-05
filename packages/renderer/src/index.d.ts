@@ -1,7 +1,15 @@
 import type { RendererState, SlabType, EffectName, RarityName } from "./config.js";
 
+// Re-exports from submodules
 export type { RendererState, SlabType, EffectName, RarityName } from "./config.js";
 export { CARD_DIMENSIONS, HOLO_EFFECT_MODES, SLAB_CONFIGS, cardEdgeColor, normalizeRendererState } from "./config.js";
+export { advanceSpring, advancePointerSpring } from "./spring.js";
+export type { SpringConfig, SpringResult, Point2D } from "./spring.js";
+export { holoVertexShader, holoFragmentShader, HOLO_UNIFORMS_DEFAULTS } from "./shaders.js";
+export { mulberry32, createScratchCanvas, createPlaceholderCanvas, createLabelCanvas, getCardTextureSize } from "./textures.js";
+export type { CanvasFactory } from "./textures.js";
+export { createDefaultBridge, fromImage } from "./bridge.js";
+export type { DefaultBridgeOptions, FromImageOptions } from "./bridge.js";
 
 /** View parameters for camera positioning. */
 export interface ViewState {
@@ -94,12 +102,23 @@ export interface HoverTiltState {
   scale: number;
 }
 
+/** Hover-tilt spring configuration (exported for tests). */
+export declare const HOVER_TILT_CONFIG: Readonly<{
+  rotation: number;
+  scale: number;
+  exitDelay: number;
+  enterSpring: Readonly<{ stiffness: number; damping: number }>;
+  exitSpring: Readonly<{ stiffness: number; damping: number }>;
+  activationSpring: Readonly<{ stiffness: number; damping: number }>;
+  deactivationSpring: Readonly<{ stiffness: number; damping: number }>;
+}>;
+
 /** The object returned by {@link createCardRenderer}. */
 export interface CardRenderer {
   /** `true` once WebGL initialisation succeeds and before `destroy()`. */
   readonly ready: boolean;
 
-  /** Push a new card state into the renderer. */
+  /** Merge a partial card-state update into the current renderer state. */
   setState(state: Partial<RendererState>): void;
 
   /** Reposition the camera to match a view state. */
@@ -128,7 +147,7 @@ export interface CardRenderer {
 }
 
 /**
- * Create an isolated Card Builder WebGL renderer.
+ * Create an isolated 3D card renderer.
  *
  * The renderer owns only its supplied canvas and host element. Product state,
  * card texture rendering and view persistence remain responsibilities of the

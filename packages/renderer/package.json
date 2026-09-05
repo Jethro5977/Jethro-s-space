@@ -1,7 +1,7 @@
 {
   "name": "@card-builder/renderer",
   "version": "0.1.1",
-  "description": "Embeddable Three.js renderer for Card Builder cards and acrylic slabs",
+  "description": "Embeddable Three.js 3D renderer for collectible trading cards — acrylic slab enclosures, holographic foil effects, and pointer-driven tilt interaction",
   "type": "module",
   "exports": {
     ".": {
@@ -13,7 +13,24 @@
       "types": "./src/config.d.ts",
       "import": "./src/config.js"
     },
+    "./spring": {
+      "types": "./src/spring.d.ts",
+      "import": "./src/spring.js"
+    },
+    "./shaders": {
+      "types": "./src/shaders.d.ts",
+      "import": "./src/shaders.js"
+    },
+    "./textures": {
+      "types": "./src/textures.d.ts",
+      "import": "./src/textures.js"
+    },
+    "./bridge": {
+      "types": "./src/bridge.d.ts",
+      "import": "./src/bridge.js"
+    },
     "./src": {
+      "types": "./src/index.d.ts",
       "import": "./src/index.js"
     }
   },

@@ -8,6 +8,8 @@
 
 ### 新增 / Added
 
+- 完成 renderer 公共模块拆分：提供 `bridge`、`spring`、`shaders`、`textures` 子路径、`fromImage()` 快捷接入及配套类型；增加源码、ESM、UMD 三入口的真实 WebGL 消费者测试和发布清单检查
+- EN: Completed the renderer public-module split with bridge, spring, shaders and textures subpaths, a typed fromImage() helper, real WebGL consumer tests for source/ESM/UMD, and package-manifest verification
 - 为 `@card-builder/renderer` 新增可发布的 Rollup 双格式构建与产物测试：ESM 保持 `three` peer dependency，UMD 通过经典 `<script>` 的全局 `THREE` 接入；包内现在包含 LICENSE、类型声明和受测试保护的发布清单
 - EN: Added a publishable Rollup dual-format build and artifact tests for `@card-builder/renderer`: ESM keeps `three` as a peer dependency, while UMD uses the classic `<script>` global `THREE`; the package now includes its LICENSE, type declarations, and a tested publish manifest
 - 新增 `npm run audit:css`：解析 CSS 规则与媒体查询，为共享卡库 Tab、全局 reduced-motion 和移动工具按钮建立层叠回归守卫
@@ -59,6 +61,12 @@
 
 ### 改进 / Improvements
 
+- renderer 状态和视角支持局部更新；快捷图片实例默认隔离页面事件，翻面保留正反贴图身份，加载失败回退可用画面，销毁时仅移除自身创建的画布；高清捕获复用已有 WebGL 上下文及环境反射资源
+- EN: Renderer state and view updates now merge partial values; image embeds ignore page-global events by default, retain front/back texture identities on flip, provide image-failure fallbacks, and remove only owned canvases on teardown; high-resolution capture reuses the existing WebGL context and environment resources
+- 修复 UMD 构建对 Three.js addons 全局对象的错误假设，改由 esbuild 打包所需 addons，核心继续使用 peer dependency；静态检查自动发现应用和 renderer 模块
+- EN: Fixed the UMD assumption that Three.js addons live on the core global: esbuild now bundles the required addons while core remains a peer dependency; syntax checks discover all application and renderer modules automatically
+- 重新核验 8 种 PNG 导出基线：Chrome 152 / macOS ARM 下修改前提交与当前源码的全部 RGBA 哈希一致，记录环境与对照提交并检查导出图像后更新旧基线；测试等待异步签名就绪并保留真实 PNG 附件
+- EN: Revalidated all eight PNG export baselines: the prior commit and current source produce identical RGBA hashes on Chrome 152/macOS ARM; refreshed the old baseline after recording environment/reference metadata and reviewing the images, and made tests await signature readiness and attach actual PNGs
 - 渲染器将浏览器运行时能力改为可注入的 `runtime`，移除包内对 `window` 与 `document.body` 的直接读写；页面级 `three-preview.js` 继续负责原有全局桥接和就绪样式类
 - EN: Made browser runtime capabilities injectable through `runtime`, removing direct package reads/writes of `window` and `document.body`; page-level `three-preview.js` continues to own the legacy global bridge and ready-state CSS class
 - 收敛 `styles.css` 的三组确定性重复覆盖：共享卡牌库 v1/v2 Tab 皮肤、全局 reduced-motion 规则，以及 ≤560px/≤700px 工具按钮尺寸；样式表由 8,034 行降至 7,970 行，保留包卡揭示等有意分层的视觉规则

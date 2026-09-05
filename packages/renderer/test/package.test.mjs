@@ -36,3 +36,25 @@ test("UMD distribution attaches to a classic-script global with window.THREE", (
   assert.equal(typeof context.CardBuilderRenderer.createCardRenderer, "function");
   assert.equal(typeof context.CardBuilderRenderer.normalizeRendererState, "function");
 });
+
+test("source, installed-package ESM, and UMD expose the same public API", async () => {
+  const source = await import("../src/index.js");
+  const esm = await import("@card-builder/renderer");
+  const context = { THREE, console };
+  vm.runInNewContext(readFileSync(umdPath, "utf8"), context);
+  const names = Object.keys(source).sort();
+  assert.deepEqual(Object.keys(esm).sort(), names);
+  assert.deepEqual(Object.keys(context.CardBuilderRenderer).sort(), names);
+  for (const name of ["fromImage", "createDefaultBridge", "advanceSpring", "createScratchCanvas"]) {
+    assert.equal(typeof esm[name], "function");
+  }
+  assert.deepEqual(esm.HOLO_UNIFORMS_DEFAULTS, source.HOLO_UNIFORMS_DEFAULTS);
+});
+
+test("all documented package subpaths resolve their published source and declarations", async () => {
+  for (const name of ["config", "spring", "shaders", "textures", "bridge"]) {
+    const exported = await import(`@card-builder/renderer/${name}`);
+    assert.ok(Object.keys(exported).length > 0, name);
+    assert.ok(readFileSync(new URL(`../${pkg.exports[`./${name}`].types}`, import.meta.url), "utf8").length > 0);
+  }
+});

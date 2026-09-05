@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Renderer package browser consumer</title>
+    <style>
+      body { margin: 0; padding: 16px; background: #101017; color: white; }
+      #consumers { display: flex; gap: 16px; flex-wrap: wrap; }
+      .renderer-host { position: relative; width: 320px; height: 480px; }
+      .renderer-host canvas { display: block; width: 100%; height: 100%; }
+      .renderer-status { position: absolute; top: 0; left: 0; font: 12px monospace; }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="consumers"></main>
+    <script type="module" src="./renderer-consumer.mjs"></script>
+  </body>
+</html>

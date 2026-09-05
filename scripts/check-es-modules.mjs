@@ -1,11 +1,10 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const moduleFiles = [
   "three-preview.js",
-  ...listNumberedModules("src", 18),
-  "packages/renderer/src/config.js",
-  "packages/renderer/src/index.js"
+  ...listModules("src"),
+  ...listModules("packages/renderer/src")
 ];
 
 for (const file of moduleFiles) {
@@ -21,28 +20,6 @@ for (const file of moduleFiles) {
 
 console.log(`✓ ${moduleFiles.length} ES modules passed syntax checks`);
 
-function listNumberedModules(directory, expectedCount) {
-  const files = [
-    "app-core.js",
-    "constants.js",
-    "effects.js",
-    "export.js",
-    "export-canvas.js",
-    "export-effects.js",
-    "export-workflows.js",
-    "foil.js",
-    "interaction.js",
-    "library.js",
-    "main.js",
-    "pack-opening.js",
-    "player-data.js",
-    "render.js",
-    "signatures.js",
-    "state.js",
-    "ui-polish.js",
-    "utils.js"
-  ].map((file) => `${directory}/${file}`);
-
-  if (files.length !== expectedCount) throw new Error(`Expected ${expectedCount} application modules`);
-  return files;
+function listModules(directory) {
+  return readdirSync(directory).filter((file) => /\.m?js$/.test(file)).sort().map((file) => `${directory}/${file}`);
 }
