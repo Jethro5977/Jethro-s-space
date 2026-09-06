@@ -13,18 +13,32 @@
   "engines": {
     "node": ">=20"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "node server/shared-server.mjs",
     "server": "node server/shared-server.mjs",
-    "check": "node --check app.js && node --check player-media.js && node --check shared-library.js && node --check server/shared-server.mjs && node --check three-preview.js && node --check 'api/[...route].js' && node scripts/audit-player-media.mjs && echo '✓ All files passed syntax and media checks'",
+    "check": "node --check app.js && node --check player-media.js && node --check shared-library.js && node --check server/shared-api-core.cjs && node --check server/shared-server.mjs && node --check 'api/[...route].js' && node scripts/check-es-modules.mjs && node scripts/audit-player-media.mjs && node scripts/audit-css.mjs && echo '✓ All files passed syntax and media checks'",
+    "test:renderer": "npm --workspace @card-builder/renderer test",
+    "test:renderer:browser": "npm run build --workspace @card-builder/renderer && playwright test tests/e2e/renderer-package.spec.mjs --workers=1",
+    "test:api": "node --test server/test/*.test.mjs api/test/*.test.mjs",
+    "test:e2e": "playwright test tests/e2e/card-builder.spec.mjs",
+    "test:pack": "playwright test tests/e2e/pack-reveal.spec.mjs",
+    "test:visual": "playwright test tests/e2e/export-effects.spec.mjs",
     "verify": "bash scripts/verify-shared.sh",
     "audit:players": "node scripts/audit-player-data.mjs",
     "audit:media": "node scripts/audit-player-media.mjs",
+    "audit:css": "node scripts/audit-css.mjs",
     "ingest:media:manual": "node scripts/ingest-manual-player-media.mjs",
     "sync:players": "node scripts/sync-player-registry.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.7.0",
     "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "three": "0.185.1"
   }
 }

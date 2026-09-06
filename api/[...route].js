@@ -4,19 +4,25 @@ const sharp = require("sharp");
 const featuredCard = require("../server/featured-card.json");
 const playerRegistry = require("../data/player-registry.json");
 const seedMediaDocument = require("../data/player-media.json");
+const {
+  CARD_ID_REGEX,
+  MEDIA_ID_REGEX,
+  createCardRecord,
+  decodeThumbnail,
+  fallbackMedia,
+  filterPlayers,
+  findPlayerById,
+  hashToken,
+  publicCardListItem,
+  resolveApiRoute,
+  sortPublicCards,
+} = require("../server/shared-api-core.cjs");
 
 const CARD_PREFIX = "shared-cards/";
 const MEDIA_META_PREFIX = "player-media/meta/";
 const MEDIA_FILE_PREFIX = "player-media/files/";
 const MEDIA_AUDIT_PREFIX = "player-media/audit/";
 const MAX_BODY_SIZE = 6 * 1024 * 1024;
-const MAX_THUMBNAIL_CHARS = 600_000;
-const MAX_FULLSTATE_CHARS = 2_000_000;
-const MAX_AUTHOR_LENGTH = 24;
-const THUMBNAIL_REGEX = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
-const ID_REGEX = /^[a-z0-9_]+$/;
-const PLAYER_ID_REGEX = /^nba_[0-9]+$/;
-const MEDIA_ID_REGEX = /^pm_[a-z0-9_]+$/;
 const MEDIA_CATEGORIES = new Set(["game_action", "training", "media_day", "milestone", "commemorative", "celebration", "profile"]);
 const UPLOAD_DATA_REGEX = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/;
 const MAX_MEDIA_UPLOAD_BYTES = 3 * 1024 * 1024;
@@ -34,27 +40,13 @@ function configureResponse(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token");
 }
 
-function escapeHtml(value) {
-  if (typeof value !== "string") return "";
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
-}
-
 function isMissingBlob(error) {
   return error instanceof BlobNotFoundError || error?.name === "BlobNotFoundError";
 }
 
 function storagePath(id) {
-  if (!ID_REGEX.test(id)) return null;
+  if (!CARD_ID_REGEX.test(id)) return null;
   return `${CARD_PREFIX}${id}.json`;
-}
-
-function findPlayerById(playerId) {
-  return Object.values(playerRegistry).find((player) => player.playerId === playerId) || null;
 }
 
 function mediaMetaPath(mediaId) {
@@ -93,29 +85,6 @@ function publicMedia(asset) {
     fallback: false,
     cardUrl: staticCard || `/api/player-media/${asset.mediaId}/file?variant=card`,
     thumbUrl: staticThumb || `/api/player-media/${asset.mediaId}/file?variant=thumb`,
-  };
-}
-
-function fallbackMedia(player) {
-  const mediaId = `pm_fallback_${player.nbaId}`;
-  return {
-    mediaId,
-    playerId: player.playerId,
-    category: "headshot_fallback",
-    tags: ["fallback"],
-    title: "Official headshot compatibility fallback",
-    capturedAt: null,
-    season: null,
-    teamAtCapture: player.team,
-    opponent: null,
-    momentId: null,
-    provider: "nba_cdn",
-    creditLine: "NBA CDN · temporary compatibility fallback",
-    photographer: null,
-    licenseStatus: "fallback_review_required",
-    fallback: true,
-    cardUrl: `/api/player-media/${mediaId}/file?variant=card`,
-    thumbUrl: `/api/player-media/${mediaId}/file?variant=thumb`,
   };
 }
 
@@ -252,54 +221,12 @@ async function ensureFeaturedCard() {
   return true;
 }
 
-function generateId() {
-  return `sc_${Date.now().toString(36)}_${crypto.randomBytes(4).toString("hex")}`;
-}
-
-function generateTokenPair() {
-  const token = crypto.randomBytes(32).toString("hex");
-  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-  return { token, tokenHash };
-}
-
-function validateServerPlayerMeta(card) {
-  const full = card.fullState || {};
-  const playerName = String(full.playerName || card.name || "").trim().toLowerCase();
-  const authoritative = playerRegistry[playerName];
-  if (!authoritative) return null;
-  const cardTeam = String(full.teamAbbr || card.team || "").toUpperCase().trim();
-  if (cardTeam && cardTeam !== authoritative.team) {
-    return `Team mismatch with official registry: ${cardTeam} !== ${authoritative.team}`;
-  }
-  return null;
-}
-
 function parseBody(req) {
   if (req.body == null) return {};
   if (Buffer.isBuffer(req.body)) return JSON.parse(req.body.toString("utf8"));
   if (typeof req.body === "string") return JSON.parse(req.body);
   if (typeof req.body === "object") return req.body;
   return {};
-}
-
-function publicListItem(record) {
-  return {
-    id: record.id,
-    author: record.author,
-    createdAt: record.createdAt,
-    featured: Boolean(record.featured),
-    card: {
-      id: record.card.id,
-      name: record.card.name,
-      team: record.card.team,
-      style: record.card.style,
-      effect: record.card.effect,
-      rarity: record.card.rarity,
-      slabType: record.card.slabType,
-      badges: record.card.badges,
-      thumbnailUrl: `/api/cards/${record.id}/thumbnail`,
-    },
-  };
 }
 
 async function listRecords() {
@@ -323,12 +250,7 @@ async function listRecords() {
 }
 
 async function handleListCards(res) {
-  const cards = (await listRecords()).map(publicListItem);
-  cards.sort((a, b) => {
-    if (a.featured !== b.featured) return a.featured ? -1 : 1;
-    return b.createdAt - a.createdAt;
-  });
-  return json(res, 200, { cards });
+  return json(res, 200, { cards: sortPublicCards((await listRecords()).map(publicCardListItem)) });
 }
 
 async function handlePublishCard(req, res) {
@@ -341,36 +263,12 @@ async function handlePublishCard(req, res) {
   } catch {
     return json(res, 400, { error: "Invalid JSON" });
   }
-  const { card } = body;
-  if (!card || typeof card !== "object") return json(res, 400, { error: "Missing card data" });
-  if (typeof card.thumbnail !== "string") return json(res, 400, { error: "Missing thumbnail" });
-  if (!THUMBNAIL_REGEX.test(card.thumbnail)) return json(res, 400, { error: "Invalid thumbnail format" });
-  if (card.thumbnail.length > MAX_THUMBNAIL_CHARS) return json(res, 400, { error: "Thumbnail too large" });
-  if (card.fullState == null) return json(res, 400, { error: "Missing fullState" });
-  if (JSON.stringify(card.fullState).length > MAX_FULLSTATE_CHARS) return json(res, 400, { error: "fullState too large" });
-  const playerMetaError = validateServerPlayerMeta(card);
-  if (playerMetaError) return json(res, 400, { error: playerMetaError });
-
-  const rawAuthor = String(body.author || "").trim();
-  if (rawAuthor.length > MAX_AUTHOR_LENGTH) return json(res, 400, { error: "Author name too long" });
-  const id = generateId();
-  const { token, tokenHash } = generateTokenPair();
-  const record = {
-    schemaVersion: 1,
-    id,
-    author: escapeHtml(rawAuthor).slice(0, MAX_AUTHOR_LENGTH) || "匿名",
-    createdAt: Date.now(),
-    tokenHash,
-    card: {
-      ...card,
-      sharedId: id,
-      name: escapeHtml(String(card.name || "").slice(0, 100)),
-      team: escapeHtml(String(card.team || "").slice(0, 10)),
-    },
-  };
+  const result = createCardRecord(body, playerRegistry);
+  if (result.error) return json(res, result.status, { error: result.error });
+  const { record, token } = result;
 
   await writeRecord(record);
-  return json(res, 201, { id, token, card: record.card });
+  return json(res, result.status, { id: record.id, token, card: record.card });
 }
 
 async function handleGetCard(res, id) {
@@ -380,45 +278,37 @@ async function handleGetCard(res, id) {
 
 async function handleGetThumbnail(res, id) {
   const record = await readRecord(id);
-  const match = String(record.card.thumbnail || "").match(/^data:image\/(png|jpeg|webp);base64,(.+)$/);
-  if (!match) return json(res, 500, { error: "Invalid stored thumbnail" });
-  const [, format, base64] = match;
-  const image = Buffer.from(base64, "base64");
-  res.setHeader("Content-Type", format === "jpeg" ? "image/jpeg" : `image/${format}`);
-  res.setHeader("Content-Length", image.length);
+  const image = decodeThumbnail(record.card.thumbnail);
+  if (!image) return json(res, 500, { error: "Invalid stored thumbnail" });
+  res.setHeader("Content-Type", image.mime);
+  res.setHeader("Content-Length", image.buffer.length);
   res.setHeader("Cache-Control", "public, max-age=86400");
-  return res.status(200).send(image);
+  return res.status(200).send(image.buffer);
 }
 
 async function handleDeleteCard(req, res, id) {
   const token = new URL(req.url, "http://vercel.local").searchParams.get("token") || "";
   if (!token) return json(res, 403, { error: "Token required" });
   const record = await readRecord(id);
-  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-  if (tokenHash !== record.tokenHash) return json(res, 403, { error: "Token mismatch" });
+  if (hashToken(token) !== record.tokenHash) return json(res, 403, { error: "Token mismatch" });
   await del(storagePath(id));
   return json(res, 200, { deleted: true });
 }
 
 function handleListPlayers(req, res) {
   const url = new URL(req.url, "http://vercel.local");
-  const active = url.searchParams.get("active");
-  const team = String(url.searchParams.get("team") || "").toUpperCase();
-  let players = Object.values(playerRegistry);
-  if (active === "true") players = players.filter((player) => player.active === true);
-  if (team) players = players.filter((player) => player.team === team);
-  players.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  const players = filterPlayers(playerRegistry, url.searchParams);
   return json(res, 200, { players, total: players.length });
 }
 
 function handleGetPlayer(res, playerId) {
-  const player = findPlayerById(playerId);
+  const player = findPlayerById(playerRegistry, playerId);
   if (!player) return json(res, 404, { error: "Player not found" });
   return json(res, 200, { player });
 }
 
 async function handleListPlayerMedia(req, res, playerId) {
-  const player = findPlayerById(playerId);
+  const player = findPlayerById(playerRegistry, playerId);
   if (!player) return json(res, 404, { error: "Player not found" });
   const url = new URL(req.url, "http://vercel.local");
   const category = String(url.searchParams.get("category") || "");
@@ -482,7 +372,7 @@ async function handleAdminMediaUpload(req, res) {
   if (rawBody.length > MAX_BODY_SIZE) return json(res, 413, { error: "Payload too large" });
   let body;
   try { body = parseBody(req); } catch { return json(res, 400, { error: "Invalid JSON" }); }
-  const player = findPlayerById(String(body.playerId || ""));
+  const player = findPlayerById(playerRegistry, String(body.playerId || ""));
   if (!player) return json(res, 400, { error: "Unknown playerId" });
   if (!MEDIA_CATEGORIES.has(body.category)) return json(res, 400, { error: "Invalid category" });
   if (body.rightsConfirmed !== true) return json(res, 400, { error: "rightsConfirmed=true is required" });
@@ -602,61 +492,22 @@ async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(204).end();
 
   const pathname = new URL(req.url, "http://vercel.local").pathname;
-  const parts = pathname
-    .replace(/^\/api\/?/, "")
-    .split("/")
-    .filter(Boolean);
-  const rewrittenId = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
-  const rewrittenView = Array.isArray(req.query.view) ? req.query.view[0] : req.query.view;
-  const rewrittenPlayerId = Array.isArray(req.query.playerId) ? req.query.playerId[0] : req.query.playerId;
-  const rewrittenMediaId = Array.isArray(req.query.mediaId) ? req.query.mediaId[0] : req.query.mediaId;
   try {
-    if (parts.length === 1 && parts[0] === "health" && req.method === "GET") return await handleHealth(res);
-    if (parts.length === 1 && parts[0] === "players" && rewrittenPlayerId && rewrittenView === "media" && req.method === "GET") {
-      return await handleListPlayerMedia(req, res, rewrittenPlayerId);
-    }
-    if (parts.length === 1 && parts[0] === "players" && rewrittenPlayerId && req.method === "GET") return handleGetPlayer(res, rewrittenPlayerId);
-    if (parts.length === 1 && parts[0] === "player-media" && rewrittenMediaId && rewrittenView === "file" && req.method === "GET") {
-      return await handleGetMediaFile(req, res, rewrittenMediaId);
-    }
-    if (parts.length === 1 && parts[0] === "player-media" && rewrittenMediaId && rewrittenView === "admin-revoke" && req.method === "POST") {
-      return await handleAdminMediaRevoke(req, res, rewrittenMediaId);
-    }
-    if (parts.length === 1 && parts[0] === "player-media" && rewrittenView === "admin-upload" && req.method === "POST") {
-      return await handleAdminMediaUpload(req, res);
-    }
-    if (parts.length === 1 && parts[0] === "player-media" && rewrittenMediaId && req.method === "GET") {
-      return await handleGetMedia(res, rewrittenMediaId);
-    }
-    if (parts.length === 1 && parts[0] === "players" && req.method === "GET") return handleListPlayers(req, res);
-    if (parts.length === 2 && parts[0] === "players" && PLAYER_ID_REGEX.test(parts[1]) && req.method === "GET") return handleGetPlayer(res, parts[1]);
-    if (parts.length === 3 && parts[0] === "players" && PLAYER_ID_REGEX.test(parts[1]) && parts[2] === "media" && req.method === "GET") {
-      return await handleListPlayerMedia(req, res, parts[1]);
-    }
-    if (parts.length === 2 && parts[0] === "player-media" && req.method === "GET") return await handleGetMedia(res, parts[1]);
-    if (parts.length === 3 && parts[0] === "player-media" && parts[2] === "file" && req.method === "GET") {
-      return await handleGetMediaFile(req, res, parts[1]);
-    }
-    if (parts.length === 3 && parts[0] === "admin" && parts[1] === "player-media" && parts[2] === "upload" && req.method === "POST") {
-      return await handleAdminMediaUpload(req, res);
-    }
-    if (parts.length === 4 && parts[0] === "admin" && parts[1] === "player-media" && parts[3] === "revoke" && req.method === "POST") {
-      return await handleAdminMediaRevoke(req, res, parts[2]);
-    }
-    if (parts.length === 1 && parts[0] === "cards" && rewrittenId && rewrittenView === "thumbnail" && req.method === "GET") {
-      return await handleGetThumbnail(res, rewrittenId);
-    }
-    if (parts.length === 1 && parts[0] === "cards" && rewrittenId && req.method === "GET") {
-      return await handleGetCard(res, rewrittenId);
-    }
-    if (parts.length === 1 && parts[0] === "cards" && rewrittenId && req.method === "DELETE") {
-      return await handleDeleteCard(req, res, rewrittenId);
-    }
-    if (parts.length === 1 && parts[0] === "cards" && req.method === "GET") return await handleListCards(res);
-    if (parts.length === 1 && parts[0] === "cards" && req.method === "POST") return await handlePublishCard(req, res);
-    if (parts.length === 3 && parts[0] === "cards" && parts[2] === "thumbnail" && req.method === "GET") return await handleGetThumbnail(res, parts[1]);
-    if (parts.length === 2 && parts[0] === "cards" && req.method === "GET") return await handleGetCard(res, parts[1]);
-    if (parts.length === 2 && parts[0] === "cards" && req.method === "DELETE") return await handleDeleteCard(req, res, parts[1]);
+    const route = resolveApiRoute({ method: req.method, pathname, query: req.query || {} });
+    if (!route) return json(res, 404, { error: "Not found" });
+    if (route.name === "health") return await handleHealth(res);
+    if (route.name === "card-list") return await handleListCards(res);
+    if (route.name === "card-publish") return await handlePublishCard(req, res);
+    if (route.name === "card-thumbnail") return await handleGetThumbnail(res, route.id);
+    if (route.name === "card-detail") return await handleGetCard(res, route.id);
+    if (route.name === "card-delete") return await handleDeleteCard(req, res, route.id);
+    if (route.name === "player-list") return handleListPlayers(req, res);
+    if (route.name === "player-detail") return handleGetPlayer(res, route.playerId);
+    if (route.name === "player-media-list") return await handleListPlayerMedia(req, res, route.playerId);
+    if (route.name === "media-detail") return await handleGetMedia(res, route.mediaId);
+    if (route.name === "media-file") return await handleGetMediaFile(req, res, route.mediaId);
+    if (route.name === "media-upload") return await handleAdminMediaUpload(req, res);
+    if (route.name === "media-revoke") return await handleAdminMediaRevoke(req, res, route.mediaId);
     return json(res, 404, { error: "Not found" });
   } catch (error) {
     console.error("Vercel shared-library API error:", error);

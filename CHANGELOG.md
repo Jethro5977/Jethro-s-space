@@ -8,6 +8,32 @@
 
 ### 新增 / Added
 
+- 接入 GitHub `catdad/canvas-confetti` 1.9.4（ISC，本地托管并保留许可与哈希），拆包采用银色碎片、霓虹星点、金色双向喷射和黑金星环；揭卡同步增加箔面扫光、稀有度/名称标签及完成进度
+- EN: Integrated GitHub's catdad/canvas-confetti 1.9.4 (ISC, locally hosted with license and hashes), adding silver tear fragments, neon stars, twin gold fans and black-label star rings; reveals also gain a foil glint, rarity/name captions and completion progress
+- 拆包新增全程关闭按钮、手机横向吸附浏览及动态 reduced-motion 响应；关闭、ESC 和重新开包统一取消粒子、浮尘、闪光及延迟回调，避免旧动画污染新一轮拆包
+- EN: Added an always-available pack close button, mobile horizontal scroll snapping and live reduced-motion support; close, Escape and reopen now cancel particles, dust, flashes and delayed callbacks together so old animations cannot affect a new pack
+- 修复稀有卡亮度动画压平 CSS 3D 翻面层、短暂显示镜像卡背的问题；保留外发光，改用独立箔面扫光呈现揭卡亮点
+- EN: Fixed rare-hit brightness filters flattening the CSS 3D faces and briefly exposing a mirrored card back; retained the outer glow and moved the reveal highlight to a separate foil glint
+- 完成 renderer 公共模块拆分：提供 `bridge`、`spring`、`shaders`、`textures` 子路径、`fromImage()` 快捷接入及配套类型；增加源码、ESM、UMD 三入口的真实 WebGL 消费者测试和发布清单检查
+- EN: Completed the renderer public-module split with bridge, spring, shaders and textures subpaths, a typed fromImage() helper, real WebGL consumer tests for source/ESM/UMD, and package-manifest verification
+- 为 `@card-builder/renderer` 新增可发布的 Rollup 双格式构建与产物测试：ESM 保持 `three` peer dependency，UMD 通过经典 `<script>` 的全局 `THREE` 接入；包内现在包含 LICENSE、类型声明和受测试保护的发布清单
+- EN: Added a publishable Rollup dual-format build and artifact tests for `@card-builder/renderer`: ESM keeps `three` as a peer dependency, while UMD uses the classic `<script>` global `THREE`; the package now includes its LICENSE, type declarations, and a tested publish manifest
+- 新增 `npm run audit:css`：解析 CSS 规则与媒体查询，为共享卡库 Tab、全局 reduced-motion 和移动工具按钮建立层叠回归守卫
+- EN: Added `npm run audit:css`, which parses CSS rules and media queries to guard the shared-library tabs, global reduced-motion behavior, and mobile tool-button cascade against regressions
+- 新增 8 种导出特效的 Chromium RGBA 像素哈希基线测试；每次测试均生成真实 PNG、解码像素并比对 SHA-256，任何视觉变化需显式审阅和更新基线
+- EN: Added Chromium RGBA pixel-hash baselines for all eight export effects; every test produces a real PNG, decodes its pixels, and compares SHA-256 so visual changes require explicit review and baseline updates
+- 新增 `server/shared-api-core.cjs`，统一本地文件服务器与 Vercel Blob API 的卡牌发布校验、HTML 清理、缩略图解析、token 哈希、列表排序、球员筛选和直连/重写路由解析；存储与媒体上传保留为环境适配层
+- EN: Added `server/shared-api-core.cjs` to unify card-publish validation, HTML sanitization, thumbnail decoding, token hashing, list sorting, player filtering, and direct/rewritten route resolution across the local-file and Vercel Blob APIs; storage and media upload remain environment adapters
+- 新增 Playwright 浏览器 E2E 套件，覆盖编辑器/3D 预览启动、三阶段键盘导航、样式与特效、正反翻面、PNG 导出、本地卡库、共享库 health 与拆包完成等 8 条主流程
+- EN: Added a Playwright browser E2E suite covering editor and 3D-preview boot, keyboard stage navigation, style and effects, front/back flip, PNG export, local library, shared-library health, and completed pack opening across eight primary journeys
+- 将原 1,021 行的 `export.js` 拆为兼容门面、Canvas 卡牌渲染、独立特效画师与导出工作流四层；高复杂度 `drawExportEffect` 改为按特效名称分发的纯画师映射，保留既有导出 API
+- EN: Split the former 1,021-line `export.js` into a compatibility facade, canvas-card rendering, dedicated effect painters, and export workflows; the high-complexity `drawExportEffect` is now a name-dispatched pure-painter map while preserving the existing export API
+- 新增本地 workspace 包 `@card-builder/renderer`：把 Three.js 3D 卡牌与亚克力卡壳引擎从页面自启动脚本抽为显式 `createCardRenderer()` API，支持状态/视角更新、重建、缩放、高清捕获、悬停状态读取与完整销毁生命周期
+- EN: Added the local `@card-builder/renderer` workspace package, extracting the Three.js card and acrylic-slab engine from a page-owned bootstrap script into an explicit `createCardRenderer()` API with state/view updates, rebuilding, resizing, high-resolution capture, hover-state inspection, and full lifecycle teardown
+- 新增渲染状态归一化与单元测试，并将 `npm run check` 扩展到主应用、兼容适配器和 renderer 包共 18 个 ES Module
+- EN: Added renderer-state normalization and unit tests, and expanded `npm run check` to cover 18 ES modules across the application, compatibility adapter, and renderer package
+- 新增 `docs/PROJECT_AUDIT_2026-08-11.md` 客观项目审计报告，覆盖产品定位、功能、UI/UX、可访问性、代码架构、部署与素材权利风险，并给出继续投入的阶段性验证门槛
+- EN: Added the objective `docs/PROJECT_AUDIT_2026-08-11.md` project audit covering positioning, functionality, UI/UX, accessibility, code architecture, deployment, and asset-rights risk, with stage-gated criteria for further investment
 - 新增 4 张用户确认的精选卡：Devin Booker（比赛瞬间 / NBA 2K23 封面 / 太阳队西装照）与 P.J. Washington（#25 比赛瞬间），沿用 2025-26 卡背数据与对应球队 logo，保持球员-数据-logo 一一对应
 - EN: Added 4 user-confirmed curated cards: Devin Booker (game action / NBA 2K23 cover / Suns suit portrait) and P.J. Washington (#25 game action), each with 2025-26 back-side stats and a matching team logo to keep player-data-logo one-to-one
 - 新增 8 张由用户提供卡面素材制作的精选卡：Cooper Flagg（2025 选秀纪念 / 比赛瞬间 / #32 城市插画 / NBA 最佳新秀）、Kyrie Irving（比赛瞬间）、Klay Thompson（2 张比赛瞬间）、James Harden（连续季后赛里程碑）；同时补齐 27 支球队的可跟踪 logo 资产（`assets/team-logos/*.webp`），每张卡自动嵌入对应球队 logo，确保球员-数据-logo 一一对应
@@ -41,6 +67,22 @@
 
 ### 改进 / Improvements
 
+- renderer 状态和视角支持局部更新；快捷图片实例默认隔离页面事件，翻面保留正反贴图身份，加载失败回退可用画面，销毁时仅移除自身创建的画布；高清捕获复用已有 WebGL 上下文及环境反射资源
+- EN: Renderer state and view updates now merge partial values; image embeds ignore page-global events by default, retain front/back texture identities on flip, provide image-failure fallbacks, and remove only owned canvases on teardown; high-resolution capture reuses the existing WebGL context and environment resources
+- 修复 UMD 构建对 Three.js addons 全局对象的错误假设，改由 esbuild 打包所需 addons，核心继续使用 peer dependency；静态检查自动发现应用和 renderer 模块
+- EN: Fixed the UMD assumption that Three.js addons live on the core global: esbuild now bundles the required addons while core remains a peer dependency; syntax checks discover all application and renderer modules automatically
+- 重新核验 8 种 PNG 导出基线：Chrome 152 / macOS ARM 下修改前提交与当前源码的全部 RGBA 哈希一致，记录环境与对照提交并检查导出图像后更新旧基线；测试等待异步签名就绪并保留真实 PNG 附件
+- EN: Revalidated all eight PNG export baselines: the prior commit and current source produce identical RGBA hashes on Chrome 152/macOS ARM; refreshed the old baseline after recording environment/reference metadata and reviewing the images, and made tests await signature readiness and attach actual PNGs
+- 渲染器将浏览器运行时能力改为可注入的 `runtime`，移除包内对 `window` 与 `document.body` 的直接读写；页面级 `three-preview.js` 继续负责原有全局桥接和就绪样式类
+- EN: Made browser runtime capabilities injectable through `runtime`, removing direct package reads/writes of `window` and `document.body`; page-level `three-preview.js` continues to own the legacy global bridge and ready-state CSS class
+- 收敛 `styles.css` 的三组确定性重复覆盖：共享卡牌库 v1/v2 Tab 皮肤、全局 reduced-motion 规则，以及 ≤560px/≤700px 工具按钮尺寸；样式表由 8,034 行降至 7,970 行，保留包卡揭示等有意分层的视觉规则
+- EN: Consolidated three deterministic duplicate cascades in `styles.css`: shared-library v1/v2 tab skins, the global reduced-motion rule, and ≤560px/≤700px tool-button sizing; the stylesheet drops from 8,034 to 7,970 lines while preserving intentionally layered visual rules such as the pack-card reveal
+- 将前端主入口由 5,198 行单文件迁移为 15 个领域 ES Module，并通过 `app-core.js` late binding 保留跨模块调用；`three-preview.js` 现仅承担现有全局桥接兼容，渲染核心不再绑定固定 DOM 或写入 `window`
+- EN: Migrated the 5,198-line frontend entry into 15 domain ES modules with `app-core.js` late binding for cross-module calls; `three-preview.js` now serves only as the legacy global-bridge adapter, while the renderer core no longer owns fixed DOM queries or writes to `window`
+- 编辑器恢复「01 卡面设计 → 02 球员资料 → 03 保存导出」三阶段导航，移动端不再一次展开全部面板；补齐方向键、Home/End 键盘切换，并将移动端主要预览控制提升为 44px 触控目标
+- EN: Restored the three-step editor navigation — 01 Design → 02 Player → 03 Save & Export — so mobile no longer expands every panel at once; added Arrow/Home/End keyboard navigation and raised primary mobile preview controls to 44px touch targets
+- 产品界面与 README 新增非官方定位及素材权利提示，明确照片、Logo、签名等内容在上传、导出和公开发布前需确认相应使用权限
+- EN: Added an unofficial-project and asset-rights notice to the product UI and README, clarifying that permissions for photos, logos, signatures, and other assets must be confirmed before upload, export, or public release
 - 首页精选卡顺序固定为官方预览卡、Shai Gilgeous-Alexander `PM-041`、LeBron James `PM-031`；同步校正截图指定卡片的系列、稀有度、特效、湖人队视觉、人物裁切与封装
 - EN: Pinned the featured-card order to the official showcase, Shai Gilgeous-Alexander `PM-041`, and LeBron James `PM-031`; also aligned the referenced cards with the supplied series, rarity, effect, Lakers visual, player crop, and slab treatments
 - 新卡编号改为可复现的稀缺度加权随机规则，分母仅使用 299、99、25、20、15、1；编号越稀有，RAW 封装概率越低，`/25` 及以下默认采用实体卡壳
@@ -79,6 +121,12 @@
 
 ### 修复 / Fixes
 
+- 修复初次模块拆分中的语法错误、重复声明、缺少跨模块导入、错误导出名与 imported state 赋值问题；浏览器回归确认 3D 初始化、翻面及 2400×3200 PNG 导出正常且控制台无警告/错误
+- EN: Fixed syntax errors, duplicate declarations, missing cross-module imports, incorrect export names, and imported-state assignments from the initial module split; browser regression now confirms clean 3D initialization, flipping, and 2400×3200 PNG export with no console warnings or errors
+- 修复关闭状态卡牌库抽屉中的控件仍可被键盘聚焦的问题：抽屉现使用 `inert` 与 `aria-hidden` 同步隔离，关闭后焦点返回原触发按钮
+- EN: Fixed controls inside the closed library drawer remaining keyboard-focusable: the drawer now synchronizes `inert` with `aria-hidden`, and focus returns to the original trigger after closing
+- 修复快速球员栏与自动建库状态长期硬编码旧数量的问题：页面现在根据实际精选卡库与球员数据库显示 54 张精选影像和 28 位球员，后续数据扩充无需再手动同步文案
+- EN: Fixed stale hard-coded counts in the Quick Player bar and auto-build status: the UI now derives 54 curated media cards and 28 players from the actual library and player database, so future data additions no longer require manual copy updates
 - 更正 `PM-047` 球员识别：卡面为 Kyrie Irving 2011 年 Duke 状元选秀画面，此前误判为 Cooper Flagg；已改为 KYRIE IRVING（DAL），背板同步 2025-26 数据（50 场 / 24.7 分 / 4.8 板 / 4.6 助 / 47.3% / 40.1% 三分），徽章由 RC 更正为 ALL STAR，拍摄时球队保留 CLE
 - EN: Corrected the `PM-047` player identity: the art is Kyrie Irving's 2011 Duke No. 1 draft moment, previously misread as Cooper Flagg; the card is now KYRIE IRVING (DAL) with 2025-26 back stats (50 GP / 24.7 PPG / 4.8 RPG / 4.6 APG / 47.3 FG% / 40.1 3P%), the badge changed from RC to ALL STAR, and the team-at-capture remains CLE
 - 修复已删除精选卡残留在用户本地卡库的问题：精选卡库更新时不再把已移除的托管卡当作用户卡保留（Kyrie Irving `PM-049` 等已删卡随刷新自动清除），用户自建 DIY 卡不受影响；静态缓存 `app.js` → v45、`curated-library.json` → v6
@@ -111,6 +159,10 @@
 
 ### 数据版本 / Data Versions
 
+- 静态缓存：`app.js` v46 → v47；`styles.css` v31 → v32（三阶段导航、键盘/焦点与移动触控改进）
+- EN: Static caches: `app.js` v46 → v47; `styles.css` v31 → v32 (three-step navigation, keyboard/focus, and mobile touch improvements)
+- 静态缓存：`app.js` v45 → v46（动态项目进度计数）
+- EN: Static cache: `app.js` v45 → v46 (dynamic project-progress counts)
 - `player-media-manual-review` `sourceDataVersion` 9 → 10（`PM-047` 球员更正）
 - EN: `player-media-manual-review` `sourceDataVersion` 9 → 10 (`PM-047` player correction)
 - 静态缓存：`app.js` v44 → v45；`curated-library.json` v5 → v6（触发本地卡库托管卡清理）

@@ -14,18 +14,28 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import crypto from "node:crypto";
+import { createRequire } from "node:module";
 import { URL } from "node:url";
+
+const require = createRequire(import.meta.url);
+const {
+  LIMITS,
+  createCardRecord,
+  decodeThumbnail,
+  fallbackMedia: createFallbackMedia,
+  filterPlayers,
+  findPlayerById: findRegisteredPlayer,
+  hashToken,
+  publicCardListItem,
+  resolveApiRoute,
+  sortPublicCards,
+} = require("./shared-api-core.cjs");
 
 const PORT = parseInt(process.env.PORT, 10) || 4174;
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const DATA_DIR = path.join(__dirname, "data", "cards");
-const MAX_BODY_SIZE = 4 * 1024 * 1024; // 4 MB
-const MAX_THUMBNAIL_CHARS = 600_000;
-const MAX_FULLSTATE_CHARS = 2_000_000;
-const MAX_AUTHOR_LENGTH = 24;
-const THUMBNAIL_REGEX = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+const MAX_BODY_SIZE = LIMITS.bodyBytes;
 const REGISTRY_PATH = path.join(PROJECT_ROOT, "data", "player-registry.json");
 const PLAYER_MEDIA_PATH = path.join(PROJECT_ROOT, "data", "player-media.json");
 
@@ -68,7 +78,7 @@ const PLAYER_MEDIA_DOCUMENT = (() => {
 })();
 
 function findPlayerById(playerId) {
-  return Object.values(PLAYER_REGISTRY).find((player) => player.playerId === playerId) || null;
+  return findRegisteredPlayer(PLAYER_REGISTRY, playerId);
 }
 
 function publicLocalMedia(asset) {
@@ -92,24 +102,7 @@ function publicLocalMedia(asset) {
 }
 
 function localFallbackMedia(player) {
-  const mediaId = `pm_fallback_${player.nbaId}`;
-  return {
-    mediaId,
-    playerId: player.playerId,
-    category: "headshot_fallback",
-    tags: ["fallback"],
-    title: "Official headshot compatibility fallback",
-    capturedAt: null,
-    season: null,
-    teamAtCapture: player.team,
-    provider: "nba_cdn",
-    creditLine: "NBA CDN · temporary compatibility fallback",
-    photographer: null,
-    licenseStatus: "fallback_review_required",
-    fallback: true,
-    cardUrl: `/api/player-media/${mediaId}/file?variant=card`,
-    thumbUrl: `/api/player-media/${mediaId}/file?variant=thumb`,
-  };
+  return createFallbackMedia(player);
 }
 
 function reportPlayerRegistry() {
@@ -142,18 +135,6 @@ const SERVER_POSITION_MAP = {
   PF: "POWER FORWARD",
   C: "CENTER",
 };
-
-function validateServerPlayerMeta(card) {
-  const full = card.fullState || {};
-  const playerName = String(full.playerName || card.name || "").trim().toLowerCase();
-  const authoritative = PLAYER_REGISTRY[playerName];
-  if (!authoritative) return null;
-  const cardTeam = String(full.teamAbbr || card.team || "").toUpperCase().trim();
-  if (cardTeam && cardTeam !== authoritative.team) {
-    return `Team mismatch with official registry: ${cardTeam} !== ${authoritative.team}`;
-  }
-  return null;
-}
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -206,34 +187,12 @@ function json(res, status, data) {
   res.end(body);
 }
 
-function generateId() {
-  const ts = Date.now().toString(36);
-  const rand = crypto.randomBytes(4).toString("hex");
-  return `sc_${ts}_${rand}`;
-}
-
-function generateTokenPair() {
-  const token = crypto.randomBytes(32).toString("hex");
-  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-  return { token, tokenHash };
-}
-
 function safePath(dir, filename) {
   const resolved = path.resolve(dir, filename);
   if (!resolved.startsWith(path.resolve(dir) + path.sep) && resolved !== path.resolve(dir)) {
     return null;
   }
   return resolved;
-}
-
-function escapeHtml(str) {
-  if (typeof str !== "string") return "";
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
 }
 
 async function handleListCards(req, res) {
@@ -244,32 +203,12 @@ async function handleListCards(req, res) {
     try {
       const raw = await fsp.readFile(path.join(DATA_DIR, f), "utf-8");
       const record = JSON.parse(raw);
-      cards.push({
-        id: record.id,
-        author: record.author,
-        createdAt: record.createdAt,
-        featured: Boolean(record.featured),
-        card: {
-          id: record.card.id,
-          name: record.card.name,
-          team: record.card.team,
-          style: record.card.style,
-          effect: record.card.effect,
-          rarity: record.card.rarity,
-          slabType: record.card.slabType,
-          badges: record.card.badges,
-          thumbnailUrl: `/api/cards/${record.id}/thumbnail`,
-        },
-      });
+      cards.push(publicCardListItem(record));
     } catch {
       /* 跳过损坏文件 */
     }
   }
-  cards.sort((a, b) => {
-    if (Boolean(a.featured) !== Boolean(b.featured)) return Boolean(a.featured) ? -1 : 1;
-    return b.createdAt - a.createdAt;
-  });
-  return json(res, 200, { cards });
+  return json(res, 200, { cards: sortPublicCards(cards) });
 }
 
 async function handlePublishCard(req, res) {
@@ -281,41 +220,15 @@ async function handlePublishCard(req, res) {
     return json(res, 400, { error: "Invalid JSON" });
   }
 
-  const { card } = body;
-  if (!card || typeof card !== "object") return json(res, 400, { error: "Missing card data" });
-  if (typeof card.thumbnail !== "string") return json(res, 400, { error: "Missing thumbnail" });
-  if (!THUMBNAIL_REGEX.test(card.thumbnail)) return json(res, 400, { error: "Invalid thumbnail format" });
-  if (card.thumbnail.length > MAX_THUMBNAIL_CHARS) return json(res, 400, { error: "Thumbnail too large" });
-  if (card.fullState == null) return json(res, 400, { error: "Missing fullState" });
-  if (JSON.stringify(card.fullState).length > MAX_FULLSTATE_CHARS) return json(res, 400, { error: "fullState too large" });
-  const playerMetaError = validateServerPlayerMeta(card);
-  if (playerMetaError) return json(res, 400, { error: playerMetaError });
+  const result = createCardRecord(body, PLAYER_REGISTRY);
+  if (result.error) return json(res, result.status, { error: result.error });
+  const { record, token } = result;
 
-  const rawAuthor = (body.author || "").trim();
-  if (rawAuthor.length > MAX_AUTHOR_LENGTH) return json(res, 400, { error: "Author name too long" });
-  const author = escapeHtml(rawAuthor).slice(0, MAX_AUTHOR_LENGTH) || "匿名";
-  const id = generateId();
-  const { token, tokenHash } = generateTokenPair();
-
-  const record = {
-    schemaVersion: 1,
-    id,
-    author,
-    createdAt: Date.now(),
-    tokenHash,
-    card: {
-      ...card,
-      sharedId: id,
-      name: escapeHtml((card.name || "").slice(0, 100)),
-      team: escapeHtml((card.team || "").slice(0, 10)),
-    },
-  };
-
-  const filePath = safePath(DATA_DIR, `${id}.json`);
+  const filePath = safePath(DATA_DIR, `${record.id}.json`);
   if (!filePath) return json(res, 400, { error: "Invalid id" });
   await fsp.writeFile(filePath, JSON.stringify(record, null, 2), "utf-8");
 
-  return json(res, 201, { id, token, card: record.card });
+  return json(res, result.status, { id: record.id, token, card: record.card });
 }
 
 async function handleGetCard(req, res, id) {
@@ -343,18 +256,14 @@ async function handleGetThumbnail(req, res, id) {
   try {
     const raw = await fsp.readFile(filePath, "utf-8");
     const record = JSON.parse(raw);
-    const dataUrl = record.card.thumbnail;
-    const match = dataUrl.match(/^data:image\/(png|jpeg|webp);base64,(.+)$/);
-    if (!match) return json(res, 500, { error: "Invalid stored thumbnail" });
-    const [, format, b64] = match;
-    const buf = Buffer.from(b64, "base64");
-    const mime = format === "jpeg" ? "image/jpeg" : `image/${format}`;
+    const image = decodeThumbnail(record.card.thumbnail);
+    if (!image) return json(res, 500, { error: "Invalid stored thumbnail" });
     res.writeHead(200, {
-      "Content-Type": mime,
-      "Content-Length": buf.length,
+      "Content-Type": image.mime,
+      "Content-Length": image.buffer.length,
       "Cache-Control": "public, max-age=86400",
     });
-    res.end(buf);
+    res.end(image.buffer);
   } catch (err) {
     if (err.code === "ENOENT") return json(res, 404, { error: "Card not found" });
     console.error("Get thumbnail error:", err);
@@ -375,8 +284,7 @@ async function handleDeleteCard(req, res, id, token) {
     return json(res, 500, { error: "Internal server error" });
   }
   const record = JSON.parse(raw);
-  const hash = crypto.createHash("sha256").update(token).digest("hex");
-  if (hash !== record.tokenHash) return json(res, 403, { error: "Token mismatch" });
+  if (hashToken(token) !== record.tokenHash) return json(res, 403, { error: "Token mismatch" });
   try {
     await fsp.unlink(filePath);
   } catch (err) {
@@ -388,37 +296,28 @@ async function handleDeleteCard(req, res, id, token) {
 
 async function handleApi(req, res, url, pathname) {
   try {
-    if (pathname === "/api/health" && req.method === "GET") {
+    const route = resolveApiRoute({ method: req.method, pathname, query: url.searchParams });
+    if (!route) return json(res, 404, { error: "Not found" });
+
+    if (route.name === "health") {
       const files = await fsp.readdir(DATA_DIR);
-      const count = files.filter((f) => f.endsWith(".json")).length;
-      return json(res, 200, { status: "ok", count });
+      return json(res, 200, { status: "ok", count: files.filter((file) => file.endsWith(".json")).length });
     }
-
-    if (pathname === "/api/cards" && req.method === "GET") {
-      return handleListCards(req, res);
-    }
-
-    if (pathname === "/api/cards" && req.method === "POST") {
-      return handlePublishCard(req, res);
-    }
-
-    if (pathname === "/api/players" && req.method === "GET") {
-      const team = String(url.searchParams.get("team") || "").toUpperCase();
-      let players = Object.values(PLAYER_REGISTRY);
-      if (url.searchParams.get("active") === "true") players = players.filter((player) => player.active === true);
-      if (team) players = players.filter((player) => player.team === team);
+    if (route.name === "card-list") return handleListCards(req, res);
+    if (route.name === "card-publish") return handlePublishCard(req, res);
+    if (route.name === "card-thumbnail") return handleGetThumbnail(req, res, route.id);
+    if (route.name === "card-detail") return handleGetCard(req, res, route.id);
+    if (route.name === "card-delete") return handleDeleteCard(req, res, route.id, url.searchParams.get("token") || "");
+    if (route.name === "player-list") {
+      const players = filterPlayers(PLAYER_REGISTRY, url.searchParams);
       return json(res, 200, { players, total: players.length });
     }
-
-    const playerMatch = pathname.match(/^\/api\/players\/(nba_[0-9]+)$/);
-    if (playerMatch && req.method === "GET") {
-      const player = findPlayerById(playerMatch[1]);
+    if (route.name === "player-detail") {
+      const player = findPlayerById(route.playerId);
       return player ? json(res, 200, { player }) : json(res, 404, { error: "Player not found" });
     }
-
-    const playerMediaMatch = pathname.match(/^\/api\/players\/(nba_[0-9]+)\/media$/);
-    if (playerMediaMatch && req.method === "GET") {
-      const player = findPlayerById(playerMediaMatch[1]);
+    if (route.name === "player-media-list") {
+      const player = findPlayerById(route.playerId);
       if (!player) return json(res, 404, { error: "Player not found" });
       const category = String(url.searchParams.get("category") || "");
       const media = (PLAYER_MEDIA_DOCUMENT.assets || [])
@@ -428,10 +327,8 @@ async function handleApi(req, res, url, pathname) {
       if (!category || category === "headshot_fallback") media.push(localFallbackMedia(player));
       return json(res, 200, { playerId: player.playerId, media, total: media.length, fallbackOnly: media.every((asset) => asset.fallback) });
     }
-
-    const fallbackFileMatch = pathname.match(/^\/api\/player-media\/pm_fallback_([0-9]+)\/file$/);
-    if (fallbackFileMatch && req.method === "GET") {
-      const player = Object.values(PLAYER_REGISTRY).find((item) => item.nbaId === fallbackFileMatch[1]);
+    if (route.name === "media-file" && route.mediaId?.startsWith("pm_fallback_")) {
+      const player = Object.values(PLAYER_REGISTRY).find((item) => `pm_fallback_${item.nbaId}` === route.mediaId);
       if (!player) return json(res, 404, { error: "Media not found" });
       const variant = url.searchParams.get("variant") === "thumb" ? "260x190" : "1040x760";
       const upstream = await fetch(`https://cdn.nba.com/headshots/nba/latest/${variant}/${player.nbaId}.png`);
@@ -444,23 +341,7 @@ async function handleApi(req, res, url, pathname) {
       });
       return res.end(buffer);
     }
-
-    const thumbMatch = pathname.match(/^\/api\/cards\/([a-z0-9_]+)\/thumbnail$/);
-    if (thumbMatch && req.method === "GET") {
-      return handleGetThumbnail(req, res, thumbMatch[1]);
-    }
-
-    const detailMatch = pathname.match(/^\/api\/cards\/([a-z0-9_]+)$/);
-    if (detailMatch && req.method === "GET") {
-      return handleGetCard(req, res, detailMatch[1]);
-    }
-
-    if (detailMatch && req.method === "DELETE") {
-      const token = url.searchParams.get("token") || "";
-      return handleDeleteCard(req, res, detailMatch[1], token);
-    }
-
-    json(res, 404, { error: "Not found" });
+    return json(res, 404, { error: "Not found" });
   } catch (err) {
     console.error("API error:", err);
     json(res, err.status || 500, { error: err.message || "Internal server error" });

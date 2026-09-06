@@ -1,0 +1,68 @@
+{
+  "name": "@card-builder/renderer",
+  "version": "0.1.1",
+  "description": "Embeddable Three.js 3D renderer for collectible trading cards — acrylic slab enclosures, holographic foil effects, and pointer-driven tilt interaction",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/card-renderer.esm.js",
+      "default": "./dist/card-renderer.esm.js"
+    },
+    "./config": {
+      "types": "./src/config.d.ts",
+      "import": "./src/config.js"
+    },
+    "./spring": {
+      "types": "./src/spring.d.ts",
+      "import": "./src/spring.js"
+    },
+    "./shaders": {
+      "types": "./src/shaders.d.ts",
+      "import": "./src/shaders.js"
+    },
+    "./textures": {
+      "types": "./src/textures.d.ts",
+      "import": "./src/textures.js"
+    },
+    "./bridge": {
+      "types": "./src/bridge.d.ts",
+      "import": "./src/bridge.js"
+    },
+    "./src": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./dist/card-renderer.esm.js",
+  "module": "./dist/card-renderer.esm.js",
+  "unpkg": "./dist/card-renderer.umd.js",
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "author": {
+    "name": "Jethro",
+    "email": "jethroyu5977@gmail.com",
+    "url": "https://github.com/Jethro5977"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "three": "^0.185.1"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepublishOnly": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
