@@ -2,110 +2,37 @@
 import { STYLE_META } from "./constants.js";
 import { $, clamp, sleep, showToast } from "./utils.js";
 import { app } from "./app-core.js";
+import { PackCelebration } from "./pack-celebration.js";
 
 export let packPhase = "sealed";
 export let packTearProgress = 0;
 export let packAbortController = null;
 export let packDust = null;
 
-class PackConfetti {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
-    this.particles = [];
-    this.animId = null;
-    this.colors = ["#b478ff","#59d5e0","#ffd666","#e85d75","#58dca8","#f4c44e","#8ed6e6","#c8a2ff"];
-    this.w = 0;
-    this.h = 0;
-  }
-  resize() {
-    const p = this.canvas.parentElement;
-    if (!p) return;
-    const r = p.getBoundingClientRect();
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    this.canvas.width = r.width * dpr;
-    this.canvas.height = r.height * dpr;
-    this.canvas.style.width = r.width + "px";
-    this.canvas.style.height = r.height + "px";
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this.w = r.width;
-    this.h = r.height;
-  }
-  burst(x, y, count) {
-    if (!this.w) this.resize();
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const v = 3 + Math.random() * 9;
-      this.particles.push({
-        x, y,
-        vx: Math.cos(angle) * v,
-        vy: Math.sin(angle) * v - 4,
-        g: 0.10 + Math.random() * 0.08,
-        s: 2.5 + Math.random() * 5,
-        c: this.colors[Math.floor(Math.random() * this.colors.length)],
-        r: Math.random() * 360,
-        rs: (Math.random() - 0.5) * 14,
-        o: 1,
-        d: 0.013 + Math.random() * 0.012,
-        sh: ["r","d","s"][Math.floor(Math.random() * 3)],
-        t: 0
-      });
-    }
-    if (!this.animId) this._loop();
-  }
-  _loop() {
-    const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.w, this.h);
-    this.particles = this.particles.filter(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += p.g;
-      p.vx *= 0.99;
-      p.r += p.rs;
-      p.o -= p.d;
-      p.t++;
-      if (p.o <= 0) return false;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.r * Math.PI / 180);
-      ctx.globalAlpha = p.o;
-      ctx.fillStyle = p.c;
-      if (p.sh === "r") {
-        ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
-      } else if (p.sh === "d") {
-        ctx.beginPath();
-        ctx.moveTo(0, -p.s);
-        ctx.lineTo(p.s * 0.55, 0);
-        ctx.lineTo(0, p.s);
-        ctx.lineTo(-p.s * 0.55, 0);
-        ctx.closePath();
-        ctx.fill();
-      } else {
-        ctx.beginPath();
-        for (let i = 0; i < 10; i++) {
-          const rad = (i % 2 === 0 ? p.s : p.s * 0.4);
-          const a = (i * Math.PI / 5) - Math.PI / 2;
-          ctx[i === 0 ? "moveTo" : "lineTo"](Math.cos(a) * rad, Math.sin(a) * rad);
-        }
-        ctx.closePath();
-        ctx.fill();
-      }
-      ctx.restore();
-      return true;
-    });
-    if (this.particles.length > 0) {
-      this.animId = requestAnimationFrame(() => this._loop());
-    } else {
-      this.animId = null;
-    }
-  }
-  destroy() {
-    if (this.animId) cancelAnimationFrame(this.animId);
-    this.particles = [];
-    this.animId = null;
-    if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
+const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rarityNames = { base: "BASE", silver: "SILVER", rwb: "TRICOLOR", neon: "NEON HIT", gold: "GOLD HIT", black: "BLACK LABEL" };
+
+function sessionTimeout(signal, callback, delay) {
+  if (signal.aborted) return;
+  const cancel = () => clearTimeout(timer);
+  const timer = window.setTimeout(() => {
+    signal.removeEventListener("abort", cancel);
+    if (!signal.aborted) callback();
+  }, delay);
+  signal.addEventListener("abort", cancel, { once: true });
 }
+
+function packFlash(className, signal) {
+  if (signal?.aborted || reducedMotion()) return;
+  const flash = document.createElement("div");
+  flash.className = className;
+  flash.setAttribute("aria-hidden", "true");
+  $("#packOpening").appendChild(flash);
+  const remove = () => flash.remove();
+  signal.addEventListener("abort", remove, { once: true });
+  sessionTimeout(signal, () => { remove(); signal.removeEventListener("abort", remove); }, 700);
+}
+
 
 // 零依赖浮尘粒子：缓慢上浮 + 横向漂移 + 呼吸闪烁，营造舞台尘埃氛围
 class PackDust {
@@ -222,37 +149,52 @@ function openPackExperience() {
   envelope.className = "pack-envelope idle-wobble";
   envelope.dataset.frame = "1";
   stageEnvelope.hidden = false;
+  stageEnvelope.style.opacity = "";
+  stageEnvelope.style.transition = "";
   container.replaceChildren();
   container.style.display = "none";
   closeButton.classList.remove("visible");
   envelope.focus();
 
   // confetti engine
-  const confetti = new PackConfetti(confettiCanvas);
+  const confetti = new PackCelebration(confettiCanvas, signal);
+  const progress = $("#packRevealStatus");
+  progress.hidden = true;
+  progress.textContent = "";
+  $("#packExitBtn").addEventListener("click", closePackExperience, { signal });
 
   // ambient dust engine
   packDust = new PackDust($("#packDust"));
   packDust.resize();
   packDust.start();
+  const dust = packDust;
+  signal.addEventListener("abort", () => dust.destroy(), { once: true });
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  motionQuery.addEventListener("change", () => {
+    dust.destroy();
+    dust.reduced = motionQuery.matches;
+    if (!dust.reduced) dust.start();
+    else pack.querySelectorAll(".pack-split-flash, .pack-flash-overlay, .pack-rarity-flash").forEach(node => node.remove());
+  }, { signal });
 
   // backdrop spotlight follows pointer (smoothed by CSS transition)
   const spotlight = pack.querySelector(".pack-spotlight");
   pack.addEventListener("pointermove", (e) => {
-    if (!spotlight) return;
+    if (!spotlight || reducedMotion()) return;
     const rect = pack.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     spotlight.style.backgroundPosition = `center, ${x.toFixed(2)}% ${y.toFixed(2)}%`;
   }, { signal });
 
-  // keep both canvases sharp if the window is resized mid-open
+  // Confetti manages its own resize listener; keep the ambient canvas sharp.
   window.addEventListener("resize", () => {
-    confetti.resize();
     packDust?.resize();
   }, { signal });
 
   // mouse-follow tilt + foil sheen
   const onPackMove = (e) => {
+    if (reducedMotion()) return;
     const rect = envelope.getBoundingClientRect();
     envelope.style.setProperty("--pack-mx", ((e.clientX - rect.left) / rect.width).toFixed(3));
     envelope.style.setProperty("--pack-my", ((e.clientY - rect.top) / rect.height).toFixed(3));
@@ -267,27 +209,21 @@ function openPackExperience() {
   let dragStartY = 0;
 
   const finishOpening = async () => {
-    if (["opened", "revealing", "done"].includes(packPhase)) return;
+    if (signal.aborted || ["opened", "revealing", "done"].includes(packPhase)) return;
     packPhase = "opened";
     packTearProgress = 1;
     envelope.classList.remove("tearing", "tear-critical", "idle-wobble");
     envelope.classList.add("split-open");
 
     // confetti burst from pack center
-    const packRect = pack.getBoundingClientRect();
-    const envRect = envelope.getBoundingClientRect();
-    const cx = envRect.left - packRect.left + envRect.width / 2;
-    const cy = envRect.top - packRect.top + envRect.height * 0.35;
-    confetti.burst(cx, cy, 80);
+    confetti.burstAt(envelope, "silver", 70, 0.35);
 
     // full-screen flash
-    const flash = document.createElement("div");
-    flash.className = "pack-split-flash";
-    document.body.appendChild(flash);
-    window.setTimeout(() => flash.remove(), 700);
+    packFlash("pack-split-flash", signal);
 
-    await sleep(580);
-    revealPackCards(cards, envelope, container, closeButton, confetti);
+    await sleep(reducedMotion() ? 0 : 580);
+    if (signal.aborted) return;
+    await revealPackCards(cards, envelope, container, closeButton, confetti, signal);
   };
 
   // --- drag to tear ---
@@ -309,38 +245,37 @@ function openPackExperience() {
     envelope.dataset.frame = String(frame);
 
     // rotate slightly as tearing progresses
-    envelope.style.transform = `perspective(800px) rotateZ(${packTearProgress * 1.5}deg) scale(${1 + packTearProgress * 0.02})`;
+    if (!reducedMotion()) envelope.style.transform = `perspective(800px) rotateZ(${packTearProgress * 1.5}deg) scale(${1 + packTearProgress * 0.02})`;
 
     if (packTearProgress >= 0.7) {
       envelope.classList.add("tear-critical");
       // micro sparks near the tear point
       if (Math.random() > 0.6) {
-        const packRect = pack.getBoundingClientRect();
-        const envRect = envelope.getBoundingClientRect();
-        confetti.burst(
-          envRect.left - packRect.left + envRect.width * (0.3 + Math.random() * 0.4),
-          envRect.top - packRect.top + envRect.height * packTearProgress,
-          3
-        );
+        confetti.burstAt(envelope, "silver", 3, packTearProgress);
       }
     }
     if (packTearProgress >= 0.98) finishOpening();
   }, { signal });
 
-  envelope.addEventListener("pointerup", () => {
+  const cancelTear = () => {
     if (packPhase !== "tearing") return;
-    if (packTearProgress >= 0.72) { finishOpening(); return; }
-    // snap back
     packPhase = "sealed";
     packTearProgress = 0;
     envelope.classList.remove("tearing", "tear-critical");
     envelope.classList.add("idle-wobble");
     envelope.dataset.frame = "1";
     envelope.style.transform = "";
+  };
+  envelope.addEventListener("pointercancel", cancelTear, { signal });
+  envelope.addEventListener("pointerup", () => {
+    if (packPhase !== "tearing") return;
+    if (packTearProgress >= 0.72) { finishOpening(); return; }
+    // snap back
+    cancelTear();
   }, { signal });
 
   envelope.addEventListener("keydown", (event) => {
-    if (["Enter", " "].includes(event.key)) { event.preventDefault(); finishOpening(); }
+    if (packPhase === "sealed" && ["Enter", " "].includes(event.key)) { event.preventDefault(); finishOpening(); }
   }, { signal });
 
   // --- flash open button: instant burst ---
@@ -352,23 +287,24 @@ function openPackExperience() {
 
     // rapid frame cycle
     let f = 1;
-    const rapid = setInterval(() => {
+    const rapid = reducedMotion() ? null : setInterval(() => {
+      if (signal.aborted || reducedMotion()) { clearInterval(rapid); return; }
       f = f >= 5 ? 1 : f + 1;
       envelope.dataset.frame = String(f);
     }, 60);
+    const stopRapid = () => clearInterval(rapid);
+    signal.addEventListener("abort", stopRapid, { once: true });
 
     // white flash overlay
-    const overlay = document.createElement("div");
-    overlay.className = "pack-flash-overlay";
-    document.body.appendChild(overlay);
-    setTimeout(() => overlay.remove(), 650);
+    packFlash("pack-flash-overlay", signal);
 
     // confetti burst immediately
-    const packRect = pack.getBoundingClientRect();
-    confetti.burst(packRect.width / 2, packRect.height * 0.38, 100);
+    confetti.burstAt(envelope, "silver", 24, 0.35);
 
-    await sleep(380);
-    clearInterval(rapid);
+    await sleep(reducedMotion() ? 0 : 380);
+    stopRapid();
+    signal.removeEventListener("abort", stopRapid);
+    if (signal.aborted) return;
     envelope.classList.remove("flash-burst");
     finishOpening();
   }, { signal });
@@ -379,12 +315,12 @@ function openPackExperience() {
   }, { signal });
 }
 
-async function revealPackCards(cards, envelope, container, closeButton, confetti) {
+async function revealPackCards(cards, envelope, container, closeButton, confetti, signal) {
   const stageEnvelope = $("#packStageEnvelope");
   stageEnvelope.style.transition = "opacity 0.35s ease";
   stageEnvelope.style.opacity = "0";
-  await sleep(350);
-  if (packPhase !== "opened") return;
+  await sleep(reducedMotion() ? 0 : 350);
+  if (signal.aborted || packPhase !== "opened") return;
   stageEnvelope.hidden = true;
   stageEnvelope.style.opacity = "";
   stageEnvelope.style.transition = "";
@@ -397,58 +333,57 @@ async function revealPackCards(cards, envelope, container, closeButton, confetti
           <strong>CB</strong>
           <span class="pk-subtitle">ELITE COURT</span>
         </span>
-        <span class="pack-card-face pack-card-face-back"><img src="${app.escapeHtml(card.thumbnail)}" alt="${app.escapeHtml(card.name)}"></span>
+        <span class="pack-card-face pack-card-face-back"><img src="${app.escapeHtml(card.thumbnail)}" alt="${app.escapeHtml(card.name)}"><span class="pack-card-glint" aria-hidden="true"></span></span>
       </span>
+      <span class="pack-card-caption" aria-hidden="true"><span>${rarityNames[card.rarity] || "BASE"}</span><strong>${app.escapeHtml(card.name)}</strong></span>
     </button>
   `).join("");
 
   const slots = container.querySelectorAll(".pack-card-slot");
   slots.forEach((slot, i) => {
-    window.setTimeout(() => slot.classList.add("card-entered"), 150 + i * 120);
+    sessionTimeout(signal, () => slot.classList.add("card-entered"), reducedMotion() ? 0 : 100 + i * 100);
   });
 
   packPhase = "revealing";
+  const progress = $("#packRevealStatus");
+  progress.hidden = false;
+  progress.textContent = `REVEAL YOUR LINEUP · 0 / ${cards.length}`;
   let revealedCount = 0;
   slots.forEach((slot, index) => {
     slot.addEventListener("click", () => {
       const inner = slot.querySelector(".pack-card-inner");
       if (inner.classList.contains("revealed")) return;
       slot.classList.add("flipping");
-      slot.addEventListener("animationend", () => slot.classList.remove("flipping"), { once: true });
+      sessionTimeout(signal, () => slot.classList.remove("flipping"), reducedMotion() ? 0 : 600);
       inner.classList.add("revealed");
+      slot.classList.add("is-revealed");
       slot.setAttribute("aria-label", `${cards[index].name}，已翻开`);
       revealedCount += 1;
+      progress.textContent = `REVEAL YOUR LINEUP · ${revealedCount} / ${cards.length}`;
 
       if (["gold", "black", "neon"].includes(cards[index].rarity)) {
-        flashPackRarity(cards[index].rarity);
-        if (confetti) {
-          const packRect = $("#packOpening").getBoundingClientRect();
-          const slotRect = slot.getBoundingClientRect();
-          confetti.burst(
-            slotRect.left - packRect.left + slotRect.width / 2,
-            slotRect.top - packRect.top + slotRect.height / 2,
-            35
-          );
-        }
+        // Align the celebration with the visible portrait halfway through the flip.
+        sessionTimeout(signal, () => {
+          flashPackRarity(cards[index].rarity, signal);
+          confetti.burstAt(slot, cards[index].rarity, cards[index].rarity === "black" ? 88 : 64);
+        }, reducedMotion() ? 0 : 320);
       }
 
       if (revealedCount === cards.length) {
         packPhase = "done";
+        progress.textContent = `LINEUP COMPLETE · ${cards.length} / ${cards.length}`;
         closeButton.classList.add("visible");
         closeButton.focus();
       }
-    }, { signal: packAbortController.signal });
+    }, { signal });
   });
   const library = app.loadLibrary();
   library.stats.packsOpened = Number(library.stats.packsOpened || 0) + 1;
   await app.saveLibraryResilient(library);
 }
 
-function flashPackRarity(rarity) {
-  const flash = document.createElement("div");
-  flash.className = `pack-rarity-flash flash-${rarity}`;
-  document.body.appendChild(flash);
-  window.setTimeout(() => flash.remove(), 620);
+function flashPackRarity(rarity, signal = packAbortController?.signal) {
+  if (signal) packFlash(`pack-rarity-flash flash-${rarity}`, signal);
 }
 
 function closePackExperience() {
@@ -458,6 +393,7 @@ function closePackExperience() {
   packAbortController = null;
   packDust?.destroy();
   packDust = null;
+  $("#packMiniBtn")?.focus();
   const envelope = $("#packEnvelope");
   if (envelope) {
     envelope.className = "pack-envelope";
@@ -475,4 +411,4 @@ function closePackExperience() {
 app.openPackExperience = openPackExperience;
 app.closePackExperience = closePackExperience;
 
-export { PackConfetti, PackDust, openPackExperience, flashPackRarity, closePackExperience };
+export { PackDust, openPackExperience, flashPackRarity, closePackExperience };

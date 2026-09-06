@@ -8,6 +8,12 @@
 
 ### 新增 / Added
 
+- 接入 GitHub `catdad/canvas-confetti` 1.9.4（ISC，本地托管并保留许可与哈希），拆包采用银色碎片、霓虹星点、金色双向喷射和黑金星环；揭卡同步增加箔面扫光、稀有度/名称标签及完成进度
+- EN: Integrated GitHub's catdad/canvas-confetti 1.9.4 (ISC, locally hosted with license and hashes), adding silver tear fragments, neon stars, twin gold fans and black-label star rings; reveals also gain a foil glint, rarity/name captions and completion progress
+- 拆包新增全程关闭按钮、手机横向吸附浏览及动态 reduced-motion 响应；关闭、ESC 和重新开包统一取消粒子、浮尘、闪光及延迟回调，避免旧动画污染新一轮拆包
+- EN: Added an always-available pack close button, mobile horizontal scroll snapping and live reduced-motion support; close, Escape and reopen now cancel particles, dust, flashes and delayed callbacks together so old animations cannot affect a new pack
+- 修复稀有卡亮度动画压平 CSS 3D 翻面层、短暂显示镜像卡背的问题；保留外发光，改用独立箔面扫光呈现揭卡亮点
+- EN: Fixed rare-hit brightness filters flattening the CSS 3D faces and briefly exposing a mirrored card back; retained the outer glow and moved the reveal highlight to a separate foil glint
 - 完成 renderer 公共模块拆分：提供 `bridge`、`spring`、`shaders`、`textures` 子路径、`fromImage()` 快捷接入及配套类型；增加源码、ESM、UMD 三入口的真实 WebGL 消费者测试和发布清单检查
 - EN: Completed the renderer public-module split with bridge, spring, shaders and textures subpaths, a typed fromImage() helper, real WebGL consumer tests for source/ESM/UMD, and package-manifest verification
 - 为 `@card-builder/renderer` 新增可发布的 Rollup 双格式构建与产物测试：ESM 保持 `three` peer dependency，UMD 通过经典 `<script>` 的全局 `THREE` 接入；包内现在包含 LICENSE、类型声明和受测试保护的发布清单

@@ -24,6 +24,7 @@
     "test:renderer:browser": "npm run build --workspace @card-builder/renderer && playwright test tests/e2e/renderer-package.spec.mjs --workers=1",
     "test:api": "node --test server/test/*.test.mjs api/test/*.test.mjs",
     "test:e2e": "playwright test tests/e2e/card-builder.spec.mjs",
+    "test:pack": "playwright test tests/e2e/pack-reveal.spec.mjs",
     "test:visual": "playwright test tests/e2e/export-effects.spec.mjs",
     "verify": "bash scripts/verify-shared.sh",
     "audit:players": "node scripts/audit-player-data.mjs",
