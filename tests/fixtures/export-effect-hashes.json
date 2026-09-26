@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "review": {
+    "date": "2026-09-05",
+    "browser": "Chrome 152.0.7977.76",
+    "platform": "darwin-arm64",
+    "referenceCommit": "3430cd44198abbaa9f576fdd4a50efe810dc1c1b",
+    "evidence": "All eight decoded PNG hashes match the unmodified reference commit and the working source on this environment. Historical hashes had no browser/platform metadata. Exports were visually reviewed before replacing the baseline."
+  },
+  "capture": "Chromium front-standard PNG at a requested 80% effect intensity (diamond/crystal/galaxy use product caps), decoded to raw RGBA pixels",
+  "effects": {
+    "diamond": "308739b93d679b49d7ffccb2588d02aabc79a3e9d9a319300f1ae0f59aa7aabf",
+    "rainbow": "9d21847f09a71d541c84ae1aa73a839a5fde90bf4aa7d3ea5e4bcf0bac8bc935",
+    "crystal": "70df13f5a0787eaef6f255e94c45d3f676d70ee2f7bf5c865dedc6183a5c72a8",
+    "holographic": "9a31f581dfd1f5b764ea5c026b2c73053131357ca1fc3875e75128b093ca0ef7",
+    "laser": "3245d90a9d5c02dd55404d82459ba8060370ead8fc4ee8d64c440d789dcd60be",
+    "lightning": "38e1127f9a14b55c444c1b627691e6155291f26f72825be7d67350563b733776",
+    "flame": "0688a41ba4d419ecd82a8c755550f066da411c6637a63c73a6d3a6d13eb44fcd",
+    "galaxy": "641357a887c3419c25ebec776f8143750d83f3843935a786bfc2bb6413e081f9"
+  }
+}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a0a0f"><title>CardScope · Card Builder</title>
+  <link rel="icon" href="../assets/logo-concept-a.svg">
+  <link rel="stylesheet" href="../styles.css?v=33"><link rel="stylesheet" href="./scan.css">
+  <script type="importmap">{"imports":{"@card-builder/renderer":"../packages/renderer/src/index.js","three":"../assets/vendor/three/build/three.module.js","three/addons/":"../assets/vendor/three/examples/jsm/"}}</script>
+</head>
+<body class="scan-page">
+  <header class="scan-header"><a href="../" class="scan-brand"><img src="../assets/logo-concept-a.svg" alt="Card Builder" width="38" height="38"> CARD BUILDER</a><span>CARDSCOPE / PHASE A <i>LOCAL ONLY</i></span></header>
+  <main class="scan-shell">
+    <div class="scan-intro"><span class="scan-eyebrow">FROM YOUR HANDS. INTO YOUR COLLECTION.</span><h1>CARD SCAN <span>// DIGITIZE YOUR COLLECTION</span></h1><p>把手中的篮球卡，带入你的数字收藏。照片仅在此浏览器处理，资料由你填写核对。</p></div>
+    <ol class="scan-steps" aria-label="扫描步骤"><li aria-current="step"><b>01</b> 上传照片</li><li><b>02</b> 质量检查</li><li><b>03</b> 填写资料</li><li><b>04</b> 预览确认</li></ol>
+    <section class="scan-panel" data-step="1" aria-labelledby="step1-title"><div class="scan-section-title"><div><span>01 / CAPTURE</span><h2 id="step1-title" tabindex="-1">让收藏，有一个新的视角。</h2></div><p>JPG · PNG · WEBP<br>正面必填，建议宽度 ≥ 1000px</p></div><div class="scan-upload-grid" id="uploadGrid"></div><div class="scan-actions"><span>建议平放拍摄，避免强烈反光。</span><button class="btn-action btn-primary" id="toQuality" disabled>下一步 →</button></div></section>
+    <section class="scan-panel" data-step="2" hidden aria-labelledby="step2-title"><div class="scan-section-title"><div><span>02 / QUALITY</span><h2 id="step2-title" tabindex="-1">先看看照片的基础质量。</h2></div></div><div class="scan-quality-layout"><img id="qualityImage" alt="正面照片预览"><div><ul id="qualityList" class="scan-quality-list"></ul><p class="scan-muted">仅检查尺寸、文件大小和比例。未检测模糊、反光或卡牌真伪；黄色提示不影响继续。</p></div></div><div class="scan-actions"><button class="btn-action btn-secondary" data-back="1">← 返回上传</button><button class="btn-action btn-primary" id="toIdentity">继续填写 →</button></div></section>
+    <section class="scan-panel" data-step="3" hidden aria-labelledby="step3-title"><div class="scan-section-title"><div><span>03 / IDENTITY</span><h2 id="step3-title" tabindex="-1">由你确认，每一处细节。</h2></div><span class="scan-review">需要核对 / NEEDS REVIEW</span></div>
+      <form id="identityForm"><fieldset><legend>卡牌身份 / CARD IDENTITY</legend><div class="scan-form-grid">
+        <label class="scan-wide">球员姓名 *<input name="playerName" id="scanPlayer" required maxlength="80" list="players" autocomplete="off" placeholder="输入球员姓名，也可手动填写"><datalist id="players"></datalist></label>
+        <label>球队<input name="team" maxlength="80"></label><label>球队缩写<input name="teamAbbr" maxlength="8"></label>
+        <label>球衣号码<input name="jerseyNumber" maxlength="8"></label><label>位置<input name="position" maxlength="24"></label>
+        <label>品牌 / 系列<select name="brand" id="scanBrand"><option>Prizm</option><option>Select</option><option>Mosaic</option><option>Optic</option><option>Heritage</option><option>Tactical</option><option value="other">其他</option></select><input name="customBrand" aria-label="其他品牌" placeholder="输入品牌 / 系列" maxlength="80" hidden></label>
+        <label>年份<select name="year"><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option></select></label>
+        <label>卡号<input name="cardNumber" maxlength="32" placeholder="例如 123"></label><label>平行版<select name="parallel" id="scanParallel"><option>Base</option><option>Silver</option><option>Gold</option><option>Neon</option><option>RWB</option><option>Black</option><option value="other">其他</option></select><input name="customParallel" aria-label="其他平行版" maxlength="80" hidden></label>
+        <label class="scan-wide">序列号<input name="serialNumber" maxlength="32" placeholder="例如 07/25（与球衣号码、卡号分开保存）"></label>
+      </div></fieldset>
+      <fieldset id="gradeFields" hidden><legend>标签信息 / MANUAL TRANSCRIPTION</legend><p class="scan-muted">以下信息来自您对实体标签的手动转录，仅供参考。</p><div class="scan-form-grid"><label>机构<select name="gradeAgency"><option value="">暂不填写</option><option>PSA</option><option>BGS</option><option>SGC</option><option>CGC</option><option value="other">其他</option></select><input name="customAgency" aria-label="其他机构" maxlength="32" hidden></label><label>标签分数<input name="gradeScore" maxlength="16"></label><label class="scan-wide">证书编号<input name="certNumber" maxlength="80"></label></div></fieldset>
+      <div class="scan-actions"><button class="btn-action btn-secondary" type="button" data-back="2">← 返回检查</button><button class="btn-action btn-primary" type="submit" id="generateCard">生成卡牌 →</button></div></form>
+    </section>
+    <section class="scan-panel" data-step="4" hidden aria-labelledby="step4-title"><div class="scan-section-title"><div><span>04 / YOUR DIGITAL CARD</span><h2 id="step4-title" tabindex="-1">实物记忆，数字新生。</h2></div><span class="scan-review">需要核对 / NEEDS REVIEW</span></div>
+      <div class="scan-preview-grid"><figure><figcaption>01 / 原始照片 · 中央裁剪参考框</figcaption><div class="scan-original"><img id="originalImage" alt="原始正面照片"><div id="cropGuide" class="scan-crop-guide"></div></div><p class="scan-muted">参考框对应生成卡面的居中取景。</p></figure><figure><figcaption>02 / CARD BUILDER · 2D</figcaption><canvas id="cardPreview" width="600" height="840" aria-label="生成的数字卡牌"></canvas></figure></div>
+      <div class="scan-slab-heading"><span>03 / MAGNETIC · 3D SLAB</span><span id="threeStatus" role="status">准备预览</span></div><div id="scanThreeHost"><canvas id="scanThreeCanvas" aria-label="可旋转的 3D 卡牌"></canvas></div><div class="scan-3d-tools"><button class="btn-action btn-secondary" id="flipScan">翻面</button><button class="btn-action btn-secondary" id="resetScanView">重置视角</button><span>拖动旋转 · 滚轮 / 双指缩放</span></div>
+      <p id="scanSummary" class="scan-muted"></p><div class="scan-actions"><button class="btn-action btn-secondary" data-back="3">← 返回修改</button><div><button class="btn-action btn-secondary" id="editCard">编辑卡牌</button><button class="btn-action btn-primary" id="saveCard">保存到收藏</button></div></div><p id="savedMessage" role="status"></p>
+    </section>
+    <footer class="scan-footer"><a href="../">← 返回 Card Builder</a><p>本工具仅供个人收藏数字化。资料由用户手动填写并核对，仅供参考。</p></footer>
+  </main><div id="toast" class="toast" role="status" aria-live="polite"></div><script type="module" src="./scan.js"></script>
+</body></html>

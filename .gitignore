@@ -5,6 +5,8 @@ node_modules/
 !.env.example
 
 # Build & editor artifacts
+test-results/
+playwright-report/
 *.pem
 *.key
 *.p12
