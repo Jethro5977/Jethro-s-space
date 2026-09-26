@@ -347,4 +347,22 @@ hydrateShowcaseSignatureAsset();
 requestAnimationFrame(animate);
 initializeV6();
 
+// CardScope uses the same state setter and hydration path as project imports.
+function applyScannedCard(candidate) {
+  if (!candidate || candidate._scanSource !== true || !candidate.playerName || !isSafeDataImage(candidate.playerImg)) {
+    throw new Error("无效的扫描卡牌");
+  }
+  window.CardBuilder.loadFullState(candidate);
+  showToast("已从扫描导入卡牌，可继续编辑", "info");
+}
+try {
+  const pendingScan = sessionStorage.getItem("cardScanImport");
+  if (pendingScan) {
+    applyScannedCard(JSON.parse(pendingScan));
+    sessionStorage.removeItem("cardScanImport");
+  }
+} catch {
+  showToast("扫描导入失败，请返回扫描页重试", "error");
+}
+
 export { downloadProjectFile, importProjectFile, resetProject };

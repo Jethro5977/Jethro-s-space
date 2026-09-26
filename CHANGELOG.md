@@ -8,6 +8,10 @@
 
 ### 新增 / Added
 
+- 新增 CardScope 四步扫描页：本地上传篮球卡照片、尺寸/大小/比例提示、球员资料补全、手动标签转录、2D 与 MAGNETIC 3D 预览；沿用编辑器状态与个人库保存路径，所有扫描结果保持待核对。
+- EN: Added the four-step CardScope scan page with local basketball-card photos, size/resolution/aspect checks, player autocomplete, manual label transcription, and 2D/MAGNETIC 3D previews; reuses editor state and collection persistence while keeping results marked for review.
+- 新增 CardScanAdapter 与本地 MockScanService，支持带照片导入编辑器、保存收藏和重新加载；Phase A 不调用 AI 服务或上传图片。
+- EN: Added CardScanAdapter and a local MockScanService for photo-preserving editor imports, collection saves and reloads; Phase A neither calls AI services nor uploads images.
 - 接入 GitHub `catdad/canvas-confetti` 1.9.4（ISC，本地托管并保留许可与哈希），拆包采用银色碎片、霓虹星点、金色双向喷射和黑金星环；揭卡同步增加箔面扫光、稀有度/名称标签及完成进度
 - EN: Integrated GitHub's catdad/canvas-confetti 1.9.4 (ISC, locally hosted with license and hashes), adding silver tear fragments, neon stars, twin gold fans and black-label star rings; reveals also gain a foil glint, rarity/name captions and completion progress
 - 拆包新增全程关闭按钮、手机横向吸附浏览及动态 reduced-motion 响应；关闭、ESC 和重新开包统一取消粒子、浮尘、闪光及延迟回调，避免旧动画污染新一轮拆包

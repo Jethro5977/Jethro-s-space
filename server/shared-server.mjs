@@ -350,6 +350,7 @@ async function handleApi(req, res, url, pathname) {
 
 async function serveStatic(req, res, pathname) {
   if (pathname === "/") pathname = "/index.html";
+  if (pathname === "/scan/") pathname = "/scan/index.html";
 
   const filePath = path.join(PROJECT_ROOT, pathname);
   if (!filePath.startsWith(PROJECT_ROOT + path.sep) && filePath !== PROJECT_ROOT) {

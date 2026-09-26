@@ -259,6 +259,18 @@ async function offloadLibraryCardImages(card) {
     fullState[`${field}AssetId`] = assetId;
     fullState[field] = null;
   }
+  if (fullState._scanSource && fullState._scanResult?.sourceImages) {
+    fullState._scanResult = structuredClone(fullState._scanResult);
+    for (const [side, image] of Object.entries(fullState._scanResult.sourceImages)) {
+      if (!isSafeDataImage(image?.dataUrl)) continue;
+      const assetId = side === "front" && fullState.playerImgAssetId
+        ? fullState.playerImgAssetId : `${card.id}:scan:${side}`;
+      if (assetId !== fullState.playerImgAssetId) await writeLibraryImageAsset(assetId, image.dataUrl);
+      image.assetId = assetId;
+      delete image.dataUrl;
+      delete image.objectUrl;
+    }
+  }
   return { ...card, fullState };
 }
 
@@ -267,6 +279,14 @@ async function restoreLibraryCardImages(cardState) {
   for (const field of ["playerImg", "logoImg"]) {
     if (isSafeDataImage(cardState[field]) || !cardState[`${field}AssetId`]) continue;
     restored[field] = await readLibraryImageAsset(cardState[`${field}AssetId`]);
+  }
+  if (cardState._scanSource && cardState._scanResult?.sourceImages) {
+    restored._scanResult = structuredClone(cardState._scanResult);
+    for (const image of Object.values(restored._scanResult.sourceImages)) {
+      if (image?.assetId && !isSafeDataImage(image.dataUrl)) {
+        image.dataUrl = await readLibraryImageAsset(image.assetId);
+      }
+    }
   }
   return restored;
 }
@@ -325,7 +345,7 @@ async function saveToLibrary() {
     autoRotY: 0,
     flipped: false,
     viewScale: 1,
-    motionOn: true
+    motionOn: state._scanSource ? false : true
   }));
   let card = normalizeLibraryCard({
     id: generateCardId(),
@@ -356,6 +376,7 @@ async function saveToLibrary() {
   updateBackgroundMosaic();
   announceAchievements(unlocks);
   showToast(`${state.playerName} 已保存到卡牌库`, "success");
+  return card;
 }
 
 
@@ -874,7 +895,7 @@ function updateLibraryDrawer() {
       <button class="library-card-open" type="button" data-load-id="${escapeHtml(card.id)}" aria-label="加载 ${escapeHtml(card.name)}"></button>
       <button class="library-card-fav ${card.favorite ? "is-fav" : ""}" type="button" data-fav-id="${escapeHtml(card.id)}" title="${card.favorite ? "取消收藏" : "加入收藏"}" aria-label="${card.favorite ? "取消收藏" : "加入收藏"}">&#9733;</button>
       <div class="library-card-actions"><button class="library-card-action" type="button" data-delete-id="${escapeHtml(card.id)}" title="删除卡片" aria-label="删除 ${escapeHtml(card.name)}">&#215;</button></div>
-      <div class="library-card-info"><div class="library-card-name">${escapeHtml(card.name)}</div><div class="library-card-meta">${escapeHtml(card.team)} / ${escapeHtml(RARITY_META[card.rarity]?.name || card.rarity)}</div></div>
+      <div class="library-card-info"><div class="library-card-name">${card.fullState._scanSource ? '<span title="来自本地扫描">📷 </span>' : ''}${escapeHtml(card.name)}</div><div class="library-card-meta">${escapeHtml(card.team)} / ${escapeHtml(RARITY_META[card.rarity]?.name || card.rarity)}</div></div>
     </article>
   `).join("");
   requestAnimationFrame(() => {
@@ -1263,6 +1284,7 @@ app.initializeV6 = initializeV6;
 app.bindV6Events = bindV6Events;
 
 export {
+  saveToLibrary,
   loadLibrary, normalizeLibraryCard, createLibraryPlaceholder,
   openLibraryAssetDatabase, exportLibrary, importLibrary,
   openLibraryDrawer, closeLibraryDrawer, updateLibraryDrawer,
